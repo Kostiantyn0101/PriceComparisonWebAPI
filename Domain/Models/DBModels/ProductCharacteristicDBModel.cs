@@ -12,7 +12,7 @@ namespace Domain.Models.DBModels
         public int CharacteristicId { get; set; }
         public virtual CharacteristicDBModel Characteristic { get; set; }
 
-        public string ValueText { get; set; }
+        public string? ValueText { get; set; }
         public decimal? ValueNumber { get; set; }
         public bool? ValueBoolean { get; set; }
         public DateTime? ValueDate { get; set; }
