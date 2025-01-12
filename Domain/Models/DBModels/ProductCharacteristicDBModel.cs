@@ -1,19 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
-namespace Domain.Models.Entities
+namespace Domain.Models.DBModels
 {
-    public class ProductCharacteristic
+    public class ProductCharacteristicDBModel
     {
-        public int Id { get; set; }
-
         [Required]
         public int ProductId { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual ProductDBModel Product { get; set; }
 
         [Required]
         public int CharacteristicId { get; set; }
-        public virtual Characteristic Characteristic { get; set; }
+        public virtual CharacteristicDBModel Characteristic { get; set; }
 
         public string ValueText { get; set; }
         public decimal? ValueNumber { get; set; }
