@@ -5,7 +5,7 @@ namespace DLL.Context
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Characteristic> Characteristics { get; set; }
@@ -100,6 +100,9 @@ namespace DLL.Context
                 .HasOne(rc => rc.RelatedCategoryItem)
                 .WithMany()
                 .HasForeignKey(rc => rc.RelatedCategoryId);
+
+            modelBuilder.Entity<Price>()
+                .HasKey(p => new { p.ProductId, p.SellerId });
 
             modelBuilder.Entity<Price>()
                 .HasOne(pr => pr.Product)

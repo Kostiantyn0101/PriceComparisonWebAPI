@@ -5,8 +5,6 @@ namespace Domain.Models.Entities
 {
     public class CategoryCharacteristic
     {
-        public int Id { get; set; }
-
         [Required]
         public int CategoryId { get; set; }
         public virtual Category Category { get; set; }

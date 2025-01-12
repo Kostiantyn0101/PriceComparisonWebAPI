@@ -15,8 +15,6 @@ namespace Domain.Models.Entities
         public string ImageUrl { get; set; }
 
         public int? ParentCategoryId { get; set; }
-
-        [ForeignKey("ParentCategoryId")]
         public virtual Category ParentCategory { get; set; }
 
         public virtual ICollection<Category> Subcategories { get; set; }
