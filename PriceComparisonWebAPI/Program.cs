@@ -1,4 +1,9 @@
+using PriceComparisonWebAPI.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var configureService = new ConfigurationService(builder);
+configureService.ConfigureService();
 
 // Add services to the container.
 
