@@ -1,4 +1,6 @@
-﻿using DLL.Context;
+﻿using BLL.Services;
+using DLL.Context;
+using DLL.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Infrastructure
@@ -20,6 +22,9 @@ namespace PriceComparisonWebAPI.Infrastructure
                 var connectionString = builder.Configuration["ConnectionStrings:PriceComparisonDB"];
 
                 builder.Services.AddDbContext<AppDbContext>(op => op.UseSqlServer(connectionString));
+
+                builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+                builder.Services.AddScoped<ICategoryService, CategoryService>();
 
             }
             catch (Exception ex) {
