@@ -9,10 +9,10 @@ namespace Domain.Models.DBModels
         [Required]
         public string Title { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
         public int? ParentCategoryId { get; set; }
-        public virtual CategoryDBModel ParentCategory { get; set; }
+        public virtual CategoryDBModel? ParentCategory { get; set; }
 
         public virtual ICollection<CategoryDBModel> Subcategories { get; set; }
         public virtual ICollection<CategoryCharacteristicDBModel> CategoryCharacteristics { get; set; }

@@ -12,7 +12,7 @@ namespace Domain.Models.DBModels
         [Required]
         public string DataType { get; set; }
 
-        public string Unit { get; set; }
+        public string? Unit { get; set; }
 
         public virtual ICollection<CategoryCharacteristicDBModel> CategoryCharacteristics { get; set; }
         public virtual ICollection<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
