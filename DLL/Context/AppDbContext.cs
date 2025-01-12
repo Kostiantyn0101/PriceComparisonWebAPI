@@ -130,7 +130,7 @@ namespace DLL.Context
                     .HasColumnType("decimal(18,2)");
 
                 entity.HasOne(pr => pr.Product)
-                    .WithMany()
+                    .WithMany(p => p.PricesHistory)
                     .HasForeignKey(pr => pr.ProductId);
 
                 entity.HasOne(pr => pr.Seller)
@@ -161,7 +161,7 @@ namespace DLL.Context
                     .HasForeignKey(pc => pc.CharacteristicId);
 
                 entity.Property(e => e.ValueNumber)
-                    .HasColumnType("decimal(18, 2)");   
+                    .HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<ProductImageDBModel>(entity =>
