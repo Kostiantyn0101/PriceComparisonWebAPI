@@ -26,6 +26,7 @@ namespace Domain.Models.Entities
         public string PasswordHash { get; set; }
 
         public virtual ICollection<Seller> Sellers { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
     }
 
 }

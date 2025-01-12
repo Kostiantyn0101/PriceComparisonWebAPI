@@ -9,6 +9,7 @@ namespace Domain.Models.Entities
 
         [Required]
         public int UserId { get; set; }
+        public virtual User User { get; set; }
 
         [Required]
         public int ProductId { get; set; }

@@ -23,6 +23,9 @@ namespace Domain.Models.Entities
 
         [Required]
         public bool IsActive { get; set; }
+        public virtual ICollection<Price> Prices { get; set; }
+        public virtual ICollection<PriceHistory> PriceHistories { get; set; }
+
     }
 
 }

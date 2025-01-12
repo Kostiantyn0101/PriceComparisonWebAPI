@@ -13,6 +13,7 @@ namespace Domain.Models.Entities
 
         [Required]
         public int SellerId { get; set; }
+        public virtual Seller Seller { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]

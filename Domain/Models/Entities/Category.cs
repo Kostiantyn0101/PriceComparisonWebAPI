@@ -22,5 +22,6 @@ namespace Domain.Models.Entities
         public virtual ICollection<Category> Subcategories { get; set; }
         public virtual ICollection<CategoryCharacteristic> CategoryCharacteristics { get; set; }
         public virtual ICollection<RelatedCategory> RelatedCategories { get; set; }
+        public virtual ICollection<Product> Products { get; set; }
     }
 }
