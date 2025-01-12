@@ -1,4 +1,4 @@
-﻿using Domain.Models.Entities;
+﻿using Domain.Models.DBModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace DLL.Context
@@ -7,145 +7,261 @@ namespace DLL.Context
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Characteristic> Characteristics { get; set; }
-        public DbSet<CategoryCharacteristic> CategoryCharacteristics { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<ProductImage> ProductImages { get; set; }
-        public DbSet<Feedback> Feedbacks { get; set; }
-        public DbSet<FeedbackImage> FeedbackImages { get; set; }
-        public DbSet<ProductVideo> ProductVideos { get; set; }
-        public DbSet<Review> Reviews { get; set; }
-        public DbSet<Instruction> Instructions { get; set; }
-        public DbSet<RelatedCategory> RelatedCategories { get; set; }
-        public DbSet<Price> Prices { get; set; }
-        public DbSet<PriceHistory> PricesHistory { get; set; }
-        public DbSet<ProductCharacteristic> ProductCharacteristics { get; set; }
-        public DbSet<Seller> Sellers { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
+        public DbSet<CategoryDBModel> Categories { get; set; }
+        public DbSet<CharacteristicDBModel> Characteristics { get; set; }
+        public DbSet<CategoryCharacteristicDBModel> CategoryCharacteristics { get; set; }
+        public DbSet<ProductDBModel> Products { get; set; }
+        public DbSet<ProductImageDBModel> ProductImages { get; set; }
+        public DbSet<FeedbackDBModel> Feedbacks { get; set; }
+        public DbSet<FeedbackImageDBModel> FeedbackImages { get; set; }
+        public DbSet<ProductVideoDBModel> ProductVideos { get; set; }
+        public DbSet<ReviewDBModel> Reviews { get; set; }
+        public DbSet<InstructionDBModel> Instructions { get; set; }
+        public DbSet<RelatedCategoryDBModel> RelatedCategories { get; set; }
+        public DbSet<PriceDBModel> Prices { get; set; }
+        public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
+        public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
+        public DbSet<SellerDBModel> Sellers { get; set; }
+        public DbSet<UserDBModel> Users { get; set; }
+        public DbSet<RoleDBModel> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Category>()
-                .HasOne(c => c.ParentCategory)
-                .WithMany(c => c.Subcategories)
-                .HasForeignKey(c => c.ParentCategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<CategoryDBModel>(entity =>
+            {
+                entity.Property(c => c.Title)
+                    .HasMaxLength(255);
 
-            modelBuilder.Entity<CategoryCharacteristic>()
-                .HasKey(cc => new { cc.CategoryId, cc.CharacteristicId });
+                entity.Property(c => c.ImageUrl)
+                    .HasMaxLength(2083);
 
-            modelBuilder.Entity<CategoryCharacteristic>()
-                .HasOne(cc => cc.Category)
-                .WithMany(c => c.CategoryCharacteristics)
-                .HasForeignKey(cc => cc.CategoryId);
+                entity.HasOne(c => c.ParentCategory)
+                    .WithMany(c => c.Subcategories)
+                    .HasForeignKey(c => c.ParentCategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
-            modelBuilder.Entity<CategoryCharacteristic>()
-                .HasOne(cc => cc.Characteristic)
-                .WithMany(ch => ch.CategoryCharacteristics)
-                .HasForeignKey(cc => cc.CharacteristicId);
+            modelBuilder.Entity<CategoryCharacteristicDBModel>(entity =>
+            {
+                entity.HasKey(cc => new { cc.CategoryId, cc.CharacteristicId });
 
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Category)
-                .WithMany(c => c.Products)
-                .HasForeignKey(p => p.CategoryId);
+                entity.HasOne(cc => cc.Category)
+                    .WithMany(c => c.CategoryCharacteristics)
+                    .HasForeignKey(cc => cc.CategoryId);
 
-            modelBuilder.Entity<ProductImage>()
-                .HasOne(pi => pi.Product)
-                .WithMany(p => p.ProductImages)
-                .HasForeignKey(pi => pi.ProductId);
+                entity.HasOne(cc => cc.Characteristic)
+                    .WithMany(ch => ch.CategoryCharacteristics)
+                    .HasForeignKey(cc => cc.CharacteristicId);
+            });
 
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.Product)
-                .WithMany(p => p.Feedbacks)
-                .HasForeignKey(f => f.ProductId);
+            modelBuilder.Entity<CharacteristicDBModel>(entity =>
+            {
+                entity.Property(c => c.Title)
+                    .HasMaxLength(255);
 
-            modelBuilder.Entity<Feedback>()
-                .HasOne(f => f.User)
-                .WithMany(u => u.Feedbacks)
-                .HasForeignKey(f => f.UserId);
+                entity.Property(c => c.DataType)
+                    .HasMaxLength(50);
 
-            modelBuilder.Entity<FeedbackImage>()
-                .HasOne(fi => fi.Feedback)
-                .WithMany(f => f.FeedbackImages)
-                .HasForeignKey(fi => fi.FeedbackId);
+                entity.Property(c => c.Unit)
+                    .HasMaxLength(50); 
 
-            modelBuilder.Entity<ProductVideo>()
-                .HasOne(pv => pv.Product)
-                .WithMany(p => p.ProductVideos)
-                .HasForeignKey(pv => pv.ProductId);
+                entity.HasMany(c => c.CategoryCharacteristics)
+                    .WithOne(cc => cc.Characteristic)
+                    .HasForeignKey(cc => cc.CharacteristicId);
 
-            modelBuilder.Entity<Review>()
-                .HasOne(r => r.Product)
-                .WithMany(p => p.Reviews)
-                .HasForeignKey(r => r.ProductId);
+                entity.HasMany(c => c.ProductCharacteristics)
+                    .WithOne(pc => pc.Characteristic)
+                    .HasForeignKey(pc => pc.CharacteristicId);
+            });
 
-            modelBuilder.Entity<Instruction>()
-                .HasOne(i => i.Product)
-                .WithMany(p => p.Instructions)
-                .HasForeignKey(i => i.ProductId);
 
-            modelBuilder.Entity<RelatedCategory>()
-                .HasKey(rc => new { rc.CategoryId, rc.RelatedCategoryId });
+            modelBuilder.Entity<FeedbackDBModel>(entity =>
+            {
+                entity.HasOne(f => f.Product)
+                    .WithMany(p => p.Feedbacks)
+                    .HasForeignKey(f => f.ProductId);
 
-            modelBuilder.Entity<RelatedCategory>()
-                .HasOne(rc => rc.Category)
-                .WithMany(c => c.RelatedCategories)
-                .HasForeignKey(rc => rc.CategoryId);
+                entity.HasOne(f => f.User)
+                    .WithMany(u => u.Feedbacks)
+                    .HasForeignKey(f => f.UserId);
+            });
 
-            modelBuilder.Entity<RelatedCategory>()
-                .HasOne(rc => rc.RelatedCategoryItem)
-                .WithMany()
-                .HasForeignKey(rc => rc.RelatedCategoryId);
+            modelBuilder.Entity<FeedbackImageDBModel>(entity =>
+            {
+                entity.Property(fi => fi.ImageUrl)
+                    .HasMaxLength(2083); 
 
-            modelBuilder.Entity<Price>()
-                .HasKey(p => new { p.ProductId, p.SellerId });
+                entity.HasOne(fi => fi.Feedback)
+                    .WithMany(f => f.FeedbackImages)
+                    .HasForeignKey(fi => fi.FeedbackId);
+            });
 
-            modelBuilder.Entity<Price>()
-                .HasOne(pr => pr.Product)
-                .WithMany(p => p.Prices)
-                .HasForeignKey(pr => pr.ProductId);
+            modelBuilder.Entity<InstructionDBModel>(entity =>
+            {
+                entity.Property(fi => fi.InstructionUrl)
+                    .HasMaxLength(2083);
 
-            modelBuilder.Entity<Price>()
-                .HasOne(pr => pr.Seller)
-                .WithMany(s => s.Prices)
-                .HasForeignKey(pr => pr.SellerId);
+                entity.HasOne(fi => fi.Product)
+                    .WithMany(f => f.Instructions)
+                    .HasForeignKey(fi => fi.ProductId);
+            });
 
-            modelBuilder.Entity<PriceHistory>()
-                .HasOne(ph => ph.Product)
-                .WithMany()
-                .HasForeignKey(ph => ph.ProductId);
+            modelBuilder.Entity<PriceDBModel>(entity =>
+            {
+                entity.HasKey(p => new { p.ProductId, p.SellerId });
 
-            modelBuilder.Entity<PriceHistory>()
-                .HasOne(ph => ph.Seller)
-                .WithMany()
-                .HasForeignKey(ph => ph.SellerId);
+                entity.Property(pr => pr.PriceValue)
+                    .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<ProductCharacteristic>()
-                .HasKey(pc => new { pc.ProductId, pc.CharacteristicId });
+                entity.HasOne(pr => pr.Product)
+                    .WithMany(p => p.Prices)
+                    .HasForeignKey(pr => pr.ProductId);
 
-            modelBuilder.Entity<ProductCharacteristic>()
-                .HasOne(pc => pc.Product)
-                .WithMany(p => p.ProductCharacteristics)
-                .HasForeignKey(pc => pc.ProductId);
+                entity.HasOne(pr => pr.Seller)
+                    .WithMany(s => s.Prices)
+                    .HasForeignKey(pr => pr.SellerId);
+            });
 
-            modelBuilder.Entity<ProductCharacteristic>()
-                .HasOne(pc => pc.Characteristic)
-                .WithMany(ch => ch.ProductCharacteristics)
-                .HasForeignKey(pc => pc.CharacteristicId);
+            modelBuilder.Entity<PriceHistoryDBModel>(entity =>
+            {
+                entity.Property(pr => pr.PriceValue)
+                    .HasColumnType("decimal(18,2)");
 
-            modelBuilder.Entity<Seller>()
-                .HasOne(s => s.User)
-                .WithMany(u => u.Sellers)
-                .HasForeignKey(s => s.UserId);
+                entity.HasOne(pr => pr.Product)
+                    .WithMany()
+                    .HasForeignKey(pr => pr.ProductId);
 
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Role)
-                .WithMany(r => r.Users)
-                .HasForeignKey(u => u.RoleId);
+                entity.HasOne(pr => pr.Seller)
+                    .WithMany()
+                    .HasForeignKey(pr => pr.SellerId);
+            });
+
+            modelBuilder.Entity<ProductDBModel>(entity =>
+            {
+                entity.Property(p => p.Title)
+                    .HasMaxLength(255);
+
+                entity.HasOne(p => p.Category)
+                    .WithMany(c => c.Products)
+                    .HasForeignKey(p => p.CategoryId);
+            });
+
+            modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
+            {
+                entity.HasKey(pc => new { pc.ProductId, pc.CharacteristicId });
+
+                entity.HasOne(pc => pc.Product)
+                    .WithMany(p => p.ProductCharacteristics)
+                    .HasForeignKey(pc => pc.ProductId);
+
+                entity.HasOne(pc => pc.Characteristic)
+                    .WithMany(ch => ch.ProductCharacteristics)
+                    .HasForeignKey(pc => pc.CharacteristicId);
+            });
+
+            modelBuilder.Entity<ProductImageDBModel>(entity =>
+            {
+                entity.Property(p => p.ImageUrl)
+                    .HasMaxLength(2083);
+
+                entity.HasOne(p => p.Product)
+                    .WithMany(c => c.ProductImages)
+                    .HasForeignKey(p => p.ProductId);
+            });
+
+
+            modelBuilder.Entity<ProductVideoDBModel>(entity =>
+            {
+                entity.Property(p => p.VideoUrl)
+                    .HasMaxLength(2083);
+
+                entity.HasOne(p => p.Product)
+                    .WithMany(c => c.ProductVideos)
+                    .HasForeignKey(p => p.ProductId);
+            });
+
+            modelBuilder.Entity<RelatedCategoryDBModel>(entity =>
+            {
+                entity.HasKey(rc => new { rc.CategoryId, rc.RelatedCategoryId });
+
+                entity.HasOne(rc => rc.Category)
+                    .WithMany(c => c.RelatedCategories)
+                    .HasForeignKey(rc => rc.CategoryId);
+
+                entity.HasOne(rc => rc.RelatedCategoryItem)
+                    .WithMany()
+                    .HasForeignKey(rc => rc.RelatedCategoryId);
+            });
+
+            modelBuilder.Entity<ReviewDBModel>(entity =>
+            {
+                entity.Property(p => p.ReviewUrl)
+                    .HasMaxLength(2083);
+
+                entity.HasOne(p => p.Product)
+                    .WithMany(c => c.Reviews)
+                    .HasForeignKey(p => p.ProductId);
+            });
+
+            modelBuilder.Entity<RoleDBModel>(entity =>
+            {
+                entity.Property(r => r.Title)
+                    .HasMaxLength(50);
+
+                entity.HasMany(r => r.Users)
+                    .WithOne(u => u.Role)
+                    .HasForeignKey(u => u.RoleId);
+            });
+
+            modelBuilder.Entity<SellerDBModel>(entity =>
+            {
+                entity.Property(s => s.ApiKey)
+                    .HasMaxLength(255);
+
+                entity.Property(s => s.LogoImageUrl)
+                    .HasMaxLength(2083);
+
+                entity.Property(s => s.WebsiteUrl)
+                    .HasMaxLength(2083);
+
+                entity.HasOne(s => s.User)
+                    .WithMany(u => u.Sellers)
+                    .HasForeignKey(s => s.UserId);
+
+                entity.HasMany(s => s.Prices)
+                    .WithOne(p => p.Seller)
+                    .HasForeignKey(p => p.SellerId);
+
+                entity.HasMany(s => s.PriceHistories)
+                    .WithOne(ph => ph.Seller)
+                    .HasForeignKey(ph => ph.SellerId);
+            });
+
+            modelBuilder.Entity<UserDBModel>(entity =>
+            {
+                entity.Property(u => u.Name)
+                    .HasMaxLength(255);
+
+                entity.Property(u => u.Email)
+                    .HasMaxLength(255);
+
+                entity.Property(u => u.PasswordHash)
+                    .HasMaxLength(255);
+
+                entity.HasOne(u => u.Role)
+                    .WithMany(r => r.Users)
+                    .HasForeignKey(u => u.RoleId);
+
+                entity.HasMany(u => u.Sellers)
+                    .WithOne(s => s.User)
+                    .HasForeignKey(s => s.UserId);
+
+                entity.HasMany(u => u.Feedbacks)
+                    .WithOne(f => f.User)
+                    .HasForeignKey(f => f.UserId);
+            });
         }
 
     }

@@ -1,19 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-
-namespace Domain.Models.Entities
+namespace Domain.Models.DBModels
 {
-    public class Feedback
+    public class FeedbackDBModel
     {
         public int Id { get; set; }
 
         [Required]
         public int UserId { get; set; }
-        public virtual User User { get; set; }
+        public virtual UserDBModel User { get; set; }
 
         [Required]
         public int ProductId { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual ProductDBModel Product { get; set; }
 
         [Required]
         public string FeedbackText { get; set; }
@@ -25,7 +24,7 @@ namespace Domain.Models.Entities
         [Range(1, 5)]
         public int Rating { get; set; }
 
-        public virtual ICollection<FeedbackImage> FeedbackImages { get; set; }
+        public virtual ICollection<FeedbackImageDBModel> FeedbackImages { get; set; }
     }
 
 }

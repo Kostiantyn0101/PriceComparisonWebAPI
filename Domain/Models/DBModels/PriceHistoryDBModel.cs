@@ -1,22 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Models.Entities
+namespace Domain.Models.DBModels
 {
-    public class PriceHistory
+    public class PriceHistoryDBModel
     {
         public int Id { get; set; }
 
         [Required]
         public int ProductId { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual ProductDBModel Product { get; set; }
 
         [Required]
         public int SellerId { get; set; }
-        public virtual Seller Seller { get; set; }
+        public virtual SellerDBModel Seller { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(18,2)")]
         public decimal PriceValue { get; set; }
 
         [Required]

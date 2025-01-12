@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Models.Entities
+namespace Domain.Models.DBModels
 {
-    public class Instruction
+    public class InstructionDBModel
     {
         public int Id { get; set; }
 
         [Required]
         public int ProductId { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual ProductDBModel Product { get; set; }
 
         [Required]
-        [MaxLength(2083)]
         public string InstructionUrl { get; set; }
     }
 }

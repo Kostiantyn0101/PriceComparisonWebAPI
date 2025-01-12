@@ -1,15 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Models.Entities
+namespace Domain.Models.DBModels
 {
-    public class Role
+    public class RoleDBModel
     {
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(50)]
         public string Title { get; set; }
 
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<UserDBModel> Users { get; set; }
     }
 }

@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Models.Entities
+namespace Domain.Models.DBModels
 {
-    public class FeedbackImage
+    public class FeedbackImageDBModel
     {
         public int Id { get; set; }
 
         [Required]
         public int FeedbackId { get; set; }
-        public virtual Feedback Feedback { get; set; }
+        public virtual FeedbackDBModel Feedback { get; set; }
 
         [Required]
-        [MaxLength(2083)]
         public string ImageUrl { get; set; }
     }
 }
