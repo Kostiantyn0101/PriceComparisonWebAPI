@@ -65,7 +65,7 @@ namespace DLL.Context
                     .HasMaxLength(50);
 
                 entity.Property(c => c.Unit)
-                    .HasMaxLength(50); 
+                    .HasMaxLength(50);
 
                 entity.HasMany(c => c.CategoryCharacteristics)
                     .WithOne(cc => cc.Characteristic)
@@ -91,7 +91,7 @@ namespace DLL.Context
             modelBuilder.Entity<FeedbackImageDBModel>(entity =>
             {
                 entity.Property(fi => fi.ImageUrl)
-                    .HasMaxLength(2083); 
+                    .HasMaxLength(2083);
 
                 entity.HasOne(fi => fi.Feedback)
                     .WithMany(f => f.FeedbackImages)
@@ -159,6 +159,9 @@ namespace DLL.Context
                 entity.HasOne(pc => pc.Characteristic)
                     .WithMany(ch => ch.ProductCharacteristics)
                     .HasForeignKey(pc => pc.CharacteristicId);
+
+                entity.Property(e => e.ValueNumber)
+                    .HasColumnType("decimal(18, 2)");   
             });
 
             modelBuilder.Entity<ProductImageDBModel>(entity =>
@@ -192,7 +195,9 @@ namespace DLL.Context
 
                 entity.HasOne(rc => rc.RelatedCategoryItem)
                     .WithMany()
-                    .HasForeignKey(rc => rc.RelatedCategoryId);
+                    .HasForeignKey(rc => rc.RelatedCategoryId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
             });
 
             modelBuilder.Entity<ReviewDBModel>(entity =>
