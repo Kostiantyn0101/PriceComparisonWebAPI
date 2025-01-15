@@ -33,6 +33,7 @@ namespace DLL.Context
             modelBuilder.Entity<CategoryDBModel>(entity =>
             {
                 entity.Property(c => c.Title)
+                    .IsRequired()
                     .HasMaxLength(255);
 
                 entity.Property(c => c.ImageUrl)
@@ -44,6 +45,7 @@ namespace DLL.Context
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // Settings for the CategoryCharacteristicDBModel
             modelBuilder.Entity<CategoryCharacteristicDBModel>(entity =>
             {
                 entity.HasKey(cc => new { cc.CategoryId, cc.CharacteristicId });
@@ -57,12 +59,15 @@ namespace DLL.Context
                     .HasForeignKey(cc => cc.CharacteristicId);
             });
 
+            // Settings for the CharacteristicDBModel
             modelBuilder.Entity<CharacteristicDBModel>(entity =>
             {
                 entity.Property(c => c.Title)
+                    .IsRequired()
                     .HasMaxLength(255);
 
                 entity.Property(c => c.DataType)
+                    .IsRequired()
                     .HasMaxLength(50);
 
                 entity.Property(c => c.Unit)
@@ -77,7 +82,7 @@ namespace DLL.Context
                     .HasForeignKey(pc => pc.CharacteristicId);
             });
 
-
+            // Settings for the FeedbackDBModel
             modelBuilder.Entity<FeedbackDBModel>(entity =>
             {
                 entity.HasOne(f => f.Product)
@@ -87,11 +92,26 @@ namespace DLL.Context
                 entity.HasOne(f => f.User)
                     .WithMany(u => u.Feedbacks)
                     .HasForeignKey(f => f.UserId);
+
+                entity.Property(f => f.FeedbackText)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+
+                entity.Property(f => f.CreatedAt)
+                    .IsRequired();
+
+                entity.Property(f => f.Rating)
+                    .IsRequired()
+                    .HasColumnType("int");
+
+                entity.ToTable(t => t.HasCheckConstraint("CK_Rating_Range", "[Rating] BETWEEN 1 AND 5"));
             });
 
+            // Settings for the FeedbackImageDBModel
             modelBuilder.Entity<FeedbackImageDBModel>(entity =>
             {
                 entity.Property(fi => fi.ImageUrl)
+                    .IsRequired()
                     .HasMaxLength(2083);
 
                 entity.HasOne(fi => fi.Feedback)
@@ -99,9 +119,11 @@ namespace DLL.Context
                     .HasForeignKey(fi => fi.FeedbackId);
             });
 
+            // Settings for the InstructionDBModel
             modelBuilder.Entity<InstructionDBModel>(entity =>
             {
                 entity.Property(fi => fi.InstructionUrl)
+                    .IsRequired()
                     .HasMaxLength(2083);
 
                 entity.HasOne(fi => fi.Product)
@@ -109,12 +131,17 @@ namespace DLL.Context
                     .HasForeignKey(fi => fi.ProductId);
             });
 
+            // Settings for the PriceDBModel
             modelBuilder.Entity<PriceDBModel>(entity =>
             {
                 entity.HasKey(p => new { p.ProductId, p.SellerId });
 
                 entity.Property(pr => pr.PriceValue)
+                    .IsRequired()
                     .HasColumnType("decimal(18,2)");
+
+                entity.Property(pr => pr.LastUpdated)
+                    .IsRequired();
 
                 entity.HasOne(pr => pr.Product)
                     .WithMany(p => p.Prices)
@@ -125,10 +152,15 @@ namespace DLL.Context
                     .HasForeignKey(pr => pr.SellerId);
             });
 
+            // Settings for the PriceHistoryDBModel
             modelBuilder.Entity<PriceHistoryDBModel>(entity =>
             {
                 entity.Property(pr => pr.PriceValue)
+                    .IsRequired()
                     .HasColumnType("decimal(18,2)");
+
+                entity.Property(pr => pr.CreatedAt)
+                    .IsRequired();
 
                 entity.HasOne(pr => pr.Product)
                     .WithMany(p => p.PricesHistory)
@@ -139,17 +171,20 @@ namespace DLL.Context
                     .HasForeignKey(pr => pr.SellerId);
             });
 
+            // Settings for the ProductDBModel
             modelBuilder.Entity<ProductDBModel>(entity =>
             {
                 entity.Property(p => p.Title)
+                    .IsRequired()
                     .HasMaxLength(255);
 
                 entity.HasOne(p => p.Category)
                     .WithMany(c => c.Products)
                     .HasForeignKey(p => p.CategoryId)
-                    ;
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // Settings for the ProductCharacteristicDBModel
             modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
             {
                 entity.HasKey(pc => new { pc.ProductId, pc.CharacteristicId });
@@ -166,9 +201,11 @@ namespace DLL.Context
                     .HasColumnType("decimal(18, 2)");
             });
 
+            // Settings for the ProductImageDBModel
             modelBuilder.Entity<ProductImageDBModel>(entity =>
             {
                 entity.Property(p => p.ImageUrl)
+                    .IsRequired()
                     .HasMaxLength(2083);
 
                 entity.HasOne(p => p.Product)
@@ -176,10 +213,11 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
-
+            // Settings for the ProductVideoDBModel
             modelBuilder.Entity<ProductVideoDBModel>(entity =>
             {
                 entity.Property(p => p.VideoUrl)
+                    .IsRequired()
                     .HasMaxLength(2083);
 
                 entity.HasOne(p => p.Product)
@@ -187,6 +225,7 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
+            // Settings for the RelatedCategoryDBModel
             modelBuilder.Entity<RelatedCategoryDBModel>(entity =>
             {
                 entity.HasKey(rc => new { rc.CategoryId, rc.RelatedCategoryId });
@@ -202,9 +241,11 @@ namespace DLL.Context
 
             });
 
+            // Settings for the ReviewDBModel
             modelBuilder.Entity<ReviewDBModel>(entity =>
             {
                 entity.Property(p => p.ReviewUrl)
+                    .IsRequired()
                     .HasMaxLength(2083);
 
                 entity.HasOne(p => p.Product)
@@ -212,9 +253,11 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
+            // Settings for the RoleDBModel
             modelBuilder.Entity<RoleDBModel>(entity =>
             {
                 entity.Property(r => r.Title)
+                    .IsRequired()
                     .HasMaxLength(50);
 
                 entity.HasMany(r => r.Users)
@@ -222,9 +265,11 @@ namespace DLL.Context
                     .HasForeignKey(u => u.RoleId);
             });
 
+            // Settings for the SellerDBModel
             modelBuilder.Entity<SellerDBModel>(entity =>
             {
                 entity.Property(s => s.ApiKey)
+                    .IsRequired()
                     .HasMaxLength(255);
 
                 entity.Property(s => s.LogoImageUrl)
@@ -246,15 +291,20 @@ namespace DLL.Context
                     .HasForeignKey(ph => ph.SellerId);
             });
 
+            // Settings for the UserDBModel
             modelBuilder.Entity<UserDBModel>(entity =>
             {
                 entity.Property(u => u.Name)
+                    .IsRequired()
                     .HasMaxLength(255);
 
                 entity.Property(u => u.Email)
-                    .HasMaxLength(255);
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasAnnotation("Email", "EmailAddress");
 
                 entity.Property(u => u.PasswordHash)
+                    .IsRequired()
                     .HasMaxLength(255);
 
                 entity.HasOne(u => u.Role)
