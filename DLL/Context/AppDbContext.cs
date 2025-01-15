@@ -29,6 +29,7 @@ namespace DLL.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            // Settings for the CategoryDBModel
             modelBuilder.Entity<CategoryDBModel>(entity =>
             {
                 entity.Property(c => c.Title)
@@ -145,7 +146,8 @@ namespace DLL.Context
 
                 entity.HasOne(p => p.Category)
                     .WithMany(c => c.Products)
-                    .HasForeignKey(p => p.CategoryId);
+                    .HasForeignKey(p => p.CategoryId)
+                    ;
             });
 
             modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
