@@ -1,15 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Domain.Models.DBModels
+﻿namespace Domain.Models.DBModels
 {
     public class CategoryCharacteristicDBModel
     {
-        [Required]
         public int CategoryId { get; set; }
-        public virtual CategoryDBModel Category { get; set; }
+        public CategoryDBModel Category { get; set; }
 
-        [Required]
         public int CharacteristicId { get; set; }
-        public virtual CharacteristicDBModel Characteristic { get; set; }
+        public CharacteristicDBModel Characteristic { get; set; }
     }
 }
