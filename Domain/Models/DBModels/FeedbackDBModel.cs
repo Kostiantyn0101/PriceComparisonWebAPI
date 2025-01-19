@@ -8,7 +8,7 @@ namespace Domain.Models.DBModels
 
         [Required]
         public int UserId { get; set; }
-        public virtual UserDBModel User { get; set; }
+        public UserDBModel User { get; set; }
 
         [Required]
         public int ProductId { get; set; }
