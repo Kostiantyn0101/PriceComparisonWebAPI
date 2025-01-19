@@ -1,6 +1,7 @@
 ﻿using BLL.Services;
 using DLL.Context;
 using DLL.Repository;
+using Domain.Models.DBModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Infrastructure
@@ -23,7 +24,7 @@ namespace PriceComparisonWebAPI.Infrastructure
 
                 builder.Services.AddDbContext<AppDbContext>(op => op.UseSqlServer(connectionString));
 
-                builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+                builder.Services.AddScoped<CategoryRepository>();
                 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
             }

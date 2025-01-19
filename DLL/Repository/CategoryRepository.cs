@@ -1,26 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DLL.Context;
+﻿using DLL.Context;
 using Domain.Models.DBModels;
+using Domain.Models.Response;
 using Microsoft.EntityFrameworkCore;
 
 namespace DLL.Repository
 {
-    public class CategoryRepository : ICategoryRepository
+    public class CategoryRepository : BaseRepository<CategoryDBModel>, IRepositoryUpdate<CategoryDBModel>
     {
-        private readonly AppDbContext _context;
+        public CategoryRepository(AppDbContext context) : base(context) { }
 
-        public CategoryRepository(AppDbContext context)
+        public async Task<OperationDetailsResponseModel> UpdateAsync(int id, CategoryDBModel entityNew)
         {
-            _context = context;
-        }
+            try
+            {
+                var entityOld = await context.Categories.FindAsync(id);
+                if (entityOld == null)
+                    return new OperationDetailsResponseModel { IsError = true, Message = "Entity not found" };
 
-        public async Task<IEnumerable<CategoryDBModel>> GetAllCategoriesAsync()
-        {
-            return await _context.Categories.ToListAsync();
+                entityOld.Title = entityNew.Title;
+                entityOld.ImageUrl = entityNew.ImageUrl;
+                entityOld.ParentCategoryId = entityNew.ParentCategoryId;
+
+                context.Entry(entityOld).State = EntityState.Modified;
+                await context.SaveChangesAsync();
+                return new OperationDetailsResponseModel { IsError = false, Message = "Entity Updated" };
+            }
+            catch (Exception ex)
+            {
+                return new OperationDetailsResponseModel { IsError = true, Message = "Update Error", Exception = ex };
+            }
         }
     }
 }

@@ -18,14 +18,41 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CategoryDBModel>>> GetAllCategories()
+        [Route("getall")]
+        public async Task<JsonResult> GetAllCategories()
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
-            if (categories == null || categories.Count() == 0)
-            {
-                return NotFound("No categories found.");
-            }
-            return Ok(categories);
+            var categories = await _categoryService.GetFromConditionAsync(x => true); 
+            return new JsonResult(new { categories });
+        }
+
+        [HttpPost]
+        [Route("create")]
+        public async Task<JsonResult> CreateCategory([FromBody] CategoryDBModel category)
+        {
+            if (category == null)
+                return new JsonResult(new { error = "Category data is null." });
+
+            var result = await _categoryService.CreateAsync(category);
+
+            if (result.IsError)
+                return new JsonResult(new { error = result.Message });
+
+            return new JsonResult(new { message = result.Message });
+        }
+
+        [HttpPut]
+        [Route("update/{id}")]
+        public async Task<JsonResult> UpdateCategory(int id, [FromBody] CategoryDBModel category)
+        {
+            if (category == null || category.Id != id)
+                return new JsonResult(new { error = "Category data is invalid." });
+
+            var result = await _categoryService.UpdateAsync(id, category);
+
+            if (result.IsError)
+                return new JsonResult(new { error = result.Message });
+
+            return new JsonResult(new { message = result.Message });
         }
     }
 }
