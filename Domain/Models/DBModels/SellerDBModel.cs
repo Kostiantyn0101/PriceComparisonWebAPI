@@ -9,7 +9,7 @@
         public bool IsActive { get; set; }
 
         public int UserId { get; set; }
-        public UserDBModel User { get; set; }
+        public ApplicationUserDBModel User { get; set; }
 
         public ICollection<PriceDBModel> Prices { get; set; }
         public ICollection<PriceHistoryDBModel> PriceHistories { get; set; }

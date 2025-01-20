@@ -1,9 +1,11 @@
 ﻿using Domain.Models.DBModels;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DLL.Context
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<ApplicationUserDBModel, IdentityRole<int>, int>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -22,7 +24,7 @@ namespace DLL.Context
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
-        public DbSet<UserDBModel> Users { get; set; }
+        public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<RoleDBModel> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -260,9 +262,9 @@ namespace DLL.Context
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.HasMany(r => r.Users)
-                    .WithOne(u => u.Role)
-                    .HasForeignKey(u => u.RoleId);
+                //entity.HasMany(r => r.Users)
+                //    .WithOne(u => u.Role)
+                //    .HasForeignKey(u => u.RoleId);
             });
 
             // Settings for the SellerDBModel
@@ -291,26 +293,9 @@ namespace DLL.Context
                     .HasForeignKey(ph => ph.SellerId);
             });
 
-            // Settings for the UserDBModel
-            modelBuilder.Entity<UserDBModel>(entity =>
+            // Settings for the ApplicationUserDBModel
+            modelBuilder.Entity<ApplicationUserDBModel>(entity =>
             {
-                entity.Property(u => u.Name)
-                    .IsRequired()
-                    .HasMaxLength(255);
-
-                entity.Property(u => u.Email)
-                    .IsRequired()
-                    .HasMaxLength(255)
-                    .HasAnnotation("Email", "EmailAddress");
-
-                entity.Property(u => u.PasswordHash)
-                    .IsRequired()
-                    .HasMaxLength(255);
-
-                entity.HasOne(u => u.Role)
-                    .WithMany(r => r.Users)
-                    .HasForeignKey(u => u.RoleId);
-
                 entity.HasMany(u => u.Sellers)
                     .WithOne(s => s.User)
                     .HasForeignKey(s => s.UserId);
