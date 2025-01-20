@@ -18,13 +18,13 @@ namespace PriceComparisonWebAPI.Infrastructure
         {
             try
             {
-                builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
+                builder.AddConfiguration();
                 builder.AddDbContext();
                 builder.AddIdentity();
                 builder.AddRepositories();
                 builder.AddServices();
                 builder.AddAuth();
+                builder.AddSwagger();
 
             }
             catch (Exception ex) {
