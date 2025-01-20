@@ -24,6 +24,7 @@ namespace PriceComparisonWebAPI.Infrastructure
                 builder.AddIdentity();
                 builder.AddRepositories();
                 builder.AddServices();
+                builder.AddAuth();
 
             }
             catch (Exception ex) {

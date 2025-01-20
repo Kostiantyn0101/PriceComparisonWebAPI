@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class CategoriesController : ControllerBase
     {
         private readonly ILogger<CategoriesController> _logger;
