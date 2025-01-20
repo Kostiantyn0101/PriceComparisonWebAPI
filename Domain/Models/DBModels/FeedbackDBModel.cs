@@ -5,7 +5,7 @@
         public int Id { get; set; }
 
         public int UserId { get; set; }
-        public UserDBModel User { get; set; }
+        public ApplicationUserDBModel User { get; set; }
 
         public int ProductId { get; set; }
         public ProductDBModel Product { get; set; }

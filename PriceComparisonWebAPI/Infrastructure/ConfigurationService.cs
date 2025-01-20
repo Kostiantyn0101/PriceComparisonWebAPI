@@ -4,6 +4,7 @@ using DLL.Repository;
 using DLL.Repository.Abstractions;
 using Domain.Models.DBModels;
 using Microsoft.EntityFrameworkCore;
+using PriceComparisonWebAPI.Infrastructure.DependencyInjection;
 
 namespace PriceComparisonWebAPI.Infrastructure
 {
@@ -21,16 +22,14 @@ namespace PriceComparisonWebAPI.Infrastructure
             {
                 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-                var connectionString = builder.Configuration["ConnectionStrings:PriceComparisonDB"];
-
-                builder.Services.AddDbContext<AppDbContext>(op => op.UseSqlServer(connectionString));
-
-                builder.Services.AddScoped<IRepository<CategoryDBModel>, Repository<CategoryDBModel>>();
-                builder.Services.AddScoped<ICategoryService, CategoryService>();
+                builder.AddDbContext();
+                builder.AddIdentity();
+                builder.AddRepositories();
+                builder.AddServices();
 
             }
             catch (Exception ex) {
-                throw;
+                throw;  
             }
         }
     }
