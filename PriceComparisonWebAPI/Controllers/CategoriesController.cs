@@ -47,12 +47,19 @@ namespace PriceComparisonWebAPI.Controllers
             if (category == null || category.Id != id)
                 return new JsonResult(new { error = "Category data is invalid." });
 
-            var result = await _categoryService.UpdateAsync(id, category);
+            var result = await _categoryService.UpdateAsync(category);
 
             if (result.IsError)
                 return new JsonResult(new { error = result.Message });
 
             return new JsonResult(new { message = result.Message });
+        }
+
+
+        [HttpDelete]
+        public async Task<JsonResult> Delete([FromBody] int id)
+        {
+            return new JsonResult(await _categoryService.DeleteAsync(id));
         }
     }
 }

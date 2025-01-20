@@ -10,14 +10,9 @@ using Domain.Models.Response;
 
 namespace BLL.Services
 {
-    public class CategoryService : ICategoryService
+    public class CategoryService(IRepository<CategoryDBModel> repository) : ICategoryService
     {
-        private readonly CategoryRepository _repository;
-
-        public CategoryService(CategoryRepository repository)
-        {
-            _repository = repository;
-        }
+        private readonly IRepository<CategoryDBModel> _repository = repository;
 
         public async Task<OperationDetailsResponseModel> CreateAsync(CategoryDBModel model)
         {
@@ -30,25 +25,30 @@ namespace BLL.Services
                 return new OperationDetailsResponseModel { IsError = true, Message = "Fatal Error", Exception = ex };
             }
         }
+        public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryDBModel entity)
+        {
+            return await _repository.UpdateAsync(entity);
+        }
+
+        public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
+        {
+            return await _repository.DeleteAsync(id);
+        }
+        public IQueryable<CategoryDBModel> GetQuery()
+        {
+            return _repository.GetQuery();
+        }
 
         public async Task<IEnumerable<CategoryDBModel>> GetFromConditionAsync(Expression<Func<CategoryDBModel, bool>> condition)
         {
             return await _repository.GetFromConditionAsync(condition);
         }
 
-        public IQueryable<CategoryDBModel> GetQuery()
-        {
-            return _repository.GetQuery();
-        }
 
         public async Task<IEnumerable<CategoryDBModel>> ProcessQueryAsync(IQueryable<CategoryDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(int id, CategoryDBModel entity)
-        {
-            return await _repository.UpdateAsync(id, entity);
-        }
     }
 }

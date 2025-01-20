@@ -1,8 +1,9 @@
-﻿namespace Domain.Models.DBModels
+﻿using Domain.Models.Primitives;
+
+namespace Domain.Models.DBModels
 {
-    public class CategoryDBModel
+    public class CategoryDBModel : EntityDBModel
     {
-        public int Id { get; set; }
         public string Title { get; set; }
         public string? ImageUrl { get; set; }
         public int? ParentCategoryId { get; set; }
