@@ -20,14 +20,6 @@ namespace PriceComparisonWebAPI.Infrastructure
             {
                 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-                //var connectionString = builder.Configuration["ConnectionStrings:PriceComparisonDB"];
-
-                //builder.Services.AddDbContext<AppDbContext>(op => op.UseSqlServer(connectionString));
-
-                //builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-                //builder.Services.AddScoped<ICategoryService, CategoryService>();
-
-
                 builder.AddDbContext();
                 builder.AddIdentity();
                 builder.AddRepositories();

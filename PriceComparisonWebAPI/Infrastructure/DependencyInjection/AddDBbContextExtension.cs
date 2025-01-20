@@ -17,12 +17,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
                                                                         warnings.Ignore(RelationalEventId.CommandExecuted);
                                                                     }));
 
-            //builder.Services.AddScoped<DbContext, AppDbContext>(); //db context
-
-
-            //var connectionString = builder.Configuration["ConnectionStrings:PriceComparisonDB"];
-
-            //builder.Services.AddDbContext<AppDbContext>(op => op.UseSqlServer(connectionString));
+            builder.Services.AddScoped<DbContext, AppDbContext>(); //db context
         }
     }
 }
