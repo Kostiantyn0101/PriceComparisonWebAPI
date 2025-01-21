@@ -1,9 +1,9 @@
-﻿namespace Domain.Models.DBModels
-{
-    public class FeedbackDBModel
-    {
-        public int Id { get; set; }
+﻿using Domain.Models.Primitives;
 
+namespace Domain.Models.DBModels
+{
+    public class FeedbackDBModel : EntityDBModel
+    {
         public int UserId { get; set; }
         public ApplicationUserDBModel User { get; set; }
 

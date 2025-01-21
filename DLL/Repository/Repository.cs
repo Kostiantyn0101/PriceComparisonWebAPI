@@ -4,7 +4,6 @@ using Domain.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-
 namespace DLL.Repository.Abstractions
 {
     public class Repository<TEntity>(AppDbContext context) : IRepository<TEntity> where TEntity : EntityDBModel
@@ -39,6 +38,7 @@ namespace DLL.Repository.Abstractions
                 return new OperationDetailsResponseModel() { IsError = true, Message = "Delete error", Exception = ex };
             }
         }
+
         public async Task<OperationDetailsResponseModel> UpdateAsync(TEntity entity)
         {
             try
@@ -52,11 +52,12 @@ namespace DLL.Repository.Abstractions
                 return new OperationDetailsResponseModel() { IsError = true, Message = "Update error", Exception = ex };
             }
         }
-            public virtual async Task<IEnumerable<TEntity>> GetFromConditionAsync(Expression<Func<TEntity, bool>> condition) =>
-                await Entities.Where(condition).ToListAsync().ConfigureAwait(false);
 
-            public IQueryable<TEntity> GetQuery() => Entities.AsQueryable();
+        public virtual async Task<IEnumerable<TEntity>> GetFromConditionAsync(Expression<Func<TEntity, bool>> condition) =>
+            await Entities.Where(condition).ToListAsync().ConfigureAwait(false);
 
-            public async Task<IEnumerable<TEntity>> ProcessQueryAsync(IQueryable<TEntity> query) => await query.ToListAsync();
+        public IQueryable<TEntity> GetQuery() => Entities.AsQueryable();
+
+        public async Task<IEnumerable<TEntity>> ProcessQueryAsync(IQueryable<TEntity> query) => await query.ToListAsync();
     }
 }
