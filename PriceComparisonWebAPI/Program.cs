@@ -28,3 +28,9 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+// 1. Install packages
+// 2. Change user model
+// 3. Change context
+// 4. Configure JWT 

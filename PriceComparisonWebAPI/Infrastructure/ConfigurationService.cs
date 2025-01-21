@@ -22,16 +22,12 @@ namespace PriceComparisonWebAPI.Infrastructure
             {
                 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-                builder.Services.AddControllers()
-                    .AddJsonOptions(options =>
-                    {
-                        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-                    });
-
                 builder.AddDbContext();
                 builder.AddIdentity();
                 builder.AddRepositories();
                 builder.AddServices();
+                builder.AddAuth();
+                builder.AddSwagger();
 
             }
             catch (Exception ex) {
