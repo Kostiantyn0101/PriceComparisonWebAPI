@@ -21,7 +21,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             try
             {
                 builder.AddConfiguration();
-                builder.ConfigureJsonOptions();
+                //builder.ConfigureJsonOptions();
                 builder.AddDbContext();
                 builder.AddIdentity();
                 builder.AddRepositories();
