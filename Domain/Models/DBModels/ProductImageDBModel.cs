@@ -1,9 +1,9 @@
-﻿namespace Domain.Models.DBModels
-{
-    public class ProductImageDBModel
-    {
-        public int Id { get; set; }
+﻿using Domain.Models.Primitives;
 
+namespace Domain.Models.DBModels
+{
+    public class ProductImageDBModel : EntityDBModel
+    {
         public int ProductId { get; set; }
         public ProductDBModel Product { get; set; }
 

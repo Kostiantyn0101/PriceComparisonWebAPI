@@ -5,21 +5,21 @@ using Domain.Models.Response;
 
 namespace BLL.Services
 {
-    public class CategoryService : ICategoryService
+    public class PriceHistoryService : IPriceHistoryService
     {
-        private readonly IRepository<CategoryDBModel> _repository;
+        private readonly IRepository<PriceHistoryDBModel> _repository;
 
-        public CategoryService(IRepository<CategoryDBModel> repository) 
+        public PriceHistoryService(IRepository<PriceHistoryDBModel> repository)
         {
             _repository = repository;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(CategoryDBModel model)
+        public async Task<OperationDetailsResponseModel> CreateAsync(PriceHistoryDBModel model)
         {
             return await _repository.CreateAsync(model);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryDBModel entity)
+        public async Task<OperationDetailsResponseModel> UpdateAsync(PriceHistoryDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
@@ -29,17 +29,17 @@ namespace BLL.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public IQueryable<CategoryDBModel> GetQuery()
+        public IQueryable<PriceHistoryDBModel> GetQuery()
         {
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> GetFromConditionAsync(Expression<Func<CategoryDBModel, bool>> condition)
+        public async Task<IEnumerable<PriceHistoryDBModel>> GetFromConditionAsync(Expression<Func<PriceHistoryDBModel, bool>> condition)
         {
             return await _repository.GetFromConditionAsync(condition);
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> ProcessQueryAsync(IQueryable<CategoryDBModel> query)
+        public async Task<IEnumerable<PriceHistoryDBModel>> ProcessQueryAsync(IQueryable<PriceHistoryDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
         }

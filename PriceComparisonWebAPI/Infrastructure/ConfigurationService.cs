@@ -1,6 +1,8 @@
 ﻿using BLL.Services;
 using DLL.Context;
 using DLL.Repository;
+using DLL.Repository.Abstractions;
+using Domain.Models.DBModels;
 using Microsoft.EntityFrameworkCore;
 using PriceComparisonWebAPI.Infrastructure.DependencyInjection;
 
@@ -19,6 +21,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             try
             {
                 builder.AddConfiguration();
+                //builder.ConfigureJsonOptions();
                 builder.AddDbContext();
                 builder.AddIdentity();
                 builder.AddRepositories();
@@ -27,8 +30,9 @@ namespace PriceComparisonWebAPI.Infrastructure
                 builder.AddSwagger();
 
             }
-            catch (Exception ex) {
-                throw;  
+            catch (Exception ex)
+            {
+                throw;
             }
         }
     }

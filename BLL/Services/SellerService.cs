@@ -5,21 +5,21 @@ using Domain.Models.Response;
 
 namespace BLL.Services
 {
-    public class CategoryService : ICategoryService
+    public class SellerService : ISellerService
     {
-        private readonly IRepository<CategoryDBModel> _repository;
+        private readonly IRepository<SellerDBModel> _repository;
 
-        public CategoryService(IRepository<CategoryDBModel> repository) 
+        public SellerService(IRepository<SellerDBModel> repository)
         {
             _repository = repository;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(CategoryDBModel model)
+        public async Task<OperationDetailsResponseModel> CreateAsync(SellerDBModel model)
         {
             return await _repository.CreateAsync(model);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryDBModel entity)
+        public async Task<OperationDetailsResponseModel> UpdateAsync(SellerDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
@@ -29,17 +29,17 @@ namespace BLL.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public IQueryable<CategoryDBModel> GetQuery()
+        public IQueryable<SellerDBModel> GetQuery()
         {
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> GetFromConditionAsync(Expression<Func<CategoryDBModel, bool>> condition)
+        public async Task<IEnumerable<SellerDBModel>> GetFromConditionAsync(Expression<Func<SellerDBModel, bool>> condition)
         {
             return await _repository.GetFromConditionAsync(condition);
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> ProcessQueryAsync(IQueryable<CategoryDBModel> query)
+        public async Task<IEnumerable<SellerDBModel>> ProcessQueryAsync(IQueryable<SellerDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
         }

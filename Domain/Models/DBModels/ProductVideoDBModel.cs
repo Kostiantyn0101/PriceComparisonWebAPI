@@ -1,8 +1,9 @@
-﻿namespace Domain.Models.DBModels
+﻿using Domain.Models.Primitives;
+
+namespace Domain.Models.DBModels
 {
-    public class ProductVideoDBModel
+    public class ProductVideoDBModel : EntityDBModel
     {
-        public int Id { get; set; }
         public string VideoUrl { get; set; }
 
         public int ProductId { get; set; }

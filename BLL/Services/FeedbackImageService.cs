@@ -5,21 +5,21 @@ using Domain.Models.Response;
 
 namespace BLL.Services
 {
-    public class CategoryService : ICategoryService
+    public class FeedbackImageService : IFeedbackImageService
     {
-        private readonly IRepository<CategoryDBModel> _repository;
+        private readonly IRepository<FeedbackImageDBModel> _repository;
 
-        public CategoryService(IRepository<CategoryDBModel> repository) 
+        public FeedbackImageService(IRepository<FeedbackImageDBModel> repository)
         {
             _repository = repository;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(CategoryDBModel model)
+        public async Task<OperationDetailsResponseModel> CreateAsync(FeedbackImageDBModel model)
         {
             return await _repository.CreateAsync(model);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryDBModel entity)
+        public async Task<OperationDetailsResponseModel> UpdateAsync(FeedbackImageDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
@@ -29,17 +29,17 @@ namespace BLL.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public IQueryable<CategoryDBModel> GetQuery()
+        public IQueryable<FeedbackImageDBModel> GetQuery()
         {
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> GetFromConditionAsync(Expression<Func<CategoryDBModel, bool>> condition)
+        public async Task<IEnumerable<FeedbackImageDBModel>> GetFromConditionAsync(Expression<Func<FeedbackImageDBModel, bool>> condition)
         {
             return await _repository.GetFromConditionAsync(condition);
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> ProcessQueryAsync(IQueryable<CategoryDBModel> query)
+        public async Task<IEnumerable<FeedbackImageDBModel>> ProcessQueryAsync(IQueryable<FeedbackImageDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
         }

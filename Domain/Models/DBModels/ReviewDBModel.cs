@@ -1,8 +1,9 @@
-﻿namespace Domain.Models.DBModels
+﻿using Domain.Models.Primitives;
+
+namespace Domain.Models.DBModels
 {
-    public class ReviewDBModel
+    public class ReviewDBModel : EntityDBModel
     {
-        public int Id { get; set; }
         public string ReviewUrl { get; set; }
 
         public int ProductId { get; set; }

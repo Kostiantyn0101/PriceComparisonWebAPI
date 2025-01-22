@@ -5,21 +5,21 @@ using Domain.Models.Response;
 
 namespace BLL.Services
 {
-    public class CategoryService : ICategoryService
+    public class CharacteristicService : ICharacteristicService
     {
-        private readonly IRepository<CategoryDBModel> _repository;
+        private readonly IRepository<CharacteristicDBModel> _repository;
 
-        public CategoryService(IRepository<CategoryDBModel> repository) 
+        public CharacteristicService(IRepository<CharacteristicDBModel> repository)
         {
             _repository = repository;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(CategoryDBModel model)
+        public async Task<OperationDetailsResponseModel> CreateAsync(CharacteristicDBModel model)
         {
             return await _repository.CreateAsync(model);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryDBModel entity)
+        public async Task<OperationDetailsResponseModel> UpdateAsync(CharacteristicDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
@@ -29,17 +29,17 @@ namespace BLL.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public IQueryable<CategoryDBModel> GetQuery()
+        public IQueryable<CharacteristicDBModel> GetQuery()
         {
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> GetFromConditionAsync(Expression<Func<CategoryDBModel, bool>> condition)
+        public async Task<IEnumerable<CharacteristicDBModel>> GetFromConditionAsync(Expression<Func<CharacteristicDBModel, bool>> condition)
         {
             return await _repository.GetFromConditionAsync(condition);
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> ProcessQueryAsync(IQueryable<CategoryDBModel> query)
+        public async Task<IEnumerable<CharacteristicDBModel>> ProcessQueryAsync(IQueryable<CharacteristicDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
         }
