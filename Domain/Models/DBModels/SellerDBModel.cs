@@ -14,7 +14,7 @@ namespace Domain.Models.DBModels
 
         public ICollection<PriceDBModel> Prices { get; set; }
         public ICollection<PriceHistoryDBModel> PriceHistories { get; set; }
-
+        public ICollection<ProductSellerLinkDBModel> ProductLinks { get; set; }
     }
 
 }

@@ -8,5 +8,7 @@ namespace Domain.Models.DBModels
         public ProductDBModel Product { get; set; }
 
         public string SellerUrl { get; set; }
+        public ICollection<ClickTrackingDBModel> ClickTrackings { get; set; }
+
     }
 }

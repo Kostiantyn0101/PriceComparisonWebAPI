@@ -24,6 +24,11 @@ namespace DLL.Context
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
+        public DbSet<ClickTrackingDBModel> ClickTrackings { get; set; }
+        public DbSet<PaymentPlanDBModel> PaymentPlans { get; set; }
+        public DbSet<ProductSellerLinkDBModel> ProductSellerLinks { get; set; }
+        public DbSet<SellerPaymentPlanDBModel> SellerPaymentPlans { get; set; }
+
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<RoleDBModel> Roles { get; set; }
 
@@ -316,6 +321,87 @@ namespace DLL.Context
                     .WithOne(f => f.User)
                     .HasForeignKey(f => f.UserId);
             });
+
+            // Settings for the ClickTrackingDBModel
+            modelBuilder.Entity<ClickTrackingDBModel>(entity =>
+            {
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Seller)
+                      .WithMany()
+                      .HasForeignKey(e => e.SellerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.ProductSellerLink)
+                      .WithMany(psl => psl.ClickTrackings)
+                      .HasForeignKey(e => e.ProductSellerLinkId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(e => e.UserIp)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.ClickedAt)
+                      .IsRequired();
+            });
+
+            // Settings for the PaymentPlanDBModel
+            modelBuilder.Entity<PaymentPlanDBModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Title)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.MonthlyPrice)
+                      .HasColumnType("decimal(18,2)")
+                      .IsRequired();
+            });
+
+            // Settings for the ProductSellerLinkDBModel
+            modelBuilder.Entity<ProductSellerLinkDBModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(e => e.Product)
+                      .WithMany(p => p.SellerLinks)
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(e => e.SellerUrl)
+                      .IsRequired()
+                      .HasMaxLength(2083);
+            });
+
+            // SellerPaymentPlanDBModel
+            modelBuilder.Entity<SellerPaymentPlanDBModel>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.HasOne(e => e.Seller)
+                      .WithMany()
+                      .HasForeignKey(e => e.SellerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.PaymentPlan)
+                      .WithMany()
+                      .HasForeignKey(e => e.PaymentPlanId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(e => e.StartDate)
+                      .IsRequired();
+
+                entity.Property(e => e.EndDate)
+                      .IsRequired(false);
+
+                entity.Property(e => e.IsActive)
+                      .IsRequired();
+            });
+
         }
 
     }
