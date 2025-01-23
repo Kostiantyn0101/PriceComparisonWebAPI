@@ -215,6 +215,18 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
+            // Settings for the ProductSellerLinkDBModel
+            modelBuilder.Entity<ProductSellerLinkDBModel>(entity =>
+            {
+                entity.Property(p => p.SellerUrl)
+                    .IsRequired()
+                    .HasMaxLength(2083);
+
+                entity.HasOne(p => p.Product)
+                    .WithMany(c => c.SellerLinks)
+                    .HasForeignKey(p => p.ProductId);
+            });
+
             // Settings for the ProductVideoDBModel
             modelBuilder.Entity<ProductVideoDBModel>(entity =>
             {
