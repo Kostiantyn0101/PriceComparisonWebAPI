@@ -18,5 +18,6 @@ namespace Domain.Models.DBModels
         public ICollection<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public ICollection<PriceDBModel> Prices { get; set; }
         public ICollection<PriceHistoryDBModel> PricesHistory { get; set; }
+        public ICollection<ProductSellerLinkDBModel> SellerLinks { get; set; }
     }
 }

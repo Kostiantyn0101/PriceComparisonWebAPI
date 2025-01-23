@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250123142220_AddProductSellerLinkModel")]
+    partial class AddProductSellerLinkModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,42 +175,6 @@ namespace DLL.Migrations
                     b.ToTable("Characteristics");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ClickTrackingDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ClickedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductSellerLinkId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SellerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserIp")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductSellerLinkId");
-
-                    b.HasIndex("SellerId");
-
-                    b.ToTable("ClickTrackings");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>
                 {
                     b.Property<int>("Id")
@@ -289,27 +256,6 @@ namespace DLL.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Instructions");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.PaymentPlanDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PaymentPlans");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.PriceDBModel", b =>
@@ -452,9 +398,6 @@ namespace DLL.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SellerDBModelId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SellerUrl")
                         .IsRequired()
                         .HasMaxLength(2083)
@@ -464,9 +407,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("SellerDBModelId");
-
-                    b.ToTable("ProductSellerLinks");
+                    b.ToTable("ProductSellerLinkDBModel");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductVideoDBModel", b =>
@@ -580,38 +521,6 @@ namespace DLL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Sellers");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.SellerPaymentPlanDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PaymentPlanId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SellerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaymentPlanId");
-
-                    b.HasIndex("SellerId");
-
-                    b.ToTable("SellerPaymentPlans");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -776,33 +685,6 @@ namespace DLL.Migrations
                     b.Navigation("ParentCategory");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ClickTrackingDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.DBModels.ProductSellerLinkDBModel", "ProductSellerLink")
-                        .WithMany("ClickTrackings")
-                        .HasForeignKey("ProductSellerLinkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.DBModels.SellerDBModel", "Seller")
-                        .WithMany()
-                        .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("ProductSellerLink");
-
-                    b.Navigation("Seller");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
@@ -931,10 +813,6 @@ namespace DLL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Models.DBModels.SellerDBModel", null)
-                        .WithMany("ProductLinks")
-                        .HasForeignKey("SellerDBModelId");
-
                     b.Navigation("Product");
                 });
 
@@ -988,25 +866,6 @@ namespace DLL.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.SellerPaymentPlanDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.PaymentPlanDBModel", "PaymentPlan")
-                        .WithMany()
-                        .HasForeignKey("PaymentPlanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.DBModels.SellerDBModel", "Seller")
-                        .WithMany()
-                        .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("PaymentPlan");
-
-                    b.Navigation("Seller");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -1111,18 +970,11 @@ namespace DLL.Migrations
                     b.Navigation("SellerLinks");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ProductSellerLinkDBModel", b =>
-                {
-                    b.Navigation("ClickTrackings");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.SellerDBModel", b =>
                 {
                     b.Navigation("PriceHistories");
 
                     b.Navigation("Prices");
-
-                    b.Navigation("ProductLinks");
                 });
 #pragma warning restore 612, 618
         }
