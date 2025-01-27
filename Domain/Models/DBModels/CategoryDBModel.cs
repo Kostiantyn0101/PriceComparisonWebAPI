@@ -6,6 +6,7 @@ namespace Domain.Models.DBModels
     {
         public string Title { get; set; }
         public string? ImageUrl { get; set; }
+        public string? IconUrl { get; set; }
         public int? ParentCategoryId { get; set; }
         public CategoryDBModel? ParentCategory { get; set; }
 

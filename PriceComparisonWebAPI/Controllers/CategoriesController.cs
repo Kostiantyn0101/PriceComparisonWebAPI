@@ -1,7 +1,9 @@
 using BLL.Services;
 using Domain.Models.DBModels;
+using Domain.Models.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Controllers
 {
@@ -12,102 +14,130 @@ namespace PriceComparisonWebAPI.Controllers
     {
         private readonly ILogger<CategoriesController> _logger;
         private readonly ICategoryService _categoryService;
-        private readonly ICharacteristicService _characteristicService;
-        private readonly ICategoryCharacteristicService _categoryCharacteristicService;
 
         public CategoriesController(ILogger<CategoriesController> logger,
-            ICategoryService categoryService,
-            ICharacteristicService characteristicService,
-            ICategoryCharacteristicService categoryCharacteristicService
+            ICategoryService categoryService
             )
         {
             _logger = logger;
             _categoryService = categoryService;
-            _characteristicService = characteristicService;
-            _categoryCharacteristicService = categoryCharacteristicService;
         }
 
-        [HttpGet]
-        [Route("getall")]
-        public async Task<JsonResult> GetAllCategories()
+        [HttpGet("getall")]
+        public async Task<IActionResult> GetAllCategorie()
         {
-            var categories = await _categoryService.GetFromConditionAsync(x => true);
-            return new JsonResult(new { categories });
+            try
+            {
+                var categories = await _categoryService.GetFromConditionAsync(x => true);
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching categories");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        [HttpPost]
-        [Route("create")]
-        public async Task<JsonResult> CreateCategory([FromBody] CategoryDBModel category)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategoryById(int id)
         {
-            if (category == null)
-                return new JsonResult(new { error = "Category data is null." });
+            try
+            {
+                var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
+                if (category == null || !category.Any())
+                    return NotFound(new { error = "Category not found" });
+
+                return Ok(category.First());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching category by ID");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequestModel categoryRequest)
+        {
+            if (categoryRequest == null)
+                return BadRequest(new { error = "Category data is null" });
+
+            var category = new CategoryDBModel
+            {
+                Title = categoryRequest.Title,
+                ImageUrl = categoryRequest.ImageUrl,
+                IconUrl = categoryRequest.IconUrl,
+                ParentCategoryId = categoryRequest.ParentCategoryId
+            };
 
             var result = await _categoryService.CreateAsync(category);
 
             if (result.IsError)
-                return new JsonResult(new { error = result.Message });
+            {
+                _logger.LogError(result.Exception, "Error creating category");
+                return BadRequest(new { error = result.Message });
+            }
 
-            return new JsonResult(new { message = result.Message });
+            return Ok(new { message = result.Message });
         }
 
         [HttpPut]
         [Route("update/{id}")]
-        public async Task<JsonResult> UpdateCategory(int id, [FromBody] CategoryDBModel category)
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryRequestModel categoryRequest)
         {
-            if (category == null || category.Id != id)
-                return new JsonResult(new { error = "Category data is invalid." });
+            if (categoryRequest == null)
+                return BadRequest(new { error = "Invalid category data" });
+
+            var category = new CategoryDBModel
+            {
+                Id = id,
+                Title = categoryRequest.Title,
+                ImageUrl = categoryRequest.ImageUrl,
+                IconUrl = categoryRequest.IconUrl,
+                ParentCategoryId = categoryRequest.ParentCategoryId
+            };
 
             var result = await _categoryService.UpdateAsync(category);
 
             if (result.IsError)
-                return new JsonResult(new { error = result.Message });
-
-            return new JsonResult(new { message = result.Message });
-        }
-
-
-        [HttpDelete]
-        public async Task<JsonResult> Delete([FromBody] int id)
-        {
-            return new JsonResult(await _categoryService.DeleteAsync(id));
-        }
-
-        [HttpGet]
-        [Route("test")]
-        public async Task<JsonResult> GetTest()
-        {
-            // Category ID to filter
-            int categoryId = 3;
-
-            // Get the category
-            var categoryResponse = await _categoryService.GetFromConditionAsync(c => c.Id == categoryId);
-            if (!categoryResponse.Any())
             {
-                return new JsonResult(new { Message = "Category not found", IsError = true });
+                _logger.LogError(result.Exception, "Error updating category");
+                return BadRequest(new { error = result.Message });
             }
 
-            // Get the category-characteristic relationships for the category
-            var categoryCharacteristics = await _categoryCharacteristicService
-                .GetFromConditionAsync(cc => cc.CategoryId == categoryId);
+            return Ok(new { message = result.Message });
+        }
 
-            if (!categoryCharacteristics.Any())
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var result = await _categoryService.DeleteAsync(id);
+
+            if (result.IsError)
             {
-                return new JsonResult(new { Message = "No characteristics found for this category", IsError = false });
+                _logger.LogError(result.Exception, "Error deleting category");
+                return BadRequest(new { error = result.Message });
             }
 
-            // Get the characteristics for the relationships
-            var characteristicIds = categoryCharacteristics.Select(cc => cc.CharacteristicId).ToList();
-            var characteristics = await _characteristicService
-                .GetFromConditionAsync(c => characteristicIds.Contains(c.Id));
+            return NoContent();
+        }
 
-            // Return the result
-            return new JsonResult(new
+        [HttpGet("popular")]
+        public async Task<IActionResult> GetPopularCategories()
+        {
+            try
             {
-                IsError = false,
-                Message = "Success",
-                Data = characteristics
-            });
+                var categories = await _categoryService.GetQuery()
+                    .Take(5)
+                    .ToListAsync();
 
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching popular categories");
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }
