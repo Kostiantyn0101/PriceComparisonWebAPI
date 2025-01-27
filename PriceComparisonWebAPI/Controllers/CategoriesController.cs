@@ -1,9 +1,12 @@
+using AutoMapper;
 using BLL.Services;
 using Domain.Models.DBModels;
-using Domain.Models.Request;
-using Microsoft.AspNetCore.Authorization;
+using Domain.Models.Exceptions;
+using Domain.Models.Response;
+using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PriceComparisonWebAPI.ViewModels.Category;
 
 namespace PriceComparisonWebAPI.Controllers
 {
@@ -14,129 +17,142 @@ namespace PriceComparisonWebAPI.Controllers
     {
         private readonly ILogger<CategoriesController> _logger;
         private readonly ICategoryService _categoryService;
+        private readonly IMapper _mapper;
 
         public CategoriesController(ILogger<CategoriesController> logger,
-            ICategoryService categoryService
+            ICategoryService categoryService,
+            IMapper mapper
             )
         {
             _logger = logger;
             _categoryService = categoryService;
+            _mapper = mapper;
         }
 
         [HttpGet("getall")]
-        public async Task<IActionResult> GetAllCategorie()
+        public async Task<JsonResult> GetAllCategorie()
         {
             try
             {
                 var categories = await _categoryService.GetFromConditionAsync(x => true);
-                return Ok(categories);
+                return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
+                {
+                    StatusCode = StatusCodes.Status200OK
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching categories");
-                return StatusCode(500, "Internal server error");
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    ex.Message);
             }
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCategoryById(int id)
+        public async Task<JsonResult> GetCategoryById(int id)
         {
             try
             {
                 var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
                 if (category == null || !category.Any())
-                    return NotFound(new { error = "Category not found" });
+                    return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.NotFound,
+                    StatusCodes.Status404NotFound);
 
-                return Ok(category.First());
+                return new JsonResult(_mapper.Map<CategoryRequestViewModel>(category.First()))
+                {
+                    StatusCode = StatusCodes.Status200OK
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching category by ID");
-                return StatusCode(500, "Internal server error");
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    ex.Message);
             }
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequestModel categoryRequest)
+        public async Task<OperationDetailsResponseModel> CreateCategory([FromBody] CategoryRequestViewModel categoryRequest)
         {
             if (categoryRequest == null)
-                return BadRequest(new { error = "Category data is null" });
+                return new OperationDetailsResponseModel { IsError = true, Message = AppErrors.General.CreateError };
 
-            var category = new CategoryDBModel
-            {
-                Title = categoryRequest.Title,
-                ImageUrl = categoryRequest.ImageUrl,
-                IconUrl = categoryRequest.IconUrl,
-                ParentCategoryId = categoryRequest.ParentCategoryId
-            };
+            categoryRequest.ParentCategoryId =
+                categoryRequest.ParentCategoryId == 0 ?
+                null : categoryRequest.ParentCategoryId;
 
-            var result = await _categoryService.CreateAsync(category);
+            var result = await _categoryService.CreateAsync(_mapper.Map<CategoryDBModel>(categoryRequest));
 
             if (result.IsError)
             {
                 _logger.LogError(result.Exception, "Error creating category");
-                return BadRequest(new { error = result.Message });
+                return new OperationDetailsResponseModel { IsError = true, Message = result.Exception.Message };
             }
 
-            return Ok(new { message = result.Message });
+            return new OperationDetailsResponseModel { IsError = false, Message = AppSuccessCodes.CreateSuccess };
         }
 
         [HttpPut]
-        [Route("update/{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryRequestModel categoryRequest)
+        [Route("update")]
+        public async Task<OperationDetailsResponseModel> UpdateCategory([FromBody] CategoryRequestViewModel categoryRequest)
         {
             if (categoryRequest == null)
-                return BadRequest(new { error = "Invalid category data" });
+                return new OperationDetailsResponseModel { IsError = true, Message = AppErrors.General.CreateError };
 
-            var category = new CategoryDBModel
-            {
-                Id = id,
-                Title = categoryRequest.Title,
-                ImageUrl = categoryRequest.ImageUrl,
-                IconUrl = categoryRequest.IconUrl,
-                ParentCategoryId = categoryRequest.ParentCategoryId
-            };
+            categoryRequest.ParentCategoryId =
+                categoryRequest.ParentCategoryId == 0 ?
+                null : categoryRequest.ParentCategoryId;
 
-            var result = await _categoryService.UpdateAsync(category);
+            var result = await _categoryService.UpdateAsync(_mapper.Map<CategoryDBModel>(categoryRequest));
 
             if (result.IsError)
             {
                 _logger.LogError(result.Exception, "Error updating category");
-                return BadRequest(new { error = result.Message });
+                return new OperationDetailsResponseModel { IsError = true, Message = result.Exception.Message };
             }
 
-            return Ok(new { message = result.Message });
+            return new OperationDetailsResponseModel { IsError = false, Message = AppSuccessCodes.UpdateSuccess };
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<OperationDetailsResponseModel> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteAsync(id);
 
             if (result.IsError)
             {
                 _logger.LogError(result.Exception, "Error deleting category");
-                return BadRequest(new { error = result.Message });
+                return new OperationDetailsResponseModel { IsError = true, Message = result.Exception.Message };
             }
 
-            return NoContent();
+            return new OperationDetailsResponseModel { IsError = false, Message = AppSuccessCodes.DeleteSuccess };
         }
 
         [HttpGet("popular")]
-        public async Task<IActionResult> GetPopularCategories()
+        public async Task<JsonResult> GetPopularCategories()
         {
             try
             {
                 var categories = await _categoryService.GetQuery()
                     .Take(5)
                     .ToListAsync();
-
-                return Ok(categories);
+                return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
+                {
+                    StatusCode = StatusCodes.Status200OK
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching popular categories");
-                return StatusCode(500, "Internal server error");
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    ex.Message);
             }
         }
     }
