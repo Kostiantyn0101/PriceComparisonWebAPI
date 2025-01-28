@@ -4,13 +4,14 @@ using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PriceComparisonWebAPI.ViewModels.Category;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -30,7 +31,7 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpGet("getall")]
-        public async Task<JsonResult> GetAllCategorie()
+        public async Task<JsonResult> GetAllCategories()
         {
             try
             {
@@ -42,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching categories");
+                _logger.LogError(ex, AppErrors.General.InternalServerError);
                 return GeneralApiResponseModel.GetJsonResult(
                     AppErrors.General.InternalServerError,
                     StatusCodes.Status500InternalServerError,
@@ -68,7 +69,7 @@ namespace PriceComparisonWebAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching category by ID");
+                _logger.LogError(ex, AppErrors.General.InternalServerError);
                 return GeneralApiResponseModel.GetJsonResult(
                     AppErrors.General.InternalServerError,
                     StatusCodes.Status500InternalServerError,
@@ -77,10 +78,10 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<OperationDetailsResponseModel> CreateCategory([FromBody] CategoryRequestViewModel categoryRequest)
+        public async Task<JsonResult> CreateCategory([FromBody] CategoryRequestViewModel categoryRequest)
         {
             if (categoryRequest == null)
-                return new OperationDetailsResponseModel { IsError = true, Message = AppErrors.General.CreateError };
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest);
 
             categoryRequest.ParentCategoryId =
                 categoryRequest.ParentCategoryId == 0 ?
@@ -90,19 +91,24 @@ namespace PriceComparisonWebAPI.Controllers
 
             if (result.IsError)
             {
-                _logger.LogError(result.Exception, "Error creating category");
-                return new OperationDetailsResponseModel { IsError = true, Message = result.Exception.Message };
+                _logger.LogError(result.Exception, AppErrors.General.CreateError);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    result.Exception.Message);
             }
 
-            return new OperationDetailsResponseModel { IsError = false, Message = AppSuccessCodes.CreateSuccess };
+            return GeneralApiResponseModel.GetJsonResult(
+                    AppSuccessCodes.CreateSuccess,
+                    StatusCodes.Status200OK);
         }
 
         [HttpPut]
         [Route("update")]
-        public async Task<OperationDetailsResponseModel> UpdateCategory([FromBody] CategoryRequestViewModel categoryRequest)
+        public async Task<JsonResult> UpdateCategory([FromBody] CategoryRequestViewModel categoryRequest)
         {
             if (categoryRequest == null)
-                return new OperationDetailsResponseModel { IsError = true, Message = AppErrors.General.CreateError };
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest);
 
             categoryRequest.ParentCategoryId =
                 categoryRequest.ParentCategoryId == 0 ?
@@ -112,25 +118,35 @@ namespace PriceComparisonWebAPI.Controllers
 
             if (result.IsError)
             {
-                _logger.LogError(result.Exception, "Error updating category");
-                return new OperationDetailsResponseModel { IsError = true, Message = result.Exception.Message };
+                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
+                return GeneralApiResponseModel.GetJsonResult(
+                                    AppErrors.General.InternalServerError,
+                                    StatusCodes.Status500InternalServerError,
+                                    result.Exception.Message);
             }
 
-            return new OperationDetailsResponseModel { IsError = false, Message = AppSuccessCodes.UpdateSuccess };
+            return GeneralApiResponseModel.GetJsonResult(
+                    AppSuccessCodes.UpdateSuccess,
+                    StatusCodes.Status200OK);
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<OperationDetailsResponseModel> DeleteCategory(int id)
+        public async Task<JsonResult> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteAsync(id);
 
             if (result.IsError)
             {
-                _logger.LogError(result.Exception, "Error deleting category");
-                return new OperationDetailsResponseModel { IsError = true, Message = result.Exception.Message };
+                _logger.LogError(result.Exception, AppErrors.General.DeleteError);
+                return GeneralApiResponseModel.GetJsonResult(
+                                       AppErrors.General.InternalServerError,
+                                       StatusCodes.Status500InternalServerError,
+                                       result.Exception.Message);
             }
 
-            return new OperationDetailsResponseModel { IsError = false, Message = AppSuccessCodes.DeleteSuccess };
+            return GeneralApiResponseModel.GetJsonResult(
+                    AppSuccessCodes.DeleteSuccess,
+                    StatusCodes.Status200OK);
         }
 
         [HttpGet("popular")]
