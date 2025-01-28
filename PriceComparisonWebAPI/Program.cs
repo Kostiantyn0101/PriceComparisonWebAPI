@@ -3,6 +3,8 @@ using PriceComparisonWebAPI.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+CreateMediaDirectoryIfNotExists();
+
 ConfigurationService.ConfigureServices(builder);
 
 builder.Services.AddControllers();
@@ -34,3 +36,14 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapControllers();
 
 app.Run();
+
+
+void CreateMediaDirectoryIfNotExists()
+{
+    var directoryPath = Path.Combine(builder.Environment.ContentRootPath, "Media", "Images");
+
+    if (!Directory.Exists(directoryPath))
+    {
+        Directory.CreateDirectory(directoryPath);
+    }
+}
