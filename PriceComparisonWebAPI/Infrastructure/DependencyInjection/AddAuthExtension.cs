@@ -39,10 +39,12 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
 
             builder.Services.AddAuthorization(options =>
             {
-                options.AddPolicy("ElevatedRights", policy =>
+                options.AddPolicy("AdminRights", policy =>
                     policy.RequireRole(Role.Admin));
                 options.AddPolicy("StandardRights", policy =>
-                    policy.RequireRole(Role.Admin, Role.User));
+                    policy.RequireRole(Role.Admin, Role.User, Role.Seller));
+                options.AddPolicy("SellerRights", policy =>
+                    policy.RequireRole(Role.Seller));
             });
         }
     }
