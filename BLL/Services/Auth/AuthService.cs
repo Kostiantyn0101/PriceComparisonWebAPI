@@ -39,7 +39,7 @@ namespace BLL.Services.Auth
         //private readonly IConfiguration _configuration;
         //private readonly IUserSettingsService _userSettingsService;
 
-        public AuthService(IOptions<JwtConfiguration> jwtConfiguration, UserManager<ApplicationUserDBModel> userManager, RoleManager<IdentityRole<int>> roleManager) 
+        public AuthService(IOptions<JwtConfiguration> jwtConfiguration, UserManager<ApplicationUserDBModel> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             _jwtConfiguration = jwtConfiguration.Value;
             _userManager = userManager;
@@ -93,9 +93,9 @@ namespace BLL.Services.Auth
                 var refreshToken = GenerateRefreshToken();
                 user.RefreshToken = refreshToken;
 
-                user.RefreshTokenExpiryTime = request.RememberMe ? DateTimeOffset.Now.AddDays(7)
-                                                                         : DateTimeOffset.Now.AddHours(2);
-                
+                user.RefreshTokenExpiryTime = request.RememberMe ? DateTimeOffset.Now.AddDays(_jwtConfiguration.RememberMeRefreshTokenLifetimeHours)
+                                                                         : DateTimeOffset.Now.AddHours(_jwtConfiguration.DefaultRefreshTokenLifetimeHours);
+
                 await _userManager.UpdateAsync(user);
 
                 return new JsonResult(new LoginResponseModel
@@ -344,7 +344,7 @@ namespace BLL.Services.Auth
             }
         }
 
-    
+
         private async Task<JwtSecurityToken> CreateToken(ApplicationUserDBModel user)
         {
             try
@@ -355,7 +355,7 @@ namespace BLL.Services.Auth
                 var token = new JwtSecurityToken(
                     issuer: _jwtConfiguration.Issuer,
                     audience: _jwtConfiguration.Audience,
-                    expires: DateTime.Now.AddHours(2),
+                    expires: DateTime.Now.AddHours(_jwtConfiguration.AccessTokenLifetimeMin),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
