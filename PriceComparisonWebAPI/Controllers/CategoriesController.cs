@@ -127,7 +127,7 @@ namespace PriceComparisonWebAPI.Controllers
 
             return GeneralApiResponseModel.GetJsonResult(
                     AppSuccessCodes.UpdateSuccess,
-                    StatusCodes.Status200OK);
+                    StatusCodes.Status201Created);
         }
 
         [HttpDelete("delete/{id}")]
