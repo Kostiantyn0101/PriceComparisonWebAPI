@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
+
 
 namespace Domain.Models.Response
 {
@@ -10,5 +7,17 @@ namespace Domain.Models.Response
     {
         public string ReturnCode { get; set; }
         public string Message { get; set; }
+
+        public static JsonResult GetJsonResult(string appErrors, int httpStatusCode, string? message = null)
+        {
+            return new JsonResult(new GeneralApiResponseModel
+            {
+                ReturnCode = appErrors,
+                Message = message ?? string.Empty
+            })
+            {
+                StatusCode = httpStatusCode
+            };
+        }
     }
 }

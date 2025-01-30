@@ -1,5 +1,8 @@
-﻿using BLL.Services;
-using BLL.Services.Auth;
+﻿using BLL.Services.Auth;
+using BLL.Services.CategoryService;
+using BLL.Services.MediaServices;
+using BLL.Services.ProductServices;
+using Domain.Models.Configuration;
 
 namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
 {
@@ -11,6 +14,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             builder.Services.AddScoped<ICharacteristicService, CharacteristicService>();
             builder.Services.AddScoped<ICategoryCharacteristicService, CategoryCharacteristicService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IFileService, FileService>();
         }
     }
 }

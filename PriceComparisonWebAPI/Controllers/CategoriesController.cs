@@ -1,7 +1,15 @@
-using BLL.Services;
+using AutoMapper;
+using BLL.Services.CategoryService;
+using BLL.Services.MediaServices;
 using Domain.Models.DBModels;
+using Domain.Models.Exceptions;
+using Domain.Models.Response;
+using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PriceComparisonWebAPI.ViewModels.Category;
+using System.Runtime.InteropServices;
 
 namespace PriceComparisonWebAPI.Controllers
 {
@@ -12,102 +20,191 @@ namespace PriceComparisonWebAPI.Controllers
     {
         private readonly ILogger<CategoriesController> _logger;
         private readonly ICategoryService _categoryService;
-        private readonly ICharacteristicService _characteristicService;
-        private readonly ICategoryCharacteristicService _categoryCharacteristicService;
+        private readonly IMapper _mapper;
+        private readonly IFileService _fileService;
 
         public CategoriesController(ILogger<CategoriesController> logger,
             ICategoryService categoryService,
-            ICharacteristicService characteristicService,
-            ICategoryCharacteristicService categoryCharacteristicService
+            IMapper mapper,
+            IFileService fileService
             )
         {
             _logger = logger;
             _categoryService = categoryService;
-            _characteristicService = characteristicService;
-            _categoryCharacteristicService = categoryCharacteristicService;
+            _mapper = mapper;
+            _fileService = fileService;
         }
 
-        [HttpGet]
-        [Route("getall")]
+        [HttpGet("getall")]
         public async Task<JsonResult> GetAllCategories()
         {
-            var categories = await _categoryService.GetFromConditionAsync(x => true);
-            return new JsonResult(new { categories });
+            try
+            {
+                var categories = await _categoryService.GetFromConditionAsync(x => true);
+                return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
+                {
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, AppErrors.General.InternalServerError);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    ex.Message);
+            }
         }
 
-        [HttpPost]
-        [Route("create")]
-        public async Task<JsonResult> CreateCategory([FromBody] CategoryDBModel category)
+        [HttpGet("{id}")]
+        public async Task<JsonResult> GetCategoryById(int id)
         {
-            if (category == null)
-                return new JsonResult(new { error = "Category data is null." });
+            try
+            {
+                var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
+                if (category == null || !category.Any())
+                    return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.NotFound,
+                    StatusCodes.Status404NotFound);
 
-            var result = await _categoryService.CreateAsync(category);
+                return new JsonResult(_mapper.Map<CategoryRequestViewModel>(category.First()))
+                {
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, AppErrors.General.InternalServerError);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    ex.Message);
+            }
+        }
+
+        [HttpPost("create")]
+        public async Task<JsonResult> CreateCategory([FromBody] CategoryRequestViewModel categoryRequest)
+        {
+            if (categoryRequest == null)
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest);
+
+            categoryRequest.ParentCategoryId =
+                categoryRequest.ParentCategoryId == 0 ?
+                null : categoryRequest.ParentCategoryId;
+
+            var result = await _categoryService.CreateAsync(_mapper.Map<CategoryDBModel>(categoryRequest));
 
             if (result.IsError)
-                return new JsonResult(new { error = result.Message });
+            {
+                _logger.LogError(result.Exception, AppErrors.General.CreateError);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    result.Exception.Message);
+            }
 
-            return new JsonResult(new { message = result.Message });
+            return GeneralApiResponseModel.GetJsonResult(
+                    AppSuccessCodes.CreateSuccess,
+                    StatusCodes.Status200OK);
         }
 
         [HttpPut]
-        [Route("update/{id}")]
-        public async Task<JsonResult> UpdateCategory(int id, [FromBody] CategoryDBModel category)
+        [Route("update")]
+        public async Task<JsonResult> UpdateCategory([FromBody] CategoryRequestViewModel categoryRequest)
         {
-            if (category == null || category.Id != id)
-                return new JsonResult(new { error = "Category data is invalid." });
+            if (categoryRequest == null)
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest);
 
-            var result = await _categoryService.UpdateAsync(category);
+            categoryRequest.ParentCategoryId =
+                categoryRequest.ParentCategoryId == 0 ?
+                null : categoryRequest.ParentCategoryId;
+
+            var result = await _categoryService.UpdateAsync(_mapper.Map<CategoryDBModel>(categoryRequest));
 
             if (result.IsError)
-                return new JsonResult(new { error = result.Message });
-
-            return new JsonResult(new { message = result.Message });
-        }
-
-
-        [HttpDelete]
-        public async Task<JsonResult> Delete([FromBody] int id)
-        {
-            return new JsonResult(await _categoryService.DeleteAsync(id));
-        }
-
-        [HttpGet]
-        [Route("test")]
-        public async Task<JsonResult> GetTest()
-        {
-            // Category ID to filter
-            int categoryId = 3;
-
-            // Get the category
-            var categoryResponse = await _categoryService.GetFromConditionAsync(c => c.Id == categoryId);
-            if (!categoryResponse.Any())
             {
-                return new JsonResult(new { Message = "Category not found", IsError = true });
+                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
+                return GeneralApiResponseModel.GetJsonResult(
+                                    AppErrors.General.InternalServerError,
+                                    StatusCodes.Status500InternalServerError,
+                                    result.Exception.Message);
             }
 
-            // Get the category-characteristic relationships for the category
-            var categoryCharacteristics = await _categoryCharacteristicService
-                .GetFromConditionAsync(cc => cc.CategoryId == categoryId);
+            return GeneralApiResponseModel.GetJsonResult(
+                    AppSuccessCodes.UpdateSuccess,
+                    StatusCodes.Status201Created);
+        }
 
-            if (!categoryCharacteristics.Any())
+        [HttpDelete("delete/{id}")]
+        public async Task<JsonResult> DeleteCategory(int id)
+        {
+            var result = await _categoryService.DeleteAsync(id);
+
+            if (result.IsError)
             {
-                return new JsonResult(new { Message = "No characteristics found for this category", IsError = false });
+                _logger.LogError(result.Exception, AppErrors.General.DeleteError);
+                return GeneralApiResponseModel.GetJsonResult(
+                                       AppErrors.General.InternalServerError,
+                                       StatusCodes.Status500InternalServerError,
+                                       result.Exception.Message);
             }
 
-            // Get the characteristics for the relationships
-            var characteristicIds = categoryCharacteristics.Select(cc => cc.CharacteristicId).ToList();
-            var characteristics = await _characteristicService
-                .GetFromConditionAsync(c => characteristicIds.Contains(c.Id));
-
-            // Return the result
-            return new JsonResult(new
-            {
-                IsError = false,
-                Message = "Success",
-                Data = characteristics
-            });
-
+            return GeneralApiResponseModel.GetJsonResult(
+                    AppSuccessCodes.DeleteSuccess,
+                    StatusCodes.Status200OK);
         }
+
+        [HttpGet("popular")]
+        public async Task<JsonResult> GetPopularCategories()
+        {
+            try
+            {
+                var categories = await _categoryService.GetQuery()
+                    .Take(5)
+                    .ToListAsync();
+                return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
+                {
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching popular categories");
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    ex.Message);
+            }
+        }
+
+        [HttpPost("upload-image/{categoryId}")]
+        public async Task<JsonResult> UploadCategoryImage(int categoryId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError, StatusCodes.Status400BadRequest);
+
+            var category = await _categoryService.GetFromConditionAsync(x => x.Id == categoryId);
+            if (category == null || !category.Any())
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status404NotFound);
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                var imageUrl = await _fileService.SaveImageAsync(file.FileName, stream.ToArray());
+
+                var categoryToUpdate = category.First();
+                categoryToUpdate.ImageUrl = imageUrl;
+                await _categoryService.UpdateAsync(categoryToUpdate);
+
+                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status201Created);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Image upload failed.");
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError, StatusCodes.Status500InternalServerError);
+            }
+        }
+
     }
 }
