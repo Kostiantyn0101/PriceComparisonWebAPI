@@ -10,6 +10,8 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
             builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection(JwtConfiguration.Position));
+
+            builder.Services.Configure<FileStorageOptions>(builder.Configuration.GetSection("FileStorage"));
         }
     }
 }

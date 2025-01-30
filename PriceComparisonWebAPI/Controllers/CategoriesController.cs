@@ -1,5 +1,6 @@
 using AutoMapper;
-using BLL.Services;
+using BLL.Services.CategoryService;
+using BLL.Services.MediaServices;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
@@ -8,10 +9,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PriceComparisonWebAPI.ViewModels.Category;
+using System.Runtime.InteropServices;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -19,15 +21,18 @@ namespace PriceComparisonWebAPI.Controllers
         private readonly ILogger<CategoriesController> _logger;
         private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
+        private readonly IFileService _fileService;
 
         public CategoriesController(ILogger<CategoriesController> logger,
             ICategoryService categoryService,
-            IMapper mapper
+            IMapper mapper,
+            IFileService fileService
             )
         {
             _logger = logger;
             _categoryService = categoryService;
             _mapper = mapper;
+            _fileService = fileService;
         }
 
         [HttpGet("getall")]
@@ -171,5 +176,35 @@ namespace PriceComparisonWebAPI.Controllers
                     ex.Message);
             }
         }
+
+        [HttpPost("upload-image/{categoryId}")]
+        public async Task<JsonResult> UploadCategoryImage(int categoryId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError, StatusCodes.Status400BadRequest);
+
+            var category = await _categoryService.GetFromConditionAsync(x => x.Id == categoryId);
+            if (category == null || !category.Any())
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status404NotFound);
+
+            try
+            {
+                using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                var imageUrl = await _fileService.SaveImageAsync(file.FileName, stream.ToArray());
+
+                var categoryToUpdate = category.First();
+                categoryToUpdate.ImageUrl = imageUrl;
+                await _categoryService.UpdateAsync(categoryToUpdate);
+
+                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status201Created);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Image upload failed.");
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError, StatusCodes.Status500InternalServerError);
+            }
+        }
+
     }
 }
