@@ -1,6 +1,7 @@
 using AutoMapper;
 using BLL.Services.CategoryService;
 using BLL.Services.MediaServices;
+using Domain.Models.Configuration;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
@@ -169,7 +170,7 @@ namespace PriceComparisonWebAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching popular categories");
+                _logger.LogError(ex, AppErrors.General.InternalServerError);
                 return GeneralApiResponseModel.GetJsonResult(
                     AppErrors.General.InternalServerError,
                     StatusCodes.Status500InternalServerError,
@@ -177,34 +178,42 @@ namespace PriceComparisonWebAPI.Controllers
             }
         }
 
-        [HttpPost("upload-image/{categoryId}")]
-        public async Task<JsonResult> UploadCategoryImage(int categoryId, IFormFile file)
+        [HttpPost("upload-media/{categoryId}/{mediaType}")]
+        public async Task<JsonResult> UploadCategoryMedia(int categoryId, string mediaType, IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError, StatusCodes.Status400BadRequest);
-
-            var category = await _categoryService.GetFromConditionAsync(x => x.Id == categoryId);
-            if (category == null || !category.Any())
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status404NotFound);
-
             try
             {
-                using var stream = new MemoryStream();
-                await file.CopyToAsync(stream);
-                var imageUrl = await _fileService.SaveImageAsync(file.FileName, stream.ToArray());
+                var result = await _categoryService.UploadCategoryMediaAsync(categoryId, mediaType, file);
 
-                var categoryToUpdate = category.First();
-                categoryToUpdate.ImageUrl = imageUrl;
-                await _categoryService.UpdateAsync(categoryToUpdate);
+                if (result.IsError)
+                {
+                    if (result.Exception is InvalidOperationException ex)
+                    {
+                        return GeneralApiResponseModel.GetJsonResult(
+                            AppErrors.General.SizeFileError,
+                            StatusCodes.Status400BadRequest, 
+                            ex.Message);
+                    }
+                    else
+                    {
+                        return GeneralApiResponseModel.GetJsonResult(
+                            AppErrors.General.InternalServerError,
+                            StatusCodes.Status500InternalServerError,
+                            result.Message);
+                    }
+                }
 
                 return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status201Created);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Image upload failed.");
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError, StatusCodes.Status500InternalServerError);
+                _logger.LogError(ex, AppErrors.General.InternalServerError);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.InternalServerError,
+                    StatusCodes.Status500InternalServerError,
+                    ex.Message);
             }
-        }
 
+        }
     }
 }
