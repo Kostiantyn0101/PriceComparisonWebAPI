@@ -41,6 +41,9 @@ namespace Domain.Models.Exceptions
             public static string UpdateError => "UPDATE_ERROR";
             public static string DeleteError => "DELETE_ERROR";
             public static string NotFound => "NOTFOUND_ERROR";
+            public static string UploadError => "UPLOAD_ERROR";
+            public static string MediaTypeError => "MEDIA_TYPE_ERROR";
+            public static string SizeFileError => "SIZE_FILE_ERROR";
         }
 
         public static class BybitApiKey

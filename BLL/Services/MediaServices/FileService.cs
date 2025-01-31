@@ -11,10 +11,10 @@ namespace BLL.Services.MediaServices
 {
     public class FileService : IFileService
     {
-        private readonly FileStorageOptions _options;
+        private readonly FileStorageConfiguration _options;
         private readonly string _mediaPath;
 
-        public FileService(IWebHostEnvironment env, IOptions<FileStorageOptions> options)
+        public FileService(IWebHostEnvironment env, IOptions<FileStorageConfiguration> options)
         {
             _options = options.Value;
             _mediaPath = Path.Combine(env.ContentRootPath, _options.MediaFolder);
@@ -28,7 +28,8 @@ namespace BLL.Services.MediaServices
                 Directory.CreateDirectory(directoryPath);
             }
 
-            var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+            string extension = Path.GetExtension(fileName);
+            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
             var filePath = Path.Combine(directoryPath, uniqueFileName);
 
             await File.WriteAllBytesAsync(filePath, fileContent);
@@ -36,10 +37,20 @@ namespace BLL.Services.MediaServices
             return Path.Combine(relativePath, uniqueFileName).Replace("\\", "/");
         }
 
-        public Task<string> SaveImageAsync(string fileName, byte[] fileContent) =>
-            SaveFileAsync(_options.ImagesFolder, fileName, fileContent);
+        public async Task<string> SaveImageAsync(string fileName, byte[] fileContent)
+        {
+            long maxSizeInBytes = _options.ImageSizeMB * 1024 * 1024;
+
+            if (fileContent.Length > maxSizeInBytes)
+            {
+                throw new InvalidOperationException($"File size exceeds the allowed limit of {_options.ImageSizeMB} MB.");
+            }
+
+            return await SaveFileAsync(_options.ImagesFolder, fileName, fileContent);
+        }
 
         public Task<string> SaveInstructionAsync(string fileName, byte[] fileContent) =>
             SaveFileAsync(_options.InstructionsFolder, fileName, fileContent);
+
     }
 }

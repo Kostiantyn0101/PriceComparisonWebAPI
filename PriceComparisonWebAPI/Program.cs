@@ -1,9 +1,8 @@
 using Microsoft.Extensions.FileProviders;
 using PriceComparisonWebAPI.Infrastructure;
+using PriceComparisonWebAPI.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-
-CreateMediaDirectoryIfNotExists();
 
 ConfigurationService.ConfigureServices(builder);
 
@@ -26,24 +25,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "Media", "Images")),
-    RequestPath = "/images"
-});
+app.UseFileStorageStaticFiles();
 
 app.MapControllers();
 
 app.Run();
-
-
-void CreateMediaDirectoryIfNotExists()
-{
-    var directoryPath = Path.Combine(builder.Environment.ContentRootPath, "Media", "Images");
-
-    if (!Directory.Exists(directoryPath))
-    {
-        Directory.CreateDirectory(directoryPath);
-    }
-}
