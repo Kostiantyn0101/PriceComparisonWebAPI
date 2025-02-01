@@ -10,9 +10,13 @@
 
 	<ItemGroup>
 		<Compile Remove="Media\**" />
+		<Compile Remove="wwwroot\images\**" />
 		<Content Remove="Media\**" />
+		<Content Remove="wwwroot\images\**" />
 		<EmbeddedResource Remove="Media\**" />
+		<EmbeddedResource Remove="wwwroot\images\**" />
 		<None Remove="Media\**" />
+		<None Remove="wwwroot\images\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,6 +36,10 @@
 	<ItemGroup>
 		<ProjectReference Include="..\BLL\BLL.csproj" />
 		<ProjectReference Include="..\Domain\Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>
