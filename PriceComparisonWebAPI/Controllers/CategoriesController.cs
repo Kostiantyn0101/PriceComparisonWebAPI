@@ -3,6 +3,7 @@ using BLL.Services.CategoryService;
 using BLL.Services.MediaServices;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
+using Domain.Models.DTO.Categories;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
@@ -39,74 +40,45 @@ namespace PriceComparisonWebAPI.Controllers
         [HttpGet("getall")]
         public async Task<JsonResult> GetAllCategories()
         {
-            try
+            var categories = await _categoryService.GetFromConditionAsync(x => true);
+            return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
             {
-                var categories = await _categoryService.GetFromConditionAsync(x => true);
-                return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
-                {
-                    StatusCode = StatusCodes.Status200OK
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, AppErrors.General.InternalServerError);
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.InternalServerError,
-                    StatusCodes.Status500InternalServerError,
-                    ex.Message);
-            }
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         [HttpGet("{id}")]
         public async Task<JsonResult> GetCategoryById(int id)
         {
-            try
-            {
-                var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
-                if (category == null || !category.Any())
-                    return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.NotFound,
-                    StatusCodes.Status404NotFound);
-
-                return new JsonResult(_mapper.Map<CategoryRequestViewModel>(category.First()))
-                {
-                    StatusCode = StatusCodes.Status200OK
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, AppErrors.General.InternalServerError);
+            var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
+            if (category == null || !category.Any())
                 return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.InternalServerError,
-                    StatusCodes.Status500InternalServerError,
-                    ex.Message);
-            }
+                AppErrors.General.NotFound,
+                StatusCodes.Status404NotFound);
+
+            return new JsonResult(_mapper.Map<CategoryRequestViewModel>(category.First()))
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         [HttpPost("create")]
-        public async Task<JsonResult> CreateCategory([FromBody] CategoryRequestViewModel categoryRequest)
+        public async Task<JsonResult> CreateCategory([FromForm] CategoryCreateDto categoryRequest)
         {
             if (categoryRequest == null)
+            {
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest);
+            }
 
-            categoryRequest.ParentCategoryId =
-                categoryRequest.ParentCategoryId == 0 ?
-                null : categoryRequest.ParentCategoryId;
-
-            var result = await _categoryService.CreateAsync(_mapper.Map<CategoryDBModel>(categoryRequest));
+            var result = await _categoryService.CreateAsync(categoryRequest);
 
             if (result.IsError)
             {
                 _logger.LogError(result.Exception, AppErrors.General.CreateError);
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.InternalServerError,
-                    StatusCodes.Status500InternalServerError,
-                    result.Exception.Message);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.Exception.Message);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(
-                    AppSuccessCodes.CreateSuccess,
-                    StatusCodes.Status200OK);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
         [HttpPut]
@@ -158,24 +130,13 @@ namespace PriceComparisonWebAPI.Controllers
         [HttpGet("popular")]
         public async Task<JsonResult> GetPopularCategories()
         {
-            try
+            var categories = await _categoryService.GetQuery()
+                .Take(5)
+                .ToListAsync();
+            return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
             {
-                var categories = await _categoryService.GetQuery()
-                    .Take(5)
-                    .ToListAsync();
-                return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
-                {
-                    StatusCode = StatusCodes.Status200OK
-                };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, AppErrors.General.InternalServerError);
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.InternalServerError,
-                    StatusCodes.Status500InternalServerError,
-                    ex.Message);
-            }
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         [HttpPost("upload-media/{categoryId}/{mediaType}")]
@@ -191,7 +152,7 @@ namespace PriceComparisonWebAPI.Controllers
                     {
                         return GeneralApiResponseModel.GetJsonResult(
                             AppErrors.General.SizeFileError,
-                            StatusCodes.Status400BadRequest, 
+                            StatusCodes.Status400BadRequest,
                             ex.Message);
                     }
                     else

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Models.DBModels;
+using Domain.Models.DTO.Categories;
 using PriceComparisonWebAPI.ViewModels.Category;
 
 namespace PriceComparisonWebAPI.Infrastructure
@@ -10,6 +11,7 @@ namespace PriceComparisonWebAPI.Infrastructure
         {
             CreateMap<CategoryDBModel, CategoryRequestViewModel>();
             CreateMap<CategoryRequestViewModel, CategoryDBModel>();
+            CreateMap<CategoryCreateDto, CategoryDBModel>();
         }
     }
 }

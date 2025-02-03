@@ -1,8 +1,10 @@
 ﻿using System.Linq.Expressions;
+using AutoMapper;
 using BLL.Services.MediaServices;
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
+using Domain.Models.DTO.Categories;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Microsoft.AspNetCore.Http;
@@ -13,25 +15,40 @@ namespace BLL.Services.CategoryService
     {
         private readonly IRepository<CategoryDBModel> _repository;
         private readonly IFileService _fileService;
+        private readonly IMapper _mapper;
 
 
-        public CategoryService(IRepository<CategoryDBModel> repository,
-                        IFileService fileService
-                        )
+        public CategoryService(IRepository<CategoryDBModel> repository, IFileService fileService, IMapper mapper)
         {
             _repository = repository;
             _fileService = fileService;
+            _mapper = mapper;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(CategoryDBModel model)
+
+        public async Task<OperationDetailsResponseModel> CreateAsync(CategoryCreateDto model)
         {
-            return await _repository.CreateAsync(model);
+            var dbModel = _mapper.Map<CategoryDBModel>(model);
+
+            if (model.Image != null)
+            {
+                dbModel.ImageUrl = await _fileService.SaveImageAsync(model.Image);
+            }
+
+            if (model.Icon != null)
+            {
+                dbModel.IconUrl = await _fileService.SaveImageAsync(model.Icon);
+            }
+
+            return await _repository.CreateAsync(dbModel);
         }
+
 
         public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
+
 
         public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
         {
@@ -66,7 +83,7 @@ namespace BLL.Services.CategoryService
             {
                 using var stream = new MemoryStream();
                 await file.CopyToAsync(stream);
-                var mediaUrl = await _fileService.SaveImageAsync(file.FileName, stream.ToArray());
+                var mediaUrl = await _fileService.SaveImageAsync(file);
 
                 var categoryToUpdate = category.First();
                 mediaType = mediaType.ToUpper();
@@ -87,7 +104,7 @@ namespace BLL.Services.CategoryService
             }
             catch (InvalidOperationException ex)
             {
-                return new OperationDetailsResponseModel { IsError = true, Message = AppErrors.General.InternalServerError, Exception=ex };
+                return new OperationDetailsResponseModel { IsError = true, Message = AppErrors.General.InternalServerError, Exception = ex };
             }
         }
 
