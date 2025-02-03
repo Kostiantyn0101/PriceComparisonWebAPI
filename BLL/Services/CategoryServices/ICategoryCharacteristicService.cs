@@ -2,7 +2,7 @@
 using Domain.Models.DBModels;
 using Domain.Models.Response;
 
-namespace BLL.Services.CategoryService
+namespace BLL.Services.CategoryCharacteristicService
 {
     public interface ICategoryCharacteristicService
     {

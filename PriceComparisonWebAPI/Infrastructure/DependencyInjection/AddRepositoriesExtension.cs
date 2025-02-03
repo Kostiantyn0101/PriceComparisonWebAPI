@@ -1,10 +1,5 @@
-﻿using BLL.Services;
-using DLL.Context;
-using DLL.Repository;
+﻿using DLL.Repository;
 using DLL.Repository.Abstractions;
-using Domain.Models.DBModels;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
 {
@@ -13,7 +8,12 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
         public static void AddRepositories(this WebApplicationBuilder builder)
         {
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            
+            //for refactor
             builder.Services.AddScoped<ICategoryCharacteristicRepository, CategoryCharacteristicRepository>();
+            builder.Services.AddScoped<IProductCharacteristicRepository, ProductCharacteristicRepository>();
+            builder.Services.AddScoped<IRelatedCategoryRepository, RelatedCategoryRepository>();
+            builder.Services.AddScoped<IPriceRepository, PriceRepository>();
         }
     }
 }

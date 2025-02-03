@@ -36,7 +36,7 @@ namespace DLL.Repository.Abstractions
                                       .FirstOrDefaultAsync(cc => cc.CategoryId == categoryId &&
                                                                  cc.CharacteristicId == characteristicId);
                 if (entity == null)
-                    return new OperationDetailsResponseModel { IsError = true, Message = "Entity not found" };
+                    return new OperationDetailsResponseModel { IsError = true, Message = "Entity not found", Exception = null };
 
                 _context.CategoryCharacteristics.Remove(entity);
                 await _context.SaveChangesAsync();
