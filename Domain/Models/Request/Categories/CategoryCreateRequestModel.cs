@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Domain.Models.DTO.Categories
 {
-    public class CategoryCreateDto
+    public class CategoryCreateRequestModel
     {
         public string Title { get; set; }
         public IFormFile? Image { get; set; }

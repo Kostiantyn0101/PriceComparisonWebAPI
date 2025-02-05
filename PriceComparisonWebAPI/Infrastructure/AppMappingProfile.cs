@@ -10,8 +10,10 @@ namespace PriceComparisonWebAPI.Infrastructure
         public AppMappingProfile()
         {
             CreateMap<CategoryDBModel, CategoryRequestViewModel>();
+            CreateMap<CategoryDBModel, CategoryDBModel>();
             CreateMap<CategoryRequestViewModel, CategoryDBModel>();
-            CreateMap<CategoryCreateDto, CategoryDBModel>();
+            CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
+            CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
         }
     }
 }

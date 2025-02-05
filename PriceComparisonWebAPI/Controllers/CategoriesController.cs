@@ -18,6 +18,7 @@ namespace PriceComparisonWebAPI.Controllers
     //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
     public class CategoriesController : ControllerBase
     {
         private readonly ILogger<CategoriesController> _logger;
@@ -63,13 +64,10 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<JsonResult> CreateCategory([FromForm] CategoryCreateDto categoryRequest)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> CreateCategory([FromForm] CategoryCreateRequestModel categoryRequest)
         {
-            if (categoryRequest == null)
-            {
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest);
-            }
-
             var result = await _categoryService.CreateAsync(categoryRequest);
 
             if (result.IsError)
@@ -83,29 +81,22 @@ namespace PriceComparisonWebAPI.Controllers
 
         [HttpPut]
         [Route("update")]
-        public async Task<JsonResult> UpdateCategory([FromBody] CategoryRequestViewModel categoryRequest)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UpdateCategory([FromForm] CategoryUpdateRequestModel categoryRequest)
         {
-            if (categoryRequest == null)
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest);
-
-            categoryRequest.ParentCategoryId =
-                categoryRequest.ParentCategoryId == 0 ?
-                null : categoryRequest.ParentCategoryId;
-
-            var result = await _categoryService.UpdateAsync(_mapper.Map<CategoryDBModel>(categoryRequest));
+            var result = await _categoryService.UpdateAsync(categoryRequest);
 
             if (result.IsError)
             {
                 _logger.LogError(result.Exception, AppErrors.General.UpdateError);
                 return GeneralApiResponseModel.GetJsonResult(
-                                    AppErrors.General.InternalServerError,
-                                    StatusCodes.Status500InternalServerError,
-                                    result.Exception.Message);
+                                    AppErrors.General.UpdateError,
+                                    StatusCodes.Status400BadRequest,
+                                    result.Message);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(
-                    AppSuccessCodes.UpdateSuccess,
-                    StatusCodes.Status201Created);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
         [HttpDelete("delete/{id}")]
@@ -138,43 +129,5 @@ namespace PriceComparisonWebAPI.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
-
-        [HttpPost("upload-media/{categoryId}/{mediaType}")]
-        public async Task<JsonResult> UploadCategoryMedia(int categoryId, string mediaType, IFormFile file)
-        {
-            try
-            {
-                var result = await _categoryService.UploadCategoryMediaAsync(categoryId, mediaType, file);
-
-                if (result.IsError)
-                {
-                    if (result.Exception is InvalidOperationException ex)
-                    {
-                        return GeneralApiResponseModel.GetJsonResult(
-                            AppErrors.General.SizeFileError,
-                            StatusCodes.Status400BadRequest,
-                            ex.Message);
-                    }
-                    else
-                    {
-                        return GeneralApiResponseModel.GetJsonResult(
-                            AppErrors.General.InternalServerError,
-                            StatusCodes.Status500InternalServerError,
-                            result.Message);
-                    }
-                }
-
-                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status201Created);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, AppErrors.General.InternalServerError);
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.InternalServerError,
-                    StatusCodes.Status500InternalServerError,
-                    ex.Message);
-            }
-
-        }
-    }
+    } 
 }
