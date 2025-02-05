@@ -1,7 +1,5 @@
 using AutoMapper;
 using BLL.Services.CategoryService;
-using BLL.Services.MediaServices;
-using Domain.Models.Configuration;
 using Domain.Models.DBModels;
 using Domain.Models.DTO.Categories;
 using Domain.Models.Exceptions;
@@ -11,9 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PriceComparisonWebAPI.ViewModels.Category;
-using System.Runtime.InteropServices;
 
-namespace PriceComparisonWebAPI.Controllers
+namespace PriceComparisonWebAPI.Controllers.Category
 {
     //[Authorize]
     [Route("api/[controller]")]
@@ -24,18 +21,15 @@ namespace PriceComparisonWebAPI.Controllers
         private readonly ILogger<CategoriesController> _logger;
         private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
-        private readonly IFileService _fileService;
 
         public CategoriesController(ILogger<CategoriesController> logger,
             ICategoryService categoryService,
-            IMapper mapper,
-            IFileService fileService
+            IMapper mapper
             )
         {
             _logger = logger;
             _categoryService = categoryService;
             _mapper = mapper;
-            _fileService = fileService;
         }
 
         [HttpGet("getall")]
@@ -108,7 +102,7 @@ namespace PriceComparisonWebAPI.Controllers
             {
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);
                 return GeneralApiResponseModel.GetJsonResult(
-                                       AppErrors.General.InternalServerError,
+                                       AppErrors.General.DeleteError,
                                        StatusCodes.Status500InternalServerError,
                                        result.Exception.Message);
             }
