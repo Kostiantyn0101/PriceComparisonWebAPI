@@ -89,7 +89,7 @@ namespace PriceComparisonWebAPI.Controllers
                     return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError,
                         StatusCodes.Status500InternalServerError, result.Exception.Message);
                 }
-                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status201Created);
+                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
             }
             catch (Exception ex)
             {

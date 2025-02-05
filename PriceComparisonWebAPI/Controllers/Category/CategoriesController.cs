@@ -1,6 +1,5 @@
 using AutoMapper;
 using BLL.Services.CategoryService;
-using Domain.Models.DBModels;
 using Domain.Models.DTO.Categories;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
@@ -47,11 +46,11 @@ namespace PriceComparisonWebAPI.Controllers.Category
         {
             var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
             if (category == null || !category.Any())
-                return GeneralApiResponseModel.GetJsonResult(
-                AppErrors.General.NotFound,
-                StatusCodes.Status404NotFound);
+            {
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status404NotFound);
+            }
 
-            return new JsonResult(_mapper.Map<CategoryRequestViewModel>(category.First()))
+            return new JsonResult(_mapper.Map<CategoryResponseViewModel>(category.First()))
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -73,8 +72,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-        [HttpPut]
-        [Route("update")]
+        [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCategory([FromForm] CategoryUpdateRequestModel categoryRequest)
@@ -84,16 +82,15 @@ namespace PriceComparisonWebAPI.Controllers.Category
             if (result.IsError)
             {
                 _logger.LogError(result.Exception, AppErrors.General.UpdateError);
-                return GeneralApiResponseModel.GetJsonResult(
-                                    AppErrors.General.UpdateError,
-                                    StatusCodes.Status400BadRequest,
-                                    result.Message);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.Message);
             }
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
         [HttpDelete("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteAsync(id);
@@ -101,15 +98,10 @@ namespace PriceComparisonWebAPI.Controllers.Category
             if (result.IsError)
             {
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);
-                return GeneralApiResponseModel.GetJsonResult(
-                                       AppErrors.General.DeleteError,
-                                       StatusCodes.Status500InternalServerError,
-                                       result.Exception.Message);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.Message);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(
-                    AppSuccessCodes.DeleteSuccess,
-                    StatusCodes.Status200OK);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
 
         [HttpGet("popular")]
@@ -123,5 +115,5 @@ namespace PriceComparisonWebAPI.Controllers.Category
                 StatusCode = StatusCodes.Status200OK
             };
         }
-    } 
+    }
 }
