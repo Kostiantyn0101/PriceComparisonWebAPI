@@ -23,7 +23,8 @@ namespace PriceComparisonWebAPI.Infrastructure
                 builder.AddAuth();
                 builder.AddSwagger();
                 builder.AddAutoMapper();
-                builder.AddFileStorage();
+                builder.AddOthers();
+                //builder.AddFileStorage();
             }
             catch (Exception ex)
             {

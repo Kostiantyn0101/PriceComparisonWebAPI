@@ -11,8 +11,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
 
             builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection(JwtConfiguration.Position));
 
-            builder.Services.Configure<FileStorageConfiguration>(
-                builder.Configuration.GetSection(FileStorageConfiguration.Position));
+            builder.Services.Configure<FileStorageConfiguration>(builder.Configuration.GetSection(FileStorageConfiguration.Position));
         }
     }
 }
