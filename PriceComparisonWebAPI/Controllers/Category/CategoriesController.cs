@@ -47,7 +47,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
             if (category == null || !category.Any())
             {
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status404NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
 
             return new JsonResult(_mapper.Map<CategoryResponseModel>(category.First()))

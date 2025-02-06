@@ -1,5 +1,6 @@
 ﻿using DLL.Context;
 using Domain.Models.DBModels;
+using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -36,7 +37,14 @@ namespace DLL.Repository.Abstractions
                                       .FirstOrDefaultAsync(cc => cc.ProductId == productId &&
                                                                  cc.SellerId == sellerId);
                 if (entity == null)
-                    return new OperationDetailsResponseModel { IsError = true, Message = "Entity not found" };
+                {
+                    return new OperationDetailsResponseModel 
+                    { 
+                        IsError = true, 
+                        Message = "Entity not found",
+                        Exception = new EntityNotFoundException("Price not found")
+                    };
+                }
 
                 _context.Prices.Remove(entity);
                 await _context.SaveChangesAsync();

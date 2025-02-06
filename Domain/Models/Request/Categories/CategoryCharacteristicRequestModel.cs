@@ -3,6 +3,6 @@
     public class CategoryCharacteristicRequestModel
     {
         public int CategoryId { get; set; }
-        public int CharacteristicId { get; set; }
+        public List<int> CharacteristicIds { get; set; }
     }
 }

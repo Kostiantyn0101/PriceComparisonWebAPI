@@ -2,6 +2,7 @@
 using BLL.Services.CategoryCharacteristicService;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
+using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
 using Domain.Models.SuccessCodes;
@@ -22,7 +23,7 @@ namespace PriceComparisonWebAPI.Controllers
         private readonly IMapper _mapper;
 
         public CategoryCharacteristicsController(
-            ICategoryCharacteristicService categoryCharacteristicService, 
+            ICategoryCharacteristicService categoryCharacteristicService,
             ILogger<CategoryCharacteristicsController> logger,
             IMapper mapper
             )
@@ -35,90 +36,79 @@ namespace PriceComparisonWebAPI.Controllers
         [HttpGet("{categoryId}")]
         public async Task<JsonResult> GetCategoryCharacteristics(int categoryId)
         {
-            try
+            var characteristics = await _categoryCharacteristicService
+               .GetQuery()
+               .Where(x => x.CategoryId == categoryId)
+               .Include(x => x.Characteristic)
+               .ToListAsync();
+
+            if (!characteristics.Any())
             {
-                //var characteristics = await _categoryCharacteristicService.GetFromConditionAsync(x => x.CategoryId == categoryId);
-
-                var characteristics = await _categoryCharacteristicService
-                   .GetQuery()
-                   .Where(x => x.CategoryId == categoryId)
-                   .Include(x => x.Characteristic) 
-                   .ToListAsync();
-
-                if (!characteristics.Any())
-                {
-                    return GeneralApiResponseModel.GetJsonResult(
-                        AppErrors.General.NotFound,
-                        StatusCodes.Status404NotFound);
-                }
-
-                return new JsonResult(_mapper.Map<List<CategoryCharacteristicResponseModel>>(characteristics))
-                {
-                    StatusCode = StatusCodes.Status200OK
-                };
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.NotFound,
+                    StatusCodes.Status400BadRequest);
             }
-            catch (Exception ex)
+
+            return new JsonResult(_mapper.Map<List<CategoryCharacteristicResponseModel>>(characteristics))
             {
-                _logger.LogError(ex, AppErrors.General.InternalServerError, categoryId, ex.Message);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError,
-                    StatusCodes.Status500InternalServerError, ex.Message);
-            }
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         [HttpPost("add")]
-        public async Task<JsonResult> AddCategoryCharacteristic(int categoryId, int characteristicId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> AddCategoryCharacteristic([FromBody] CategoryCharacteristicRequestModel request)
         {
-            try
+            if (request == null || request.CharacteristicIds == null || !request.CharacteristicIds.Any())
             {
-                var result = await _categoryCharacteristicService.CreateAsync(new CategoryCharacteristicDBModel
-                {
-                    CategoryId = categoryId,
-                    CharacteristicId = characteristicId
-                });
-                if (result.IsError)
-                {
-                    _logger.LogError(result.Exception, AppErrors.General.InternalServerError);
-                    return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError,
-                        StatusCodes.Status500InternalServerError, result.Exception.Message);
-                }
-                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.CreateError,
+                    StatusCodes.Status400BadRequest,
+                    "Request must contain category ID and at least one characteristic ID.");
             }
-            catch (Exception ex)
+
+            var result = await _categoryCharacteristicService.CreateMultipleAsync(request);
+
+            if (result.Any(r => r.IsError))
             {
-                _logger.LogError(ex, AppErrors.General.InternalServerError, categoryId, ex.Message);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.InternalServerError,
-                    StatusCodes.Status500InternalServerError, ex.Message);
+                _logger.LogError("Errors occurred during creation: {Errors}",
+                                  string.Join(", ", result.Where(r => r.IsError).Select(r => r.Message)));
             }
+
+            return GeneralApiResponseModel.GetJsonResult(
+                AppSuccessCodes.CreateSuccess,
+                StatusCodes.Status200OK,
+                $"{result.Count(r => !r.IsError)} characteristics successfully added.");
+
         }
 
-        [HttpDelete("delete/{categoryId}/{characteristicId}")]
-        public async Task<JsonResult> DeleteCategoryCharacteristic(int categoryId, int characteristicId)
+        [HttpDelete("delete")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> DeleteCategoryCharacteristics([FromBody] CategoryCharacteristicRequestModel request)
         {
-            try
+            if (request == null || request.CharacteristicIds == null || !request.CharacteristicIds.Any())
             {
-                var result = await _categoryCharacteristicService.DeleteAsync(categoryId, characteristicId);
-
-                if (result == null)
-                {
-                    return GeneralApiResponseModel.GetJsonResult(
-                        AppErrors.General.NotFound,
-                        StatusCodes.Status404NotFound);
-                }
-
-                if (result.IsError)
-                {
-                    _logger.LogError(result.Exception, AppErrors.General.DeleteError);
-                    return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError,
-                        StatusCodes.Status500InternalServerError);
-                }
-                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.DeleteError,
+                    StatusCodes.Status400BadRequest,
+                    "Request must contain category ID and at least one characteristic ID.");
             }
-            catch (Exception ex)
+
+            var result = await _categoryCharacteristicService.DeleteMultipleAsync(request);
+
+            if (result.Any(r => r.IsError))
             {
-                _logger.LogError(ex, AppErrors.General.DeleteError, categoryId, ex.Message);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError,
-                    StatusCodes.Status500InternalServerError, ex.Message);
+                _logger.LogError("Errors occurred during deletion: {Errors}",
+                                  string.Join(", ", result.Where(r => r.IsError).Select(r => r.Message)));
             }
+
+            return GeneralApiResponseModel.GetJsonResult(
+                AppSuccessCodes.DeleteSuccess,
+                StatusCodes.Status200OK,
+                $"{result.Count(r => !r.IsError)} characteristics successfully deleted.");
+
         }
     }
 }
