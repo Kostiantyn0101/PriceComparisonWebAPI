@@ -2,11 +2,12 @@
 using BLL.Services.ProductServices;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
+using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PriceComparisonWebAPI.ViewModels;
 
 namespace PriceComparisonWebAPI.Controllers
 {
@@ -30,6 +31,8 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetCharacteristicById(int id)
         {
             try
@@ -40,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers
                         AppErrors.General.NotFound, 
                         StatusCodes.Status404NotFound);
 
-                return new JsonResult(_mapper.Map<CharacteristicResponseViewModel>(characteristic.First()))
+                return new JsonResult(_mapper.Map<CharacteristicResponseModel>(characteristic.First()))
                 {
                     StatusCode = StatusCodes.Status200OK
                 };
@@ -54,7 +57,9 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<JsonResult> CreateCharacteristic([FromBody] CharacteristicRequestViewModel model)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> CreateCharacteristic([FromBody] CharacteristicRequestModel model)
         {
             try
             {
@@ -78,7 +83,9 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<JsonResult> UpdateCharacteristic([FromBody] CharacteristicRequestViewModel model)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UpdateCharacteristic([FromBody] CharacteristicRequestModel model)
         {
             try
             {
@@ -100,6 +107,8 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCharacteristic(int id)
         {
             try

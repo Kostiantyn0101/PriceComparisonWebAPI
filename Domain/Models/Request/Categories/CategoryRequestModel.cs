@@ -1,6 +1,6 @@
-﻿namespace PriceComparisonWebAPI.ViewModels.Category
+﻿namespace Domain.Models.Request.Categories
 {
-    public class CategoryResponseViewModel
+    public class CategoryRequestModel
     {
         public int Id { get; set; }
         public string Title { get; set; }

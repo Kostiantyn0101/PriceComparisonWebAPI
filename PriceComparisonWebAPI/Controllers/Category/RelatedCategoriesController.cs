@@ -2,11 +2,12 @@
 using BLL.Services.CategoryService;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
+using Domain.Models.Request.Categories;
 using Domain.Models.Response;
+using Domain.Models.Response.Categories;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PriceComparisonWebAPI.ViewModels.Category;
 
 namespace PriceComparisonWebAPI.Controllers
 {
@@ -36,7 +37,7 @@ namespace PriceComparisonWebAPI.Controllers
             try
             {
                 var relatedCategories = await _relatedCategoryService.GetFromConditionAsync(x => x.CategoryId == categoryId);
-                return new JsonResult(_mapper.Map<RelatedCategoryResponseViewModel>(relatedCategories.First()))
+                return new JsonResult(_mapper.Map<RelatedCategoryResponseModel>(relatedCategories.First()))
                 {
                     StatusCode = StatusCodes.Status200OK
                 };
@@ -50,7 +51,7 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<JsonResult> CreateRelatedCategory([FromBody] RelatedCategoryRequestViewModel relatedCategory)
+        public async Task<JsonResult> CreateRelatedCategory([FromBody] RelatedCategoryRequestModel relatedCategory)
         {
             try
             {
@@ -72,7 +73,7 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<JsonResult> UpdateRelatedCategory([FromBody] RelatedCategoryRequestViewModel relatedCategory)
+        public async Task<JsonResult> UpdateRelatedCategory([FromBody] RelatedCategoryRequestModel relatedCategory)
         {
             if (relatedCategory == null)
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest);

@@ -1,6 +1,6 @@
-﻿namespace PriceComparisonWebAPI.ViewModels
+﻿namespace Domain.Models.Response.Products
 {
-    public class CharacteristicResponseViewModel
+    public class CharacteristicResponseModel
     {
         public int Id { get; set; }
         public string Title { get; set; }
