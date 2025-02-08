@@ -5,6 +5,7 @@ using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Response;
 using Domain.Models.Request.Categories;
+using Domain.Models.Response.Categories;
 
 namespace BLL.Services.CategoryService
 {
@@ -61,7 +62,7 @@ namespace BLL.Services.CategoryService
 
         public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryUpdateRequestModel entity)
         {
-            var dbModel = (await GetFromConditionAsync(x => x.Id == entity.Id)).FirstOrDefault();
+            var dbModel = (await _repository.GetFromConditionAsync(x => x.Id == entity.Id)).FirstOrDefault();
             if (dbModel == null)
             {
                 return new OperationDetailsResponseModel { IsError = true, Message = "Entity not found" };
@@ -139,9 +140,10 @@ namespace BLL.Services.CategoryService
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<CategoryDBModel>> GetFromConditionAsync(Expression<Func<CategoryDBModel, bool>> condition)
+        public async Task<IEnumerable<CategoryResponseModel>> GetFromConditionAsync(Expression<Func<CategoryDBModel, bool>> condition)
         {
-            return await _repository.GetFromConditionAsync(condition);
+            var dbModels = await _repository.GetFromConditionAsync(condition);
+            return _mapper.Map<IEnumerable<CategoryResponseModel>>(dbModels);
         }
 
         public async Task<IEnumerable<CategoryDBModel>> ProcessQueryAsync(IQueryable<CategoryDBModel> query)

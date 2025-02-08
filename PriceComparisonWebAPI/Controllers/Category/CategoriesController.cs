@@ -35,7 +35,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
         public async Task<JsonResult> GetAllCategories()
         {
             var categories = await _categoryService.GetFromConditionAsync(x => true);
-            return new JsonResult(_mapper.Map<List<CategoryRequestModel>>(categories))
+            return new JsonResult(categories)
             {
                 StatusCode = StatusCodes.Status200OK
             };

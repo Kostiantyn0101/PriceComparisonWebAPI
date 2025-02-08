@@ -4,6 +4,7 @@ using Domain.Models.Request.Categories;
 using Domain.Models.Request.Products;
 using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
+using PriceComparisonWebAPI.Infrastructure.MapperResolvers;
 
 namespace PriceComparisonWebAPI.Infrastructure
 {
@@ -11,7 +12,10 @@ namespace PriceComparisonWebAPI.Infrastructure
     {
         public AppMappingProfile()
         {
-            CreateMap<CategoryDBModel, CategoryResponseModel>();
+            CreateMap<CategoryDBModel, CategoryResponseModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<CategoryImageUrlResolver>())
+                .ForMember(dest => dest.IconUrl, opt => opt.MapFrom<CategoryIconUrlResolver>());
+
             CreateMap<CategoryDBModel, CategoryRequestModel>();
             CreateMap<CategoryRequestModel, CategoryDBModel>();
             CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
