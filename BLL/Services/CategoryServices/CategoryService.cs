@@ -2,13 +2,9 @@
 using AutoMapper;
 using BLL.Services.MediaServices;
 using DLL.Repository;
-using Domain.Models.Configuration;
 using Domain.Models.DBModels;
-using Domain.Models.DTO.Categories;
-using Domain.Models.Exceptions;
 using Domain.Models.Response;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Domain.Models.Request.Categories;
 
 namespace BLL.Services.CategoryService
 {

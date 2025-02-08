@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-
 namespace Domain.Models.Response
 {
     public class GeneralApiResponseModel

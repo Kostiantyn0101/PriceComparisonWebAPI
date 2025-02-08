@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Domain.Models.DBModels;
-using Domain.Models.DTO.Categories;
-using PriceComparisonWebAPI.ViewModels;
-using PriceComparisonWebAPI.ViewModels.Category;
+using Domain.Models.Request.Categories;
+using Domain.Models.Request.Products;
+using Domain.Models.Response.Categories;
+using Domain.Models.Response.Products;
 
 namespace PriceComparisonWebAPI.Infrastructure
 {
@@ -10,27 +11,27 @@ namespace PriceComparisonWebAPI.Infrastructure
     {
         public AppMappingProfile()
         {
-            CreateMap<CategoryDBModel, CategoryResponseViewModel>();
-            CreateMap<CategoryDBModel, CategoryRequestViewModel>();
-            CreateMap<CategoryDBModel, CategoryDBModel>();
-            CreateMap<CategoryRequestViewModel, CategoryDBModel>();
+            CreateMap<CategoryDBModel, CategoryResponseModel>();
+            CreateMap<CategoryDBModel, CategoryRequestModel>();
+            CreateMap<CategoryRequestModel, CategoryDBModel>();
+            CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
+            CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
 
-            CreateMap<CharacteristicDBModel, CharacteristicResponseViewModel>();
-            CreateMap<CharacteristicRequestViewModel, CharacteristicDBModel>();
+            CreateMap<CharacteristicDBModel, CharacteristicResponseModel>();
+            CreateMap<CharacteristicRequestModel, CharacteristicDBModel>();
 
-            CreateMap<RelatedCategoryDBModel, RelatedCategoryResponseViewModel>();
-            CreateMap<RelatedCategoryRequestViewModel, RelatedCategoryDBModel>();
+            CreateMap<RelatedCategoryDBModel, RelatedCategoryResponseModel>();
+            CreateMap<RelatedCategoryRequestModel, RelatedCategoryDBModel>();
 
-            CreateMap<CategoryCharacteristicDBModel, CategoryCharacteristicResponseViewModel>()
+            CreateMap<CategoryCharacteristicDBModel, CategoryCharacteristicResponseModel>()
                 .ForMember(dest => dest.CharacteristicTitle, opt => opt.MapFrom(src => src.Characteristic.Title))
                 .ForMember(dest => dest.CharacteristicDataType, opt => opt.MapFrom(src => src.Characteristic.DataType))
                 .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
-            CreateMap<CategoryCharacteristicRequestViewModel, CategoryCharacteristicDBModel>();
+            CreateMap<CategoryCharacteristicRequestModel, CategoryCharacteristicDBModel>();
 
 
 
-            CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
-            CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
+
         }
     }
 }

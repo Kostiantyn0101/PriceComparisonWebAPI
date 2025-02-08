@@ -1,13 +1,13 @@
 using AutoMapper;
 using BLL.Services.CategoryService;
-using Domain.Models.DTO.Categories;
 using Domain.Models.Exceptions;
+using Domain.Models.Request.Categories;
 using Domain.Models.Response;
+using Domain.Models.Response.Categories;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PriceComparisonWebAPI.ViewModels.Category;
 
 namespace PriceComparisonWebAPI.Controllers.Category
 {
@@ -35,7 +35,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
         public async Task<JsonResult> GetAllCategories()
         {
             var categories = await _categoryService.GetFromConditionAsync(x => true);
-            return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
+            return new JsonResult(_mapper.Map<List<CategoryRequestModel>>(categories))
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -47,10 +47,10 @@ namespace PriceComparisonWebAPI.Controllers.Category
             var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
             if (category == null || !category.Any())
             {
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status404NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
 
-            return new JsonResult(_mapper.Map<CategoryResponseViewModel>(category.First()))
+            return new JsonResult(_mapper.Map<CategoryResponseModel>(category.First()))
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -110,7 +110,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             var categories = await _categoryService.GetQuery()
                 .Take(5)
                 .ToListAsync();
-            return new JsonResult(_mapper.Map<List<CategoryRequestViewModel>>(categories))
+            return new JsonResult(_mapper.Map<List<CategoryRequestModel>>(categories))
             {
                 StatusCode = StatusCodes.Status200OK
             };

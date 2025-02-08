@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Domain.Models.DBModels;
-using Domain.Models.DTO.Categories;
+using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Microsoft.AspNetCore.Http;
 

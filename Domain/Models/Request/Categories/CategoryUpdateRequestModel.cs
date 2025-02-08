@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace Domain.Models.DTO.Categories
+namespace Domain.Models.Request.Categories
 {
     public class CategoryUpdateRequestModel
     {
