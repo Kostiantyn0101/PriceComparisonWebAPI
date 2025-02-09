@@ -33,7 +33,8 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
             CreateMap<CategoryCharacteristicRequestModel, CategoryCharacteristicDBModel>();
 
-
+            CreateMap<ProductDBModel, ProductResponseModel>();
+            CreateMap<ProductRequestModel, ProductDBModel>();
 
 
         }
