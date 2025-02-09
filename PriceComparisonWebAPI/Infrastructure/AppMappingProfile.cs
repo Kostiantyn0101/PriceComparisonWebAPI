@@ -16,6 +16,10 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<CategoryImageUrlResolver>())
                 .ForMember(dest => dest.IconUrl, opt => opt.MapFrom<CategoryIconUrlResolver>());
 
+            // find desizion about nullable type
+            CreateMap<ProductImageDBModel, ProductImageResponseModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductImageUrlResolver>());
+
             CreateMap<CategoryDBModel, CategoryRequestModel>();
             CreateMap<CategoryRequestModel, CategoryDBModel>();
             CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
@@ -36,7 +40,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ProductDBModel, ProductResponseModel>();
             CreateMap<ProductRequestModel, ProductDBModel>();
 
-
+            CreateMap<ProductImageDBModel, ProductImageResponseModel>();
         }
     }
 }

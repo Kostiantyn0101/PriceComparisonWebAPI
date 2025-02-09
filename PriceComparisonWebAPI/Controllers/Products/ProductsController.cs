@@ -41,7 +41,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
 
-            return new JsonResult(_mapper.Map<ProductResponseModel>(product.First()))
+            return new JsonResult(product.First())
             {
                 StatusCode = StatusCodes.Status200OK
             };

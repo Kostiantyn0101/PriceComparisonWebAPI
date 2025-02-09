@@ -4,6 +4,7 @@ using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Products;
 
 namespace BLL.Services.ProductService
 {
@@ -38,9 +39,10 @@ namespace BLL.Services.ProductService
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<ProductDBModel>> GetFromConditionAsync(Expression<Func<ProductDBModel, bool>> condition)
+        public async Task<IEnumerable<ProductResponseModel>> GetFromConditionAsync(Expression<Func<ProductDBModel, bool>> condition)
         {
-            return await _repository.GetFromConditionAsync(condition);
+            var dbModels = await _repository.GetFromConditionAsync(condition);
+            return _mapper.Map<IEnumerable<ProductResponseModel>>(dbModels);
         }
 
         public async Task<IEnumerable<ProductDBModel>> ProcessQueryAsync(IQueryable<ProductDBModel> query)
