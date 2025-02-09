@@ -110,7 +110,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             var categories = await _categoryService.GetQuery()
                 .Take(5)
                 .ToListAsync();
-            return new JsonResult(_mapper.Map<List<CategoryRequestModel>>(categories))
+            return new JsonResult(_mapper.Map<List<CategoryResponseModel>>(categories))
             {
                 StatusCode = StatusCodes.Status200OK
             };
