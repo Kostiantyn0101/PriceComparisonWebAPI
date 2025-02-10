@@ -8,8 +8,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation
         public CharacteristicRequestModelValidator()
         {
             RuleFor(x => x.Id)
-                .GreaterThan(0)
-                .WithMessage("Characteristic id must be greater than 0");
+                .GreaterThan(0).WithMessage("Characteristic id must be greater than 0");
 
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Title is required.")
