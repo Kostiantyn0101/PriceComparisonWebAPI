@@ -1,7 +1,9 @@
 ﻿using System.Linq.Expressions;
 using Azure.Core;
 using DLL.Repository;
+using DLL.Repository.Abstractions;
 using Domain.Models.DBModels;
+using Domain.Models.Exceptions;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Microsoft.Extensions.Logging;
@@ -11,16 +13,42 @@ namespace BLL.Services.CategoryCharacteristicService
     public class CategoryCharacteristicService : ICategoryCharacteristicService
     {
 
-        private readonly ICategoryCharacteristicRepository _repository;
+        private readonly ICategoryCharacteristicRepository _categoryCharacteristicRepository;
+        private readonly IRepository<CharacteristicDBModel> _characteristicRepository;
 
-        public CategoryCharacteristicService(ICategoryCharacteristicRepository repository)
+        public CategoryCharacteristicService(
+            ICategoryCharacteristicRepository categoryCharacteristicRepository,
+            IRepository<CharacteristicDBModel> characteristicRepository)
         {
-            _repository = repository;
+            _categoryCharacteristicRepository = categoryCharacteristicRepository;
+            _characteristicRepository = characteristicRepository;
         }
 
         public async Task<OperationDetailsResponseModel> CreateAsync(CategoryCharacteristicDBModel model)
         {
-            return await _repository.CreateAsync(model);
+            var characteristicList = await _characteristicRepository.GetFromConditionAsync(x => x.Id == model.CharacteristicId);
+            if (!characteristicList.Any())
+            {
+                return new OperationDetailsResponseModel
+                {
+                    IsError = true,
+                    Message = $"Characteristic with ID {model.CharacteristicId} does not exist."
+                };
+            }
+
+            var existingRecords = await GetFromConditionAsync(
+                      x => x.CategoryId == model.CategoryId && x.CharacteristicId == model.CharacteristicId);
+            if (existingRecords.Any())
+            {
+                return new OperationDetailsResponseModel
+                {
+                    IsError = true,
+                    Message = $"Record with CategoryId = {model.CategoryId} and CharacteristicId = {model.CharacteristicId} already exists.",
+                };
+            }
+
+
+            return await _categoryCharacteristicRepository.CreateAsync(model);
         }
 
         public async Task<List<OperationDetailsResponseModel>> CreateMultipleAsync(CategoryCharacteristicRequestModel request)
@@ -35,7 +63,7 @@ namespace BLL.Services.CategoryCharacteristicService
 
             foreach (var model in models)
             {
-                results.Add(await _repository.CreateAsync(model));
+                results.Add(await CreateAsync(model));
             }
 
             return results;
@@ -43,12 +71,12 @@ namespace BLL.Services.CategoryCharacteristicService
 
         public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryCharacteristicDBModel entity)
         {
-            return await _repository.UpdateAsync(entity);
+            return await _categoryCharacteristicRepository.UpdateAsync(entity);
         }
 
         public async Task<OperationDetailsResponseModel> DeleteAsync(int categoryId, int characteristicId)
         {
-            return await _repository.DeleteAsync(categoryId, characteristicId);
+            return await _categoryCharacteristicRepository.DeleteAsync(categoryId, characteristicId);
         }
 
         public async Task<List<OperationDetailsResponseModel>> DeleteMultipleAsync(CategoryCharacteristicRequestModel request)
@@ -57,7 +85,7 @@ namespace BLL.Services.CategoryCharacteristicService
 
             foreach (var id in request.CharacteristicIds)
             {
-                results.Add(await _repository.DeleteAsync(request.CategoryId, id));
+                results.Add(await _categoryCharacteristicRepository.DeleteAsync(request.CategoryId, id));
             }
 
             return results;
@@ -65,17 +93,17 @@ namespace BLL.Services.CategoryCharacteristicService
 
         public IQueryable<CategoryCharacteristicDBModel> GetQuery()
         {
-            return _repository.GetQuery();
+            return _categoryCharacteristicRepository.GetQuery();
         }
 
         public async Task<IEnumerable<CategoryCharacteristicDBModel>> GetFromConditionAsync(Expression<Func<CategoryCharacteristicDBModel, bool>> condition)
         {
-            return await _repository.GetFromConditionAsync(condition);
+            return await _categoryCharacteristicRepository.GetFromConditionAsync(condition);
         }
 
         public async Task<IEnumerable<CategoryCharacteristicDBModel>> ProcessQueryAsync(IQueryable<CategoryCharacteristicDBModel> query)
         {
-            return await _repository.ProcessQueryAsync(query);
+            return await _categoryCharacteristicRepository.ProcessQueryAsync(query);
         }
     }
 }

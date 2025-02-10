@@ -60,27 +60,15 @@ namespace PriceComparisonWebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddCategoryCharacteristic([FromBody] CategoryCharacteristicRequestModel request)
         {
-            if (request == null || request.CharacteristicIds == null || !request.CharacteristicIds.Any())
-            {
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.CreateError,
-                    StatusCodes.Status400BadRequest,
-                    "Request must contain category ID and at least one characteristic ID.");
-            }
+
+            var validationError = ValidateRequest(request, "add");
+
+            if (validationError != null)
+                return validationError;
 
             var result = await _categoryCharacteristicService.CreateMultipleAsync(request);
 
-            if (result.Any(r => r.IsError))
-            {
-                _logger.LogError("Errors occurred during creation: {Errors}",
-                                  string.Join(", ", result.Where(r => r.IsError).Select(r => r.Message)));
-            }
-
-            return GeneralApiResponseModel.GetJsonResult(
-                AppSuccessCodes.CreateSuccess,
-                StatusCodes.Status200OK,
-                $"{result.Count(r => !r.IsError)} characteristics successfully added.");
-
+            return ProcessResult(result, "add");
         }
 
         [HttpDelete("delete")]
@@ -88,27 +76,46 @@ namespace PriceComparisonWebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCategoryCharacteristics([FromBody] CategoryCharacteristicRequestModel request)
         {
+            var validationError = ValidateRequest(request, "delete");
+            if (validationError != null)
+                return validationError;
+
+            var result = await _categoryCharacteristicService.DeleteMultipleAsync(request);
+            return ProcessResult(result, "delete");
+
+        }
+
+        private JsonResult ProcessResult(IEnumerable<OperationDetailsResponseModel> result, string operationType)
+        {
+            if (result.All(r => r.IsError))
+            {
+                _logger.LogError("All errors occurred during {Operation}: {Errors}",
+                                 operationType,
+                                 string.Join(", ", result.Select(r => r.Message)));
+                var errorCode = operationType == "add" ? AppErrors.General.CreateError : AppErrors.General.DeleteError;
+                var errorMessage = operationType == "add" ? "No characteristic was successfully added." : "No characteristic was successfully deleted.";
+                return GeneralApiResponseModel.GetJsonResult(errorCode, StatusCodes.Status400BadRequest, errorMessage);
+            }
+
+            var successCount = result.Count(r => !r.IsError);
+            var successCode = operationType == "add" ? AppSuccessCodes.CreateSuccess : AppSuccessCodes.DeleteSuccess;
+            var successMessage = operationType == "add"
+                ? $"{successCount} characteristic{(successCount > 1 ? "s" : "")} successfully added."
+                : $"{successCount} characteristic{(successCount > 1 ? "s" : "")} successfully deleted.";
+            return GeneralApiResponseModel.GetJsonResult(successCode, StatusCodes.Status200OK, successMessage);
+        }
+
+        private JsonResult ValidateRequest(CategoryCharacteristicRequestModel request, string operationType)
+        {
             if (request == null || request.CharacteristicIds == null || !request.CharacteristicIds.Any())
             {
+                var errorCode = operationType == "add" ? AppErrors.General.CreateError : AppErrors.General.DeleteError;
                 return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.DeleteError,
+                    errorCode,
                     StatusCodes.Status400BadRequest,
                     "Request must contain category ID and at least one characteristic ID.");
             }
-
-            var result = await _categoryCharacteristicService.DeleteMultipleAsync(request);
-
-            if (result.Any(r => r.IsError))
-            {
-                _logger.LogError("Errors occurred during deletion: {Errors}",
-                                  string.Join(", ", result.Where(r => r.IsError).Select(r => r.Message)));
-            }
-
-            return GeneralApiResponseModel.GetJsonResult(
-                AppSuccessCodes.DeleteSuccess,
-                StatusCodes.Status200OK,
-                $"{result.Count(r => !r.IsError)} characteristics successfully deleted.");
-
+            return null;
         }
     }
 }

@@ -70,7 +70,7 @@ namespace BLL.Services.ProductService
         {
             foreach (var id in model.ProductImageIds)
             {
-                var images = await _repository.GetFromConditionAsync(x => x.Id == id);
+                var images = await GetFromConditionAsync(x => x.Id == id);
                 var productImage = images.FirstOrDefault();
                 if (productImage == null)
                     continue;
@@ -91,7 +91,7 @@ namespace BLL.Services.ProductService
 
         public async Task<OperationResultModel<bool>> SetPrimaryImageAsync(ProductImageSetPrimaryRequestModel model)
         {
-            var images = await _repository.GetFromConditionAsync(x => x.Id == model.ProductImageId);
+            var images = await GetFromConditionAsync(x => x.Id == model.ProductImageId);
             var productImage = images.FirstOrDefault();
             if (productImage == null)
             {

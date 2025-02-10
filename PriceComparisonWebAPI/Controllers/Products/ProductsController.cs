@@ -19,16 +19,13 @@ namespace PriceComparisonWebAPI.Controllers.Products
     {
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductService _productService;
-        private readonly IMapper _mapper;
 
         public ProductsController(ILogger<ProductsController> logger,
-            IProductService productService,
-            IMapper mapper
+            IProductService productService
             )
         {
             _logger = logger;
             _productService = productService;
-            _mapper = mapper;
         }
 
 
@@ -38,6 +35,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             var product = await _productService.GetFromConditionAsync(x => x.Id == id);
             if (product == null || !product.Any())
             {
+                _logger.LogError(AppErrors.General.NotFound);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
 
