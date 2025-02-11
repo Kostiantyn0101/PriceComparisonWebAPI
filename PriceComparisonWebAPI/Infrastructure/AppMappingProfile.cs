@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Categories;
+using Domain.Models.Request.Feedback;
 using Domain.Models.Request.Products;
 using Domain.Models.Response.Categories;
+using Domain.Models.Response.Feedback;
 using Domain.Models.Response.Products;
 using PriceComparisonWebAPI.Infrastructure.MapperResolvers;
 
@@ -51,6 +53,14 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<InstructionDBModel, InstructionResponseModel>();
             CreateMap<InstructionCreateRequestModel, InstructionDBModel>();
             CreateMap<InstructionUpdateRequestModel, InstructionDBModel>();
+
+            CreateMap<FeedbackDBModel, FeedbackResponseModel>();
+            CreateMap<FeedbackCreateRequestModel, FeedbackDBModel>();
+            CreateMap<FeedbackUpdateRequestModel, FeedbackDBModel>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ForMember(dest => dest.Product, opt => opt.Ignore())
+                .ForMember(dest => dest.FeedbackImages, opt => opt.Ignore());
         }
     }
 }

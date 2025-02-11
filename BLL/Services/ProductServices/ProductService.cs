@@ -19,20 +19,32 @@ namespace BLL.Services.ProductService
             _mapper = mapper;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(ProductRequestModel model)
+        public async Task<OperationResultModel<bool>> CreateAsync(ProductRequestModel model)
         {
-            return await _repository.CreateAsync(_mapper.Map<ProductDBModel>(model));
+            var mapped = _mapper.Map<ProductDBModel>(model);
+            var result = await _repository.CreateAsync(mapped);
+            return !result.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(ProductRequestModel entity)
+        public async Task<OperationResultModel<bool>> UpdateAsync(ProductRequestModel model)
         {
-            return await _repository.UpdateAsync(_mapper.Map<ProductDBModel>(entity));
+            var mapped = _mapper.Map<ProductDBModel>(model);
+            var result = await _repository.UpdateAsync(mapped);
+            return !result.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
 
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
-            return await _repository.DeleteAsync(id);
+            var result = await _repository.DeleteAsync(id);
+            return !result.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
+
 
         public IQueryable<ProductDBModel> GetQuery()
         {
