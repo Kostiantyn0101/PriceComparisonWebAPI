@@ -44,6 +44,9 @@ namespace PriceComparisonWebAPI.Infrastructure
                .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
             CreateMap<ProductCharacteristicValueUpdateModel, ProductCharacteristicDBModel>();
 
+            CreateMap<ProductVideoDBModel, ProductVideoResponseModel>();
+            CreateMap<ProductVideoCreateRequestModel, ProductVideoDBModel>();
+            CreateMap<ProductVideoUpdateRequestModel, ProductVideoDBModel>();
         }
     }
 }
