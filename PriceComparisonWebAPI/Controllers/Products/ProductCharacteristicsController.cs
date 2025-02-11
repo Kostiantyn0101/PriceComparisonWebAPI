@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BLL.Services.ProductService;
+﻿using BLL.Services.ProductService;
 using Domain.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
