@@ -47,6 +47,10 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ProductVideoDBModel, ProductVideoResponseModel>();
             CreateMap<ProductVideoCreateRequestModel, ProductVideoDBModel>();
             CreateMap<ProductVideoUpdateRequestModel, ProductVideoDBModel>();
+
+            CreateMap<InstructionDBModel, InstructionResponseModel>();
+            CreateMap<InstructionCreateRequestModel, InstructionDBModel>();
+            CreateMap<InstructionUpdateRequestModel, InstructionDBModel>();
         }
     }
 }
