@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using BLL.Services.CategoryCharacteristicService;
-using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
@@ -9,7 +8,6 @@ using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.PortableExecutable;
 
 namespace PriceComparisonWebAPI.Controllers
 {
