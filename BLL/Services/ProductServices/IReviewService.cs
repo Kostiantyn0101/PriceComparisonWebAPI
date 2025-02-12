@@ -1,16 +1,18 @@
 ﻿using System.Linq.Expressions;
 using Domain.Models.DBModels;
+using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Products;
 
 namespace BLL.Services.ProductServices
 {
     public interface IReviewService
     {
-        Task<OperationDetailsResponseModel> CreateAsync(ReviewDBModel model);
-        Task<OperationDetailsResponseModel> UpdateAsync(ReviewDBModel entity);
-        Task<OperationDetailsResponseModel> DeleteAsync(int id);
+        Task<OperationResultModel<bool>> CreateAsync(ReviewCreateRequestModel request);
+        Task<OperationResultModel<bool>> UpdateAsync(ReviewUpdateRequestModel request);
+        Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<ReviewDBModel> GetQuery();
-        Task<IEnumerable<ReviewDBModel>> GetFromConditionAsync(Expression<Func<ReviewDBModel, bool>> condition);
+        Task<IEnumerable<ReviewResponseModel>> GetFromConditionAsync(Expression<Func<ReviewDBModel, bool>> condition);
         Task<IEnumerable<ReviewDBModel>> ProcessQueryAsync(IQueryable<ReviewDBModel> query);
     }
 }
