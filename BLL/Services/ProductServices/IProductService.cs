@@ -8,9 +8,9 @@ namespace BLL.Services.ProductService
 {
     public interface IProductService
     {
-        Task<OperationDetailsResponseModel> CreateAsync(ProductRequestModel model);
-        Task<OperationDetailsResponseModel> UpdateAsync(ProductRequestModel entity);
-        Task<OperationDetailsResponseModel> DeleteAsync(int id);
+        Task<OperationResultModel<bool>> CreateAsync(ProductRequestModel model);
+        Task<OperationResultModel<bool>> UpdateAsync(ProductRequestModel entity);
+        Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<ProductDBModel> GetQuery();
         Task<IEnumerable<ProductResponseModel>> GetFromConditionAsync(Expression<Func<ProductDBModel, bool>> condition);
         Task<IEnumerable<ProductDBModel>> ProcessQueryAsync(IQueryable<ProductDBModel> query);

@@ -1,13 +1,10 @@
-using AutoMapper;
-using BLL.Services.ProductService;
-using Domain.Models.Exceptions;
-using Domain.Models.Request.Products;
+﻿using Domain.Models.Request.Products;
 using Domain.Models.Response;
-using Domain.Models.Response.Products;
-using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
+using Domain.Models.SuccessCodes;
+using Domain.Models.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using BLL.Services.MediaServices;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
@@ -15,31 +12,27 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
-    public class ProductsController : ControllerBase
+    public class InstructionController : ControllerBase
     {
-        private readonly ILogger<ProductsController> _logger;
-        private readonly IProductService _productService;
+        private readonly IInstructionService _instructionService;
+        private readonly ILogger<InstructionController> _logger;
 
-        public ProductsController(ILogger<ProductsController> logger,
-            IProductService productService
-            )
+        public InstructionController(IInstructionService instructionService, ILogger<InstructionController> logger)
         {
+            _instructionService = instructionService;
             _logger = logger;
-            _productService = productService;
         }
 
-
-        [HttpGet("{id}")]
-        public async Task<JsonResult> GetProductById(int id)
+        [HttpGet("{productId}")]
+        public async Task<JsonResult> GetInstructionsByProductId(int productId)
         {
-            var product = await _productService.GetFromConditionAsync(x => x.Id == id);
-            if (product == null || !product.Any())
+            var result = await _instructionService.GetFromConditionAsync(x => x.ProductId == productId);
+            if (result == null || !result.Any())
             {
                 _logger.LogError(AppErrors.General.NotFound);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
-
-            return new JsonResult(product.First())
+            return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -48,48 +41,42 @@ namespace PriceComparisonWebAPI.Controllers.Products
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateProduct([FromForm] ProductRequestModel productRequest)
+        public async Task<JsonResult> CreateInstruction([FromBody] InstructionCreateRequestModel request)
         {
-            var result = await _productService.CreateAsync(productRequest);
-
+            var result = await _instructionService.CreateAsync(request);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.CreateError);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
-
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateProduct([FromForm] ProductRequestModel productRequest)
+        public async Task<JsonResult> UpdateInstruction([FromBody] InstructionUpdateRequestModel request)
         {
-            var result = await _productService.UpdateAsync(productRequest);
-
+            var result = await _instructionService.UpdateAsync(request);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.UpdateError);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
-
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> DeleteProduct(int id)
+        public async Task<JsonResult> DeleteInstruction(int id)
         {
-            var result = await _productService.DeleteAsync(id);
-
+            var result = await _instructionService.DeleteAsync(id);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
-
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
     }

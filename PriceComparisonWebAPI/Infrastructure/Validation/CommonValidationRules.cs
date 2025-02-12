@@ -4,7 +4,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation
 {
     public static class CommonValidationRules
     {
-        private static readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+        private static readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         private static readonly int _maxFileSizeInMb = 5;
         private static readonly int _maxFileSizeInBytes = _maxFileSizeInMb * 1024 * 1024; // 5 Mb
 

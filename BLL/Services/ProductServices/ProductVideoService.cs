@@ -1,32 +1,49 @@
 ﻿using System.Linq.Expressions;
+using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
+using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Products;
 
 namespace BLL.Services.ProductService
 {
     public class ProductVideoService : IProductVideoService
     {
         private readonly IRepository<ProductVideoDBModel> _repository;
+        private readonly IMapper _mapper;
 
-        public ProductVideoService(IRepository<ProductVideoDBModel> repository)
+
+        public ProductVideoService(IRepository<ProductVideoDBModel> repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(ProductVideoDBModel model)
+        public async Task<OperationResultModel<bool>> CreateAsync(ProductVideoCreateRequestModel request)
         {
-            return await _repository.CreateAsync(model);
+            var model = _mapper.Map<ProductVideoDBModel>(request);
+            var result = await _repository.CreateAsync(model);
+            return !result.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(ProductVideoDBModel entity)
+        public async Task<OperationResultModel<bool>> UpdateAsync(ProductVideoUpdateRequestModel request)
         {
-            return await _repository.UpdateAsync(entity);
+            var model = _mapper.Map<ProductVideoDBModel>(request);
+            var result = await _repository.UpdateAsync(model);
+            return !result.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
 
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
-            return await _repository.DeleteAsync(id);
+            var result = await _repository.DeleteAsync(id);
+            return !result.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
 
         public IQueryable<ProductVideoDBModel> GetQuery()
@@ -34,9 +51,10 @@ namespace BLL.Services.ProductService
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<ProductVideoDBModel>> GetFromConditionAsync(Expression<Func<ProductVideoDBModel, bool>> condition)
+        public async Task<IEnumerable<ProductVideoResponseModel>> GetFromConditionAsync(Expression<Func<ProductVideoDBModel, bool>> condition)
         {
-            return await _repository.GetFromConditionAsync(condition);
+            var dbModels = await _repository.GetFromConditionAsync(condition);
+            return _mapper.Map<IEnumerable<ProductVideoResponseModel>>(dbModels);
         }
 
         public async Task<IEnumerable<ProductVideoDBModel>> ProcessQueryAsync(IQueryable<ProductVideoDBModel> query)

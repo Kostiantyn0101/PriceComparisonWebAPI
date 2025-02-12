@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Categories;
+using Domain.Models.Request.Feedback;
 using Domain.Models.Request.Products;
 using Domain.Models.Response.Categories;
+using Domain.Models.Response.Feedback;
 using Domain.Models.Response.Products;
 using PriceComparisonWebAPI.Infrastructure.MapperResolvers;
 
@@ -20,8 +22,6 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ProductImageDBModel, ProductImageResponseModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductImageUrlResolver>());
 
-            CreateMap<CategoryDBModel, CategoryRequestModel>();
-            CreateMap<CategoryRequestModel, CategoryDBModel>();
             CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
             CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
 
@@ -40,7 +40,27 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ProductDBModel, ProductResponseModel>();
             CreateMap<ProductRequestModel, ProductDBModel>();
 
-            CreateMap<ProductImageDBModel, ProductImageResponseModel>();
+            CreateMap<ProductCharacteristicDBModel, ProductCharacteristicResponseModel>()
+               .ForMember(dest => dest.CharacteristicTitle, opt => opt.MapFrom(src => src.Characteristic.Title))
+               .ForMember(dest => dest.CharacteristicDataType, opt => opt.MapFrom(src => src.Characteristic.DataType))
+               .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
+            CreateMap<ProductCharacteristicValueUpdateModel, ProductCharacteristicDBModel>();
+
+            CreateMap<ProductVideoDBModel, ProductVideoResponseModel>();
+            CreateMap<ProductVideoCreateRequestModel, ProductVideoDBModel>();
+            CreateMap<ProductVideoUpdateRequestModel, ProductVideoDBModel>();
+
+            CreateMap<InstructionDBModel, InstructionResponseModel>();
+            CreateMap<InstructionCreateRequestModel, InstructionDBModel>();
+            CreateMap<InstructionUpdateRequestModel, InstructionDBModel>();
+
+            CreateMap<FeedbackDBModel, FeedbackResponseModel>();
+            CreateMap<FeedbackCreateRequestModel, FeedbackDBModel>();
+            CreateMap<FeedbackUpdateRequestModel, FeedbackDBModel>()
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.User, opt => opt.Ignore())
+                .ForMember(dest => dest.Product, opt => opt.Ignore())
+                .ForMember(dest => dest.FeedbackImages, opt => opt.Ignore());
         }
     }
 }
