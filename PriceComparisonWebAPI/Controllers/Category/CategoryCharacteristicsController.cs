@@ -14,40 +14,31 @@ namespace PriceComparisonWebAPI.Controllers
     //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
     public class CategoryCharacteristicsController : ControllerBase
     {
         private readonly ILogger<CategoryCharacteristicsController> _logger;
         private readonly ICategoryCharacteristicService _categoryCharacteristicService;
-        private readonly IMapper _mapper;
 
         public CategoryCharacteristicsController(
             ICategoryCharacteristicService categoryCharacteristicService,
-            ILogger<CategoryCharacteristicsController> logger,
-            IMapper mapper
+            ILogger<CategoryCharacteristicsController> logger
             )
         {
             _categoryCharacteristicService = categoryCharacteristicService;
             _logger = logger;
-            _mapper = mapper;
         }
 
         [HttpGet("{categoryId}")]
         public async Task<JsonResult> GetCategoryCharacteristics(int categoryId)
         {
-            var characteristics = await _categoryCharacteristicService
-               .GetQuery()
-               .Where(x => x.CategoryId == categoryId)
-               .Include(x => x.Characteristic)
-               .ToListAsync();
-
-            if (!characteristics.Any())
+            var serviceResult = await _categoryCharacteristicService.GetMappedCharacteristicsAsync(categoryId);
+            if (!serviceResult.IsSuccess)
             {
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.NotFound,
-                    StatusCodes.Status400BadRequest);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, serviceResult.ErrorMessage);
             }
 
-            return new JsonResult(_mapper.Map<List<CategoryCharacteristicResponseModel>>(characteristics))
+            return new JsonResult(serviceResult.Data)
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -58,15 +49,16 @@ namespace PriceComparisonWebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddCategoryCharacteristic([FromBody] CategoryCharacteristicRequestModel request)
         {
-
             var validationError = ValidateRequest(request, "add");
-
             if (validationError != null)
                 return validationError;
 
-            var result = await _categoryCharacteristicService.CreateMultipleAsync(request);
-
-            return ProcessResult(result, "add");
+            var serviceResult = await _categoryCharacteristicService.CreateMultipleAsync(request);
+            if (!serviceResult.IsSuccess)
+            {
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, serviceResult.ErrorMessage);
+            }
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
         [HttpDelete("delete")]
@@ -78,30 +70,15 @@ namespace PriceComparisonWebAPI.Controllers
             if (validationError != null)
                 return validationError;
 
-            var result = await _categoryCharacteristicService.DeleteMultipleAsync(request);
-            return ProcessResult(result, "delete");
-
-        }
-
-        private JsonResult ProcessResult(IEnumerable<OperationDetailsResponseModel> result, string operationType)
-        {
-            if (result.All(r => r.IsError))
+            var serviceResult = await _categoryCharacteristicService.DeleteMultipleAsync(request);
+            if (!serviceResult.IsSuccess)
             {
-                _logger.LogError("All errors occurred during {Operation}: {Errors}",
-                                 operationType,
-                                 string.Join(", ", result.Select(r => r.Message)));
-                var errorCode = operationType == "add" ? AppErrors.General.CreateError : AppErrors.General.DeleteError;
-                var errorMessage = operationType == "add" ? "No characteristic was successfully added." : "No characteristic was successfully deleted.";
-                return GeneralApiResponseModel.GetJsonResult(errorCode, StatusCodes.Status400BadRequest, errorMessage);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, serviceResult.ErrorMessage);
             }
-
-            var successCount = result.Count(r => !r.IsError);
-            var successCode = operationType == "add" ? AppSuccessCodes.CreateSuccess : AppSuccessCodes.DeleteSuccess;
-            var successMessage = operationType == "add"
-                ? $"{successCount} characteristic{(successCount > 1 ? "s" : "")} successfully added."
-                : $"{successCount} characteristic{(successCount > 1 ? "s" : "")} successfully deleted.";
-            return GeneralApiResponseModel.GetJsonResult(successCode, StatusCodes.Status200OK, successMessage);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
+
+        #region Private Helper Methods
 
         private JsonResult ValidateRequest(CategoryCharacteristicRequestModel request, string operationType)
         {
@@ -115,5 +92,7 @@ namespace PriceComparisonWebAPI.Controllers
             }
             return null;
         }
+
+        #endregion
     }
 }
