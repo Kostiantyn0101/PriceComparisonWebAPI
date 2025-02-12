@@ -62,6 +62,10 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.User, opt => opt.Ignore())
                 .ForMember(dest => dest.Product, opt => opt.Ignore())
                 .ForMember(dest => dest.FeedbackImages, opt => opt.Ignore());
+
+            CreateMap<ReviewDBModel, ReviewResponseModel>();
+            CreateMap<ReviewCreateRequestModel, ReviewDBModel>();
+            CreateMap<ReviewUpdateRequestModel, ReviewDBModel>();
         }
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Domain.Models.SuccessCodes;
 using Domain.Models.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using BLL.Services.MediaServices;
+using BLL.Services.ProductServices;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {

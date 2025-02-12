@@ -3,7 +3,7 @@ using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Response;
 
-namespace BLL.Services.FeedbackAndReviewServices
+namespace BLL.Services.ProductServices
 {
     public class ReviewService : IReviewService
     {

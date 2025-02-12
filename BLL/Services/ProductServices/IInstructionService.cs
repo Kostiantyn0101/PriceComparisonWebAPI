@@ -4,7 +4,7 @@ using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 
-namespace BLL.Services.MediaServices
+namespace BLL.Services.ProductServices
 {
     public interface IInstructionService
     {
