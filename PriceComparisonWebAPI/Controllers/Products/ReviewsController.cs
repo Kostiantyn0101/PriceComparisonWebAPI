@@ -1,10 +1,9 @@
-﻿using Domain.Models.Request.Products;
+﻿using BLL.Services.ProductServices;
+using Domain.Models.Request.Products;
 using Domain.Models.Response;
-using Microsoft.AspNetCore.Authorization;
 using Domain.Models.SuccessCodes;
 using Domain.Models.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using BLL.Services.ProductServices;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
@@ -12,21 +11,21 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
-    public class InstructionController : ControllerBase
+    public class ReviewsController : ControllerBase
     {
-        private readonly IInstructionService _instructionService;
-        private readonly ILogger<InstructionController> _logger;
+        private readonly ILogger<ReviewsController> _logger;
+        private readonly IReviewService _reviewService;
 
-        public InstructionController(IInstructionService instructionService, ILogger<InstructionController> logger)
+        public ReviewsController(IReviewService reviewService, ILogger<ReviewsController> logger)
         {
-            _instructionService = instructionService;
+            _reviewService = reviewService;
             _logger = logger;
         }
 
         [HttpGet("{productId}")]
-        public async Task<JsonResult> GetInstructionsByProductId(int productId)
+        public async Task<JsonResult> GetReviewsByProductId(int productId)
         {
-            var result = await _instructionService.GetFromConditionAsync(x => x.ProductId == productId);
+            var result = await _reviewService.GetFromConditionAsync(x => x.ProductId == productId);
             if (result == null || !result.Any())
             {
                 _logger.LogError(AppErrors.General.NotFound);
@@ -41,9 +40,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateInstruction([FromBody] InstructionCreateRequestModel request)
+        public async Task<JsonResult> CreateReview([FromBody] ReviewCreateRequestModel request)
         {
-            var result = await _instructionService.CreateAsync(request);
+            var result = await _reviewService.CreateAsync(request);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.CreateError);
@@ -55,9 +54,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateInstruction([FromBody] InstructionUpdateRequestModel request)
+        public async Task<JsonResult> UpdateReview([FromBody] ReviewUpdateRequestModel request)
         {
-            var result = await _instructionService.UpdateAsync(request);
+            var result = await _reviewService.UpdateAsync(request);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.UpdateError);
@@ -69,9 +68,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> DeleteInstruction(int id)
+        public async Task<JsonResult> DeleteReview(int id)
         {
-            var result = await _instructionService.DeleteAsync(id);
+            var result = await _reviewService.DeleteAsync(id);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);

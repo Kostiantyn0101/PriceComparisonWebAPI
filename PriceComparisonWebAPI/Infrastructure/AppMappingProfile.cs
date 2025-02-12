@@ -26,6 +26,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
 
             CreateMap<CharacteristicDBModel, CharacteristicResponseModel>();
+            CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
             CreateMap<CharacteristicRequestModel, CharacteristicDBModel>();
 
             CreateMap<RelatedCategoryDBModel, RelatedCategoryResponseModel>();
@@ -61,6 +62,10 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.User, opt => opt.Ignore())
                 .ForMember(dest => dest.Product, opt => opt.Ignore())
                 .ForMember(dest => dest.FeedbackImages, opt => opt.Ignore());
+
+            CreateMap<ReviewDBModel, ReviewResponseModel>();
+            CreateMap<ReviewCreateRequestModel, ReviewDBModel>();
+            CreateMap<ReviewUpdateRequestModel, ReviewDBModel>();
         }
     }
 }
