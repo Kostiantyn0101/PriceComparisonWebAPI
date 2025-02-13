@@ -16,5 +16,4 @@ namespace Domain.Models.DBModels
 
         public ICollection<FeedbackImageDBModel> FeedbackImages { get; set; }
     }
-
 }
