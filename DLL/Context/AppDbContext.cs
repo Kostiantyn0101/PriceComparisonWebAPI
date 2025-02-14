@@ -28,13 +28,30 @@ namespace DLL.Context
         public DbSet<PaymentPlanDBModel> PaymentPlans { get; set; }
         public DbSet<ProductSellerLinkDBModel> ProductSellerLinks { get; set; }
         public DbSet<SellerPaymentPlanDBModel> SellerPaymentPlans { get; set; }
-
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<RoleDBModel> Roles { get; set; }
+        public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Settings for the ProductClicksDBModel
+            modelBuilder.Entity<ProductClicksDBModel>(entity =>
+            {
+                entity.Property(c => c.ClickDate)
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.HasIndex(p => new { p.ClickDate, p.ProductId })
+                    .HasDatabaseName("IX_ProductClicks_ClickDate_ProductId")
+                    .IncludeProperties(p => new { p.Id }); // for index count but not table data 
+
+                entity.HasOne(c => c.Product)
+                    .WithMany(c => c.ProductClicks)
+                    .HasForeignKey(c => c.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
 
             // Settings for the CategoryDBModel
             modelBuilder.Entity<CategoryDBModel>(entity =>
