@@ -3,9 +3,11 @@ using Domain.Models.DBModels;
 using Domain.Models.Request.Categories;
 using Domain.Models.Request.Feedback;
 using Domain.Models.Request.Products;
+using Domain.Models.Request.Seller;
 using Domain.Models.Response.Categories;
 using Domain.Models.Response.Feedback;
 using Domain.Models.Response.Products;
+using Domain.Models.Response.Seller;
 using PriceComparisonWebAPI.Infrastructure.MapperResolvers;
 
 namespace PriceComparisonWebAPI.Infrastructure
@@ -69,6 +71,10 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ReviewDBModel, ReviewResponseModel>();
             CreateMap<ReviewCreateRequestModel, ReviewDBModel>();
             CreateMap<ReviewUpdateRequestModel, ReviewDBModel>();
+
+            CreateMap<SellerDBModel, SellerResponseModel>();
+            CreateMap<SellerCreateRequestModel, SellerDBModel>();
+            CreateMap<SellerUpdateRequestModel, SellerDBModel>();
         }
     }
 }
