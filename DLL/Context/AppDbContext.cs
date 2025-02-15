@@ -66,7 +66,7 @@ namespace DLL.Context
                 entity.HasOne(c => c.ParentCategory)
                     .WithMany(c => c.Subcategories)
                     .HasForeignKey(c => c.ParentCategoryId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // Settings for the CategoryCharacteristicDBModel

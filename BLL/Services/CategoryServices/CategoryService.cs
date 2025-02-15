@@ -121,13 +121,13 @@ namespace BLL.Services.CategoryService
 
         public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
         {
-            var dbModel = (await GetFromConditionAsync(x => x.Id == id)).FirstOrDefault();
+            var dbModel = (await _repository.GetFromConditionAsync(x => x.Id == id)).FirstOrDefault();
 
-            if (dbModel.IconUrl == null)
+            if (dbModel != null && dbModel.IconUrl != null)
             {
                 await _fileService.DeleteImageAsync(dbModel.IconUrl);
             }
-            if (dbModel.ImageUrl == null)
+            if (dbModel != null && dbModel.ImageUrl != null)
             {
                 await _fileService.DeleteImageAsync(dbModel.ImageUrl);
             }

@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250215215959_ChangeCategoryOnDelete2")]
+    partial class ChangeCategoryOnDelete2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,7 +118,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("CharacteristicId");
 
-                    b.ToTable("CategoryCharacteristics", (string)null);
+                    b.ToTable("CategoryCharacteristics");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.CategoryDBModel", b =>
@@ -145,7 +148,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.CharacteristicDBModel", b =>
@@ -172,7 +175,7 @@ namespace DLL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Characteristics", (string)null);
+                    b.ToTable("Characteristics");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ClickTrackingDBModel", b =>
@@ -208,7 +211,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("ClickTrackings", (string)null);
+                    b.ToTable("ClickTrackings");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>
@@ -242,7 +245,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedbacks", null, t =>
+                    b.ToTable("Feedbacks", t =>
                         {
                             t.HasCheckConstraint("CK_Rating_Range", "[Rating] BETWEEN 1 AND 5");
                         });
@@ -268,7 +271,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("FeedbackId");
 
-                    b.ToTable("FeedbackImages", (string)null);
+                    b.ToTable("FeedbackImages");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.InstructionDBModel", b =>
@@ -291,7 +294,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Instructions", (string)null);
+                    b.ToTable("Instructions");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.PaymentPlanDBModel", b =>
@@ -312,7 +315,7 @@ namespace DLL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentPlans", (string)null);
+                    b.ToTable("PaymentPlans");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.PriceDBModel", b =>
@@ -333,7 +336,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Prices", (string)null);
+                    b.ToTable("Prices");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.PriceHistoryDBModel", b =>
@@ -362,7 +365,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("PricesHistory", (string)null);
+                    b.ToTable("PricesHistory");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductCharacteristicDBModel", b =>
@@ -389,7 +392,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("CharacteristicId");
 
-                    b.ToTable("ProductCharacteristics", (string)null);
+                    b.ToTable("ProductCharacteristics");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductClicksDBModel", b =>
@@ -415,7 +418,7 @@ namespace DLL.Migrations
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ClickDate", "ProductId"), new[] { "Id" });
 
-                    b.ToTable("ProductClicks", (string)null);
+                    b.ToTable("ProductClicks");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductDBModel", b =>
@@ -441,7 +444,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductImageDBModel", b =>
@@ -467,7 +470,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductSellerLinkDBModel", b =>
@@ -495,7 +498,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("SellerDBModelId");
 
-                    b.ToTable("ProductSellerLinks", (string)null);
+                    b.ToTable("ProductSellerLinks");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductVideoDBModel", b =>
@@ -518,7 +521,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductVideos", (string)null);
+                    b.ToTable("ProductVideos");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.RelatedCategoryDBModel", b =>
@@ -533,7 +536,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("RelatedCategoryId");
 
-                    b.ToTable("RelatedCategories", (string)null);
+                    b.ToTable("RelatedCategories");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ReviewDBModel", b =>
@@ -556,7 +559,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.RoleDBModel", b =>
@@ -574,7 +577,7 @@ namespace DLL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.SellerDBModel", b =>
@@ -608,7 +611,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Sellers", (string)null);
+                    b.ToTable("Sellers");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.SellerPaymentPlanDBModel", b =>
@@ -640,7 +643,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("SellerPaymentPlans", (string)null);
+                    b.ToTable("SellerPaymentPlans");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
