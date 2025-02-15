@@ -1,7 +1,7 @@
 ﻿using Domain.Models.Request.Seller;
 using FluentValidation;
 
-namespace PriceComparisonWebAPI.Infrastructure.Validation
+namespace PriceComparisonWebAPI.Infrastructure.Validation.Seller
 {
     public class SellerUpdateRequestModelValidator : AbstractValidator<SellerUpdateRequestModel>
     {

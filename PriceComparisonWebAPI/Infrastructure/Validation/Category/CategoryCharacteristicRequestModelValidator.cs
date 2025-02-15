@@ -1,7 +1,7 @@
 ﻿using Domain.Models.Request.Categories;
 using FluentValidation;
 
-namespace PriceComparisonWebAPI.Infrastructure.Validation
+namespace PriceComparisonWebAPI.Infrastructure.Validation.Category
 {
     public class CategoryCharacteristicRequestModelValidator : AbstractValidator<CategoryCharacteristicRequestModel>
     {
