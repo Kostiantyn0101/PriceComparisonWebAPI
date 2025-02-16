@@ -24,6 +24,9 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ProductImageDBModel, ProductImageResponseModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductImageUrlResolver>());
 
+            CreateMap<FeedbackImageDBModel, FeedbackImageResponseModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<FeedbackImageUrlResolver>());
+            
             CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
             CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
 
