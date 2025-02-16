@@ -21,6 +21,12 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation
                 .MaximumLength(50)
                 .When(x => !string.IsNullOrEmpty(x.Unit))
                 .WithMessage("Unit length must be less than 50 characters");
+
+            RuleFor(x => x.CharacteristicGroupId)
+                .GreaterThan(0).WithMessage("Characteristic group id must be greater than 0");
+
+            RuleFor(x => x.DisplayOrder)
+                .GreaterThan(0).WithMessage("Characteristic group id must be greater than 0");
         }
     }
 }
