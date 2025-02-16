@@ -16,7 +16,16 @@ namespace PriceComparisonWebAPI.Infrastructure
     {
         public AppMappingProfile()
         {
+            // CHARACTERISTICS
+            CreateMap<CharacteristicDBModel, CharacteristicResponseModel>();
+            CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
+            CreateMap<CharacteristicRequestModel, CharacteristicDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             
+            CreateMap<CharacteristicGroupDBModel, CharacteristicGroupResponseModel>();
+            CreateMap<CharacteristicGroupRequestModel, CharacteristicGroupDBModel>();
+
+
             // CATEGORIES
             CreateMap<CategoryDBModel, CategoryResponseModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<CategoryImageUrlResolver>())
@@ -24,11 +33,6 @@ namespace PriceComparisonWebAPI.Infrastructure
 
             CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
             CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
-
-            CreateMap<CharacteristicDBModel, CharacteristicResponseModel>();
-            CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
-            CreateMap<CharacteristicRequestModel, CharacteristicDBModel>()
-                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<RelatedCategoryDBModel, RelatedCategoryResponseModel>();
             CreateMap<RelatedCategoryRequestModel, RelatedCategoryDBModel>();
