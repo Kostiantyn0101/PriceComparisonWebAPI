@@ -1,32 +1,56 @@
 ﻿using System.Linq.Expressions;
+using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
+using Domain.Models.Request.Seller;
 using Domain.Models.Response;
+using Domain.Models.Response.Seller;
 
 namespace BLL.Services.SellerServices
 {
     public class SellerService : ISellerService
     {
         private readonly IRepository<SellerDBModel> _repository;
+        private readonly IMapper _mapper;
 
-        public SellerService(IRepository<SellerDBModel> repository)
+        public SellerService(IRepository<SellerDBModel> repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(SellerDBModel model)
+        public async Task<OperationResultModel<bool>> CreateAsync(SellerCreateRequestModel request)
         {
-            return await _repository.CreateAsync(model);
+            var model = _mapper.Map<SellerDBModel>(request);
+            var repoResult = await _repository.CreateAsync(model);
+            return !repoResult.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(SellerDBModel entity)
+        public async Task<OperationResultModel<bool>> UpdateAsync(SellerUpdateRequestModel request)
         {
-            return await _repository.UpdateAsync(entity);
+            var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
+            var existing = existingRecords.FirstOrDefault();
+            if (existing == null)
+            {
+                return OperationResultModel<bool>.Failure("Seller not found.");
+            }
+
+            _mapper.Map(request, existing);
+
+            var repoResult = await _repository.UpdateAsync(existing);
+            return !repoResult.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
         }
 
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
-            return await _repository.DeleteAsync(id);
+            var repoResult = await _repository.DeleteAsync(id);
+            return !repoResult.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
         }
 
         public IQueryable<SellerDBModel> GetQuery()
@@ -34,9 +58,10 @@ namespace BLL.Services.SellerServices
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<SellerDBModel>> GetFromConditionAsync(Expression<Func<SellerDBModel, bool>> condition)
+        public async Task<IEnumerable<SellerResponseModel>> GetFromConditionAsync(Expression<Func<SellerDBModel, bool>> condition)
         {
-            return await _repository.GetFromConditionAsync(condition);
+            var dbModels = await _repository.GetFromConditionAsync(condition);
+            return _mapper.Map<IEnumerable<SellerResponseModel>>(dbModels);
         }
 
         public async Task<IEnumerable<SellerDBModel>> ProcessQueryAsync(IQueryable<SellerDBModel> query)

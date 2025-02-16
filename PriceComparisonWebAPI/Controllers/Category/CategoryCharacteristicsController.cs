@@ -61,6 +61,23 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+        [HttpPut("update")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UpdateCategoryCharacteristic([FromBody] CategoryCharacteristicUpdateRequestModel request)
+        {
+            var result = await _categoryCharacteristicService.UpdateAsync(request);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError,
+                       StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
+        }
+
         [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]

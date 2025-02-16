@@ -3,9 +3,11 @@ using Domain.Models.DBModels;
 using Domain.Models.Request.Categories;
 using Domain.Models.Request.Feedback;
 using Domain.Models.Request.Products;
+using Domain.Models.Request.Seller;
 using Domain.Models.Response.Categories;
 using Domain.Models.Response.Feedback;
 using Domain.Models.Response.Products;
+using Domain.Models.Response.Seller;
 using PriceComparisonWebAPI.Infrastructure.MapperResolvers;
 
 namespace PriceComparisonWebAPI.Infrastructure
@@ -22,12 +24,16 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ProductImageDBModel, ProductImageResponseModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductImageUrlResolver>());
 
+            CreateMap<FeedbackImageDBModel, FeedbackImageResponseModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<FeedbackImageUrlResolver>());
+            
             CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
             CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
 
             CreateMap<CharacteristicDBModel, CharacteristicResponseModel>();
             CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
-            CreateMap<CharacteristicRequestModel, CharacteristicDBModel>();
+            CreateMap<CharacteristicRequestModel, CharacteristicDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<RelatedCategoryDBModel, RelatedCategoryResponseModel>();
             CreateMap<RelatedCategoryRequestModel, RelatedCategoryDBModel>();
@@ -39,7 +45,8 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<CategoryCharacteristicRequestModel, CategoryCharacteristicDBModel>();
 
             CreateMap<ProductDBModel, ProductResponseModel>();
-            CreateMap<ProductRequestModel, ProductDBModel>();
+            CreateMap<ProductRequestModel, ProductDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<ProductCharacteristicDBModel, ProductCharacteristicResponseModel>()
                .ForMember(dest => dest.CharacteristicTitle, opt => opt.MapFrom(src => src.Characteristic.Title))
@@ -49,11 +56,13 @@ namespace PriceComparisonWebAPI.Infrastructure
 
             CreateMap<ProductVideoDBModel, ProductVideoResponseModel>();
             CreateMap<ProductVideoCreateRequestModel, ProductVideoDBModel>();
-            CreateMap<ProductVideoUpdateRequestModel, ProductVideoDBModel>();
+            CreateMap<ProductVideoUpdateRequestModel, ProductVideoDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<InstructionDBModel, InstructionResponseModel>();
             CreateMap<InstructionCreateRequestModel, InstructionDBModel>();
-            CreateMap<InstructionUpdateRequestModel, InstructionDBModel>();
+            CreateMap<InstructionUpdateRequestModel, InstructionDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<FeedbackDBModel, FeedbackResponseModel>();
             CreateMap<FeedbackCreateRequestModel, FeedbackDBModel>();
@@ -69,6 +78,10 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ReviewDBModel, ReviewResponseModel>();
             CreateMap<ReviewCreateRequestModel, ReviewDBModel>();
             CreateMap<ReviewUpdateRequestModel, ReviewDBModel>();
+
+            CreateMap<SellerDBModel, SellerResponseModel>();
+            CreateMap<SellerCreateRequestModel, SellerDBModel>();
+            CreateMap<SellerUpdateRequestModel, SellerDBModel>();
         }
     }
 }

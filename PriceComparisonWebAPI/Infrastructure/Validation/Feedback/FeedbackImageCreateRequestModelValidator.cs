@@ -1,7 +1,7 @@
 ﻿using Domain.Models.Request.Feedback;
 using FluentValidation;
 
-namespace PriceComparisonWebAPI.Infrastructure.Validation
+namespace PriceComparisonWebAPI.Infrastructure.Validation.Feedback
 {
     public class FeedbackImageCreateRequestModelValidator : AbstractValidator<FeedbackImageCreateRequestModel>
     {

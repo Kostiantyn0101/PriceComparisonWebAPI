@@ -31,11 +31,19 @@ namespace BLL.Services.ProductServices
 
         public async Task<OperationResultModel<bool>> UpdateAsync(CharacteristicRequestModel request)
         {
-            var model = _mapper.Map<CharacteristicDBModel>(request);
-            var repoResult = await _repository.UpdateAsync(model);
-            return !repoResult.IsError
+            var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
+            var existing = existingRecords.FirstOrDefault();
+            if (existing == null)
+            {
+                return OperationResultModel<bool>.Failure("Characteristic not found.");
+            }
+
+            _mapper.Map(request, existing);
+
+            var result = await _repository.UpdateAsync(existing);
+            return !result.IsError
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
