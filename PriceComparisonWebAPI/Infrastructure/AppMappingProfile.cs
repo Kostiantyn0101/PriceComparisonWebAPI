@@ -26,6 +26,9 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<CharacteristicGroupRequestModel, CharacteristicGroupDBModel>();
             CreateMap<CharacteristicGroupCreateRequestModel, CharacteristicGroupDBModel>();
 
+            CreateMap<CategoryCharacteristicGroupDBModel, CategoryCharacteristicGroupResponseModel>();
+            CreateMap<CategoryCharacteristicGroupRequestModel, CategoryCharacteristicGroupDBModel>();
+            CreateMap<CategoryCharacteristicGroupCreateRequestModel, CategoryCharacteristicGroupDBModel>();
 
             // CATEGORIES
             CreateMap<CategoryDBModel, CategoryResponseModel>()

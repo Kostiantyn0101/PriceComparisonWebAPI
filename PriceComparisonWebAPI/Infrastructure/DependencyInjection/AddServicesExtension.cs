@@ -1,6 +1,7 @@
 ﻿using BLL.Services.Auth;
 using BLL.Services.CategoryCharacteristicService;
 using BLL.Services.CategoryService;
+using BLL.Services.CategoryServices;
 using BLL.Services.FeedbackAndReviewServices;
 using BLL.Services.MediaServices;
 using BLL.Services.PriceServices;
@@ -15,6 +16,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
         public static void AddServices(this WebApplicationBuilder builder) {
             
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ICategoryCharacteristicGroupService, CategoryCharacteristicGroupService>();
             builder.Services.AddScoped<ICategoryCharacteristicService, CategoryCharacteristicService>();
             builder.Services.AddScoped<IProductCharacteristicService, ProductCharacteristicService>();
             builder.Services.AddScoped<IProductSellerLinkService, ProductSellerLinkService>();
