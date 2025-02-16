@@ -29,7 +29,8 @@ namespace PriceComparisonWebAPI.Infrastructure
 
             CreateMap<CharacteristicDBModel, CharacteristicResponseModel>();
             CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
-            CreateMap<CharacteristicRequestModel, CharacteristicDBModel>();
+            CreateMap<CharacteristicRequestModel, CharacteristicDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<RelatedCategoryDBModel, RelatedCategoryResponseModel>();
             CreateMap<RelatedCategoryRequestModel, RelatedCategoryDBModel>();
@@ -41,7 +42,8 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<CategoryCharacteristicRequestModel, CategoryCharacteristicDBModel>();
 
             CreateMap<ProductDBModel, ProductResponseModel>();
-            CreateMap<ProductRequestModel, ProductDBModel>();
+            CreateMap<ProductRequestModel, ProductDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<ProductCharacteristicDBModel, ProductCharacteristicResponseModel>()
                .ForMember(dest => dest.CharacteristicTitle, opt => opt.MapFrom(src => src.Characteristic.Title))
@@ -51,11 +53,13 @@ namespace PriceComparisonWebAPI.Infrastructure
 
             CreateMap<ProductVideoDBModel, ProductVideoResponseModel>();
             CreateMap<ProductVideoCreateRequestModel, ProductVideoDBModel>();
-            CreateMap<ProductVideoUpdateRequestModel, ProductVideoDBModel>();
+            CreateMap<ProductVideoUpdateRequestModel, ProductVideoDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<InstructionDBModel, InstructionResponseModel>();
             CreateMap<InstructionCreateRequestModel, InstructionDBModel>();
-            CreateMap<InstructionUpdateRequestModel, InstructionDBModel>();
+            CreateMap<InstructionUpdateRequestModel, InstructionDBModel>()
+                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<FeedbackDBModel, FeedbackResponseModel>();
             CreateMap<FeedbackCreateRequestModel, FeedbackDBModel>();

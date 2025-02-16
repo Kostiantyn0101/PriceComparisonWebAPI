@@ -31,8 +31,16 @@ namespace BLL.Services.ProductService
 
         public async Task<OperationResultModel<bool>> UpdateAsync(ProductVideoUpdateRequestModel request)
         {
-            var model = _mapper.Map<ProductVideoDBModel>(request);
-            var result = await _repository.UpdateAsync(model);
+            var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
+            var existing = existingRecords.FirstOrDefault();
+            if (existing == null)
+            {
+                return OperationResultModel<bool>.Failure("Product video not found.");
+            }
+
+            _mapper.Map(request, existing);
+
+            var result = await _repository.UpdateAsync(existing);
             return !result.IsError
                 ? OperationResultModel<bool>.Success(true)
                 : OperationResultModel<bool>.Failure(result.Message, result.Exception);
