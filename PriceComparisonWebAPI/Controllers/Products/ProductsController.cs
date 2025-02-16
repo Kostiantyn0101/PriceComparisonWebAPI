@@ -1,5 +1,6 @@
 using AutoMapper;
 using BLL.Services.ProductService;
+using BLL.Services.ProductServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
@@ -19,27 +20,33 @@ namespace PriceComparisonWebAPI.Controllers.Products
     {
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductService _productService;
+        private readonly IIPopularProductService _popularProductService;
 
         public ProductsController(ILogger<ProductsController> logger,
-            IProductService productService
+            IProductService productService,
+            IIPopularProductService popularProductService
             )
         {
             _logger = logger;
             _productService = productService;
+            _popularProductService = popularProductService;
         }
 
 
         [HttpGet("{id}")]
         public async Task<JsonResult> GetProductById(int id)
         {
-            var product = await _productService.GetFromConditionAsync(x => x.Id == id);
-            if (product == null || !product.Any())
+            var products = await _productService.GetFromConditionAsync(x => x.Id == id);
+            if (products == null || !products.Any())
             {
                 _logger.LogError(AppErrors.General.NotFound);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
 
-            return new JsonResult(product.First())
+            var product = products.First()!;
+            _ = _popularProductService.RegisterClickAsync(product.Id);
+
+            return new JsonResult(product)
             {
                 StatusCode = StatusCodes.Status200OK
             };

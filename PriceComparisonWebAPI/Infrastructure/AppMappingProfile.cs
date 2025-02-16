@@ -16,17 +16,12 @@ namespace PriceComparisonWebAPI.Infrastructure
     {
         public AppMappingProfile()
         {
+            
+            // CATEGORIES
             CreateMap<CategoryDBModel, CategoryResponseModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<CategoryImageUrlResolver>())
                 .ForMember(dest => dest.IconUrl, opt => opt.MapFrom<CategoryIconUrlResolver>());
 
-            // find desizion about nullable type
-            CreateMap<ProductImageDBModel, ProductImageResponseModel>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductImageUrlResolver>());
-
-            CreateMap<FeedbackImageDBModel, FeedbackImageResponseModel>()
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<FeedbackImageUrlResolver>());
-            
             CreateMap<CategoryCreateRequestModel, CategoryDBModel>();
             CreateMap<CategoryUpdateRequestModel, CategoryDBModel>();
 
@@ -44,9 +39,18 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
             CreateMap<CategoryCharacteristicRequestModel, CategoryCharacteristicDBModel>();
 
+            
+            // PRODUCTS
             CreateMap<ProductDBModel, ProductResponseModel>();
             CreateMap<ProductRequestModel, ProductDBModel>()
                     .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // todo: find desision about nullable type
+            CreateMap<ProductImageDBModel, ProductImageResponseModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductImageUrlResolver>());
+                
+            CreateMap<FeedbackImageDBModel, FeedbackImageResponseModel>()
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<FeedbackImageUrlResolver>());
 
             CreateMap<ProductCharacteristicDBModel, ProductCharacteristicResponseModel>()
                .ForMember(dest => dest.CharacteristicTitle, opt => opt.MapFrom(src => src.Characteristic.Title))
@@ -71,9 +75,6 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.User, opt => opt.Ignore())
                 .ForMember(dest => dest.Product, opt => opt.Ignore())
                 .ForMember(dest => dest.FeedbackImages, opt => opt.Ignore());
-
-            CreateMap<FeedbackImageDBModel, FeedbackImageResponseModel>();
-
 
             CreateMap<ReviewDBModel, ReviewResponseModel>();
             CreateMap<ReviewCreateRequestModel, ReviewDBModel>();

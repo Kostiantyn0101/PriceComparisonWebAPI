@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250214221901_ProductClicksTableAdded")]
+    partial class ProductClicksTableAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,35 +121,6 @@ namespace DLL.Migrations
                     b.ToTable("CategoryCharacteristics");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.CategoryCharacteristicGroupDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CharacteristicGroupId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GroupDisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1)
-                        .HasAnnotation("CheckConstraint", "GroupDisplayOrder >= 1");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("CharacteristicGroupId");
-
-                    b.ToTable("CategoryCharacteristicGroups");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.CategoryDBModel", b =>
                 {
                     b.Property<int>("Id")
@@ -154,9 +128,6 @@ namespace DLL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int");
 
                     b.Property<string>("IconUrl")
                         .HasColumnType("nvarchar(max)");
@@ -188,22 +159,10 @@ namespace DLL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CharacteristicGroupId")
-                        .HasColumnType("int");
-
                     b.Property<string>("DataType")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("DisplayOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1)
-                        .HasAnnotation("CheckConstraint", "DisplayOrder >= 1");
-
-                    b.Property<bool>("IncludeInShortDescription")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -216,26 +175,7 @@ namespace DLL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CharacteristicGroupId");
-
                     b.ToTable("Characteristics");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.CharacteristicGroupDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CharacteristicGroups");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ClickTrackingDBModel", b =>
@@ -858,44 +798,14 @@ namespace DLL.Migrations
                     b.Navigation("Characteristic");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.CategoryCharacteristicGroupDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.CategoryDBModel", "Category")
-                        .WithMany("CategoryCharacteristicGroups")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.DBModels.CharacteristicGroupDBModel", "CharacteristicGroup")
-                        .WithMany("CategoryCharacteristicGroups")
-                        .HasForeignKey("CharacteristicGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("CharacteristicGroup");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.CategoryDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.CategoryDBModel", "ParentCategory")
                         .WithMany("Subcategories")
                         .HasForeignKey("ParentCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentCategory");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.CharacteristicDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.CharacteristicGroupDBModel", "CharacteristicGroup")
-                        .WithMany("Characteristics")
-                        .HasForeignKey("CharacteristicGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CharacteristicGroup");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ClickTrackingDBModel", b =>
@@ -1202,8 +1112,6 @@ namespace DLL.Migrations
 
             modelBuilder.Entity("Domain.Models.DBModels.CategoryDBModel", b =>
                 {
-                    b.Navigation("CategoryCharacteristicGroups");
-
                     b.Navigation("CategoryCharacteristics");
 
                     b.Navigation("Products");
@@ -1218,13 +1126,6 @@ namespace DLL.Migrations
                     b.Navigation("CategoryCharacteristics");
 
                     b.Navigation("ProductCharacteristics");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.CharacteristicGroupDBModel", b =>
-                {
-                    b.Navigation("CategoryCharacteristicGroups");
-
-                    b.Navigation("Characteristics");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>

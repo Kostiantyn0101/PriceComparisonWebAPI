@@ -28,47 +28,56 @@ namespace DLL.Context
         public DbSet<PaymentPlanDBModel> PaymentPlans { get; set; }
         public DbSet<ProductSellerLinkDBModel> ProductSellerLinks { get; set; }
         public DbSet<SellerPaymentPlanDBModel> SellerPaymentPlans { get; set; }
-
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<RoleDBModel> Roles { get; set; }
+        public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
+        public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
+        public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Settings for the CategoryDBModel
-            modelBuilder.Entity<CategoryDBModel>(entity =>
+
+            // CategoryCharacteristicGroupDBModel
+            modelBuilder.Entity<CategoryCharacteristicGroupDBModel>(entity =>
             {
-                entity.Property(c => c.Title)
-                    .IsRequired()
-                    .HasMaxLength(255);
+                entity.Property(cc => cc.GroupDisplayOrder)
+                   .HasDefaultValue(1)                                           
+                   .HasAnnotation("CheckConstraint", "GroupDisplayOrder >= 1"); // Min value = 1
 
-                entity.Property(c => c.ImageUrl)
-                    .HasMaxLength(2083);
+                entity.HasOne(cc => cc.Category)
+                    .WithMany(c => c.CategoryCharacteristicGroups)
+                    .HasForeignKey(c => c.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(c => c.ParentCategory)
-                    .WithMany(c => c.Subcategories)
-                    .HasForeignKey(c => c.ParentCategoryId)
+                entity.HasOne(cc => cc.CharacteristicGroup)
+                    .WithMany(c => c.CategoryCharacteristicGroups)
+                    .HasForeignKey(c => c.CharacteristicGroupId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Settings for the CategoryCharacteristicDBModel
-            modelBuilder.Entity<CategoryCharacteristicDBModel>(entity =>
+            // CharacteristicGroupDBModel
+            modelBuilder.Entity<CharacteristicGroupDBModel>(entity =>
             {
-                entity.HasKey(cc => new { cc.CategoryId, cc.CharacteristicId });
+                entity.HasMany(cg => cg.Characteristics)
+                    .WithOne(c => c.CharacteristicGroup)
+                    .HasForeignKey(c => c.CharacteristicGroupId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(cc => cc.Category)
-                    .WithMany(c => c.CategoryCharacteristics)
-                    .HasForeignKey(cc => cc.CategoryId);
-
-                entity.HasOne(cc => cc.Characteristic)
-                    .WithMany(ch => ch.CategoryCharacteristics)
-                    .HasForeignKey(cc => cc.CharacteristicId);
+                entity.HasMany(cg => cg.CategoryCharacteristicGroups)
+                    .WithOne(cc => cc.CharacteristicGroup)
+                    .HasForeignKey(c => c.CharacteristicGroupId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Settings for the CharacteristicDBModel
+            // CharacteristicDBModel
             modelBuilder.Entity<CharacteristicDBModel>(entity =>
             {
+                entity.Property(c => c.DisplayOrder)
+                   .HasDefaultValue(1)
+                   .HasAnnotation("CheckConstraint", "DisplayOrder >= 1"); // Min value = 1
+
                 entity.Property(c => c.Title)
                     .IsRequired()
                     .HasMaxLength(255);
@@ -87,9 +96,59 @@ namespace DLL.Context
                 entity.HasMany(c => c.ProductCharacteristics)
                     .WithOne(pc => pc.Characteristic)
                     .HasForeignKey(pc => pc.CharacteristicId);
+
+                entity.HasOne(c => c.CharacteristicGroup)
+                   .WithMany(pc => pc.Characteristics)
+                   .HasForeignKey(pc => pc.CharacteristicGroupId);
             });
 
-            // Settings for the FeedbackDBModel
+            // ProductClicksDBModel
+            modelBuilder.Entity<ProductClicksDBModel>(entity =>
+            {
+                entity.Property(c => c.ClickDate)
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.HasIndex(p => new { p.ClickDate, p.ProductId })
+                    .HasDatabaseName("IX_ProductClicks_ClickDate_ProductId")
+                    .IncludeProperties(p => new { p.Id }); // for index count but not table data 
+
+                entity.HasOne(c => c.Product)
+                    .WithMany(c => c.ProductClicks)
+                    .HasForeignKey(c => c.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // CategoryDBModel
+            modelBuilder.Entity<CategoryDBModel>(entity =>
+            {
+                entity.Property(c => c.Title)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(c => c.ImageUrl)
+                    .HasMaxLength(2083);
+
+                entity.HasOne(c => c.ParentCategory)
+                    .WithMany(c => c.Subcategories)
+                    .HasForeignKey(c => c.ParentCategoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // CategoryCharacteristicDBModel
+            modelBuilder.Entity<CategoryCharacteristicDBModel>(entity =>
+            {
+                entity.HasKey(cc => new { cc.CategoryId, cc.CharacteristicId });
+
+                entity.HasOne(cc => cc.Category)
+                    .WithMany(c => c.CategoryCharacteristics)
+                    .HasForeignKey(cc => cc.CategoryId);
+
+                entity.HasOne(cc => cc.Characteristic)
+                    .WithMany(ch => ch.CategoryCharacteristics)
+                    .HasForeignKey(cc => cc.CharacteristicId);
+            });
+
+            // FeedbackDBModel
             modelBuilder.Entity<FeedbackDBModel>(entity =>
             {
                 entity.HasOne(f => f.Product)
@@ -114,7 +173,7 @@ namespace DLL.Context
                 entity.ToTable(t => t.HasCheckConstraint("CK_Rating_Range", "[Rating] BETWEEN 1 AND 5"));
             });
 
-            // Settings for the FeedbackImageDBModel
+            // FeedbackImageDBModel
             modelBuilder.Entity<FeedbackImageDBModel>(entity =>
             {
                 entity.Property(fi => fi.ImageUrl)
@@ -126,7 +185,7 @@ namespace DLL.Context
                     .HasForeignKey(fi => fi.FeedbackId);
             });
 
-            // Settings for the InstructionDBModel
+            // InstructionDBModel
             modelBuilder.Entity<InstructionDBModel>(entity =>
             {
                 entity.Property(fi => fi.InstructionUrl)
@@ -138,7 +197,7 @@ namespace DLL.Context
                     .HasForeignKey(fi => fi.ProductId);
             });
 
-            // Settings for the PriceDBModel
+            // PriceDBModel
             modelBuilder.Entity<PriceDBModel>(entity =>
             {
                 entity.HasKey(p => new { p.ProductId, p.SellerId });
@@ -159,7 +218,7 @@ namespace DLL.Context
                     .HasForeignKey(pr => pr.SellerId);
             });
 
-            // Settings for the PriceHistoryDBModel
+            // PriceHistoryDBModel
             modelBuilder.Entity<PriceHistoryDBModel>(entity =>
             {
                 entity.Property(pr => pr.PriceValue)
@@ -178,7 +237,7 @@ namespace DLL.Context
                     .HasForeignKey(pr => pr.SellerId);
             });
 
-            // Settings for the ProductDBModel
+            // ProductDBModel
             modelBuilder.Entity<ProductDBModel>(entity =>
             {
                 entity.Property(p => p.Title)
@@ -191,7 +250,7 @@ namespace DLL.Context
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Settings for the ProductCharacteristicDBModel
+            // ProductCharacteristicDBModel
             modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
             {
                 entity.HasKey(pc => new { pc.ProductId, pc.CharacteristicId });
@@ -208,7 +267,7 @@ namespace DLL.Context
                     .HasColumnType("decimal(18, 2)");
             });
 
-            // Settings for the ProductImageDBModel
+            // ProductImageDBModel
             modelBuilder.Entity<ProductImageDBModel>(entity =>
             {
                 entity.Property(p => p.ImageUrl)
@@ -220,7 +279,7 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
-            // Settings for the ProductSellerLinkDBModel
+            // ProductSellerLinkDBModel
             modelBuilder.Entity<ProductSellerLinkDBModel>(entity =>
             {
                 entity.Property(p => p.SellerUrl)
@@ -232,7 +291,7 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
-            // Settings for the ProductVideoDBModel
+            // ProductVideoDBModel
             modelBuilder.Entity<ProductVideoDBModel>(entity =>
             {
                 entity.Property(p => p.VideoUrl)
@@ -244,7 +303,7 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
-            // Settings for the RelatedCategoryDBModel
+            // RelatedCategoryDBModel
             modelBuilder.Entity<RelatedCategoryDBModel>(entity =>
             {
                 entity.HasKey(rc => new { rc.CategoryId, rc.RelatedCategoryId });
@@ -260,7 +319,7 @@ namespace DLL.Context
 
             });
 
-            // Settings for the ReviewDBModel
+            // ReviewDBModel
             modelBuilder.Entity<ReviewDBModel>(entity =>
             {
                 entity.Property(p => p.ReviewUrl)
@@ -272,7 +331,7 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
-            // Settings for the RoleDBModel
+            // RoleDBModel
             modelBuilder.Entity<RoleDBModel>(entity =>
             {
                 entity.Property(r => r.Title)
@@ -284,7 +343,7 @@ namespace DLL.Context
                 //    .HasForeignKey(u => u.RoleId);
             });
 
-            // Settings for the SellerDBModel
+            // SellerDBModel
             modelBuilder.Entity<SellerDBModel>(entity =>
             {
                 entity.Property(s => s.ApiKey)
@@ -310,7 +369,7 @@ namespace DLL.Context
                     .HasForeignKey(ph => ph.SellerId);
             });
 
-            // Settings for the ApplicationUserDBModel
+            // ApplicationUserDBModel
             modelBuilder.Entity<ApplicationUserDBModel>(entity =>
             {
                 entity.HasMany(u => u.Sellers)
@@ -322,7 +381,7 @@ namespace DLL.Context
                     .HasForeignKey(f => f.UserId);
             });
 
-            // Settings for the ClickTrackingDBModel
+            // ClickTrackingDBModel
             modelBuilder.Entity<ClickTrackingDBModel>(entity =>
             {
                 entity.HasOne(e => e.Product)
@@ -348,7 +407,7 @@ namespace DLL.Context
                       .IsRequired();
             });
 
-            // Settings for the PaymentPlanDBModel
+            // PaymentPlanDBModel
             modelBuilder.Entity<PaymentPlanDBModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -362,7 +421,7 @@ namespace DLL.Context
                       .IsRequired();
             });
 
-            // Settings for the ProductSellerLinkDBModel
+            // ProductSellerLinkDBModel
             modelBuilder.Entity<ProductSellerLinkDBModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
