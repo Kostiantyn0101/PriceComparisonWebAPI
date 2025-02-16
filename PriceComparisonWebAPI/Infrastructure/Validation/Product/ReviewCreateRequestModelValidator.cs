@@ -1,14 +1,14 @@
 ﻿using Domain.Models.Request.Products;
 using FluentValidation;
 
-namespace PriceComparisonWebAPI.Infrastructure.Validation
+namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
 {
-    public class ReviewUpdateRequestModelValidator : AbstractValidator<ReviewUpdateRequestModel>
+    public class ReviewCreateRequestModelValidator : AbstractValidator<ReviewCreateRequestModel>
     {
-        public ReviewUpdateRequestModelValidator()
+        public ReviewCreateRequestModelValidator()
         {
-            RuleFor(x => x.Id)
-                .GreaterThan(0).WithMessage("Review Id must be greater than 0");
+            RuleFor(x => x.ProductId)
+                .GreaterThan(0).WithMessage("ProductId must be greater than 0");
             RuleFor(x => x.ReviewUrl)
                 .NotEmpty().WithMessage("ReviewUrl is required")
                 .Must(url => Uri.TryCreate(url, UriKind.Absolute, out _))

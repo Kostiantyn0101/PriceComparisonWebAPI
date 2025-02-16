@@ -1,15 +1,12 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
-using Azure.Core;
 using DLL.Repository;
 using DLL.Repository.Abstractions;
 using Domain.Models.DBModels;
-using Domain.Models.Exceptions;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace BLL.Services.CategoryCharacteristicService
 {
@@ -80,9 +77,43 @@ namespace BLL.Services.CategoryCharacteristicService
             return OperationResultModel<bool>.Success(true);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryCharacteristicDBModel entity)
+        public async Task<OperationResultModel<bool>> UpdateAsync(CategoryCharacteristicUpdateRequestModel request)
         {
-            return await _categoryCharacteristicRepository.UpdateAsync(entity);
+            var existingRecords = await _categoryCharacteristicRepository
+                .GetFromConditionAsync(x => x.CategoryId == request.OldCategoryId && x.CharacteristicId == request.OldCharacteristicId);
+
+            var existing = existingRecords.FirstOrDefault();
+            if (existing == null)
+            {
+                return OperationResultModel<bool>.Failure("Entity not found.");
+            }
+
+            var duplicateCheck = await _categoryCharacteristicRepository
+               .GetFromConditionAsync(x => x.CategoryId == request.NewCategoryId && x.CharacteristicId == request.NewCharacteristicId);
+            var dublicate = duplicateCheck.FirstOrDefault();
+
+            if (dublicate != null)
+            {
+                return OperationResultModel<bool>.Failure($"CategoryCharacteristic with CategoryId {request.NewCategoryId} and CharacteristicId {request.NewCharacteristicId} already exists.");
+            }
+
+            var deleteResult = await _categoryCharacteristicRepository.DeleteAsync(request.OldCategoryId, request.OldCharacteristicId);
+            if (deleteResult.IsError)
+            {
+                return OperationResultModel<bool>.Failure(deleteResult.Message, deleteResult.Exception);
+            }
+
+            var newRecord = new CategoryCharacteristicDBModel
+            {
+                CategoryId = request.NewCategoryId,
+                CharacteristicId = request.NewCharacteristicId
+            };
+
+            var createResult = await _categoryCharacteristicRepository.CreateAsync(newRecord);
+            return !createResult.IsError
+                ? OperationResultModel<bool>.Success(true)
+                : OperationResultModel<bool>.Failure(createResult.Message, createResult.Exception);
+
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int categoryId, int characteristicId)

@@ -1,7 +1,7 @@
 ﻿using Domain.Models.Request.Products;
 using FluentValidation;
 
-namespace PriceComparisonWebAPI.Infrastructure.Validation
+namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
 {
     public class ProductVideoUpdateRequestModelValidator : AbstractValidator<ProductVideoUpdateRequestModel>
     {

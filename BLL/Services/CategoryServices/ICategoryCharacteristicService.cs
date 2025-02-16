@@ -10,7 +10,7 @@ namespace BLL.Services.CategoryCharacteristicService
     {
         Task<OperationResultModel<bool>> CreateAsync(CategoryCharacteristicDBModel model);
         Task<OperationResultModel<bool>> CreateMultipleAsync(CategoryCharacteristicRequestModel request);
-        Task<OperationDetailsResponseModel> UpdateAsync(CategoryCharacteristicDBModel entity);
+        Task<OperationResultModel<bool>> UpdateAsync(CategoryCharacteristicUpdateRequestModel entity);
         Task<OperationResultModel<bool>> DeleteAsync(int categoryId, int characteristicId);
         Task<OperationResultModel<bool>> DeleteMultipleAsync(CategoryCharacteristicRequestModel request);
         Task<OperationResultModel<IEnumerable<CategoryCharacteristicResponseModel>>> GetMappedCharacteristicsAsync(int categoryId);

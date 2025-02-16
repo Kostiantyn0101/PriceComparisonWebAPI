@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
+using Azure.Core;
 using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
@@ -30,8 +31,16 @@ namespace BLL.Services.ProductService
 
         public async Task<OperationResultModel<bool>> UpdateAsync(ProductRequestModel model)
         {
-            var mapped = _mapper.Map<ProductDBModel>(model);
-            var result = await _repository.UpdateAsync(mapped);
+            var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == model.Id);
+            var existing = existingRecords.FirstOrDefault();
+            if (existing == null)
+            {
+                return OperationResultModel<bool>.Failure("Product not found.");
+            }
+
+            _mapper.Map(model, existing);
+
+            var result = await _repository.UpdateAsync(existing);
             return !result.IsError
                 ? OperationResultModel<bool>.Success(true)
                 : OperationResultModel<bool>.Failure(result.Message, result.Exception);
