@@ -1,45 +1,43 @@
-﻿using AutoMapper;
-using BLL.Services.ProductServices;
-using Domain.Models.DBModels;
+﻿using BLL.Services.CategoryServices;
 using Domain.Models.Exceptions;
-using Domain.Models.Request.Products;
+using Domain.Models.Request.Categories;
 using Domain.Models.Response;
-using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace PriceComparisonWebAPI.Controllers
+namespace PriceComparisonWebAPI.Controllers.Category
 {
     //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class CharacteristicsController : ControllerBase
+    public class CategoryCharacteristicGroupsController : ControllerBase
     {
-        private readonly ILogger<CharacteristicsController> _logger;
-        private readonly ICharacteristicService _characteristicService;
+        private readonly ILogger<CategoryCharacteristicGroupsController> _logger;
+        private readonly ICategoryCharacteristicGroupService _categoryCharacteristicGroupService;
 
-        public CharacteristicsController(ICharacteristicService characteristicService,
-            ILogger<CharacteristicsController> logger
-            )
+        public CategoryCharacteristicGroupsController(ICategoryCharacteristicGroupService categoryCharacteristicGroupService,
+            ILogger<CategoryCharacteristicGroupsController> logger)
         {
-            _characteristicService = characteristicService;
+            _categoryCharacteristicGroupService = categoryCharacteristicGroupService;
             _logger = logger;
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> GetCharacteristicById(int id)
+        public async Task<JsonResult> GetCategoryCharacteristicGroupById(int id)
         {
-            var characteristic = (await _characteristicService.GetFromConditionAsync(x => x.Id == id)).FirstOrDefault();
-            if (characteristic == null)
+            var categoryCharacteristicGroup = (await _categoryCharacteristicGroupService
+                .GetFromConditionAsync(x => x.Id == id)).FirstOrDefault();
+
+            if (categoryCharacteristicGroup == null)
             {
                 return GeneralApiResponseModel.GetJsonResult(
                     AppErrors.General.NotFound,
                     StatusCodes.Status400BadRequest);
             }
-            return new JsonResult(characteristic)
+            return new JsonResult(categoryCharacteristicGroup)
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -48,9 +46,9 @@ namespace PriceComparisonWebAPI.Controllers
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateCharacteristic([FromBody] CharacteristicCreateRequestModel model)
+        public async Task<JsonResult> CreateCategoryCharacteristicGroup([FromBody] CategoryCharacteristicGroupCreateRequestModel model)
         {
-            var result = await _characteristicService.CreateAsync(model);
+            var result = await _categoryCharacteristicGroupService.CreateAsync(model);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.CreateError);
@@ -65,9 +63,9 @@ namespace PriceComparisonWebAPI.Controllers
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateCharacteristic([FromBody] CharacteristicRequestModel model)
+        public async Task<JsonResult> UpdateCategoryCharacteristicGroup([FromBody] CategoryCharacteristicGroupRequestModel model)
         {
-            var result = await _characteristicService.UpdateAsync(model);
+            var result = await _categoryCharacteristicGroupService.UpdateAsync(model);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.UpdateError);
@@ -80,9 +78,9 @@ namespace PriceComparisonWebAPI.Controllers
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> DeleteCharacteristic(int id)
+        public async Task<JsonResult> DeleteCategoryCharacteristicGroup(int id)
         {
-            var result = await _characteristicService.DeleteAsync(id);
+            var result = await _categoryCharacteristicGroupService.DeleteAsync(id);
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);

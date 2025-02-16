@@ -7,5 +7,6 @@
         public string? ImageUrl { get; set; }
         public string? IconUrl { get; set; }
         public int? ParentCategoryId { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }
