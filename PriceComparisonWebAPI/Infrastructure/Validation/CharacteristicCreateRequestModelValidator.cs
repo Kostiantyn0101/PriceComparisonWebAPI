@@ -23,7 +23,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation
                 .GreaterThan(0).WithMessage("Characteristic group id must be greater than 0");
 
             RuleFor(x => x.DisplayOrder)
-                .GreaterThan(0).WithMessage("Characteristic group id must be greater than 0");
+                .GreaterThan(0).WithMessage("Display order must be greater than 0");
         }
     }
 }

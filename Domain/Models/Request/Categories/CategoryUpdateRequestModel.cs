@@ -11,5 +11,6 @@ namespace Domain.Models.Request.Categories
         public IFormFile? NewIcon { get; set; }
         public bool DeleteCurrentIcon { get; set; }
         public int? ParentCategoryId { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

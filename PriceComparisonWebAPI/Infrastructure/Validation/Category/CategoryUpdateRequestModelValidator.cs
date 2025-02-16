@@ -20,6 +20,9 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Category
 
             RuleFor(x => x.NewIcon)
                 .ImageFileRules();
+
+            RuleFor(x => x.DisplayOrder)
+                .GreaterThan(0).WithMessage("Display order must be greater than 0");
         }
     }
 }
