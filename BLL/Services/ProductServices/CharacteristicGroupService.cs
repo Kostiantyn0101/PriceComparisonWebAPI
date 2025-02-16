@@ -20,7 +20,7 @@ namespace BLL.Services.ProductServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(CharacteristicGroupRequestModel request)
+        public async Task<OperationResultModel<bool>> CreateAsync(CharacteristicGroupCreateRequestModel request)
         {
             var model = _mapper.Map<CharacteristicGroupDBModel>(request);
             var repoResult = await _repository.CreateAsync(model);

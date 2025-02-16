@@ -19,6 +19,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             builder.Services.AddScoped<IProductCharacteristicService, ProductCharacteristicService>();
             builder.Services.AddScoped<IProductSellerLinkService, ProductSellerLinkService>();
             builder.Services.AddScoped<IRelatedCategoryService, RelatedCategoryService>();
+            builder.Services.AddScoped<ICharacteristicGroupService, CharacteristicGroupService>();
             builder.Services.AddScoped<ICharacteristicService, CharacteristicService>();
             builder.Services.AddScoped<IFeedbackImageService, FeedbackImageService>();
             builder.Services.AddScoped<IPriceHistoryService, PriceHistoryService>();
