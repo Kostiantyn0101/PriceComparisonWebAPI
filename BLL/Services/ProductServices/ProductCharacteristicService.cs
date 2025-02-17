@@ -68,7 +68,7 @@ namespace BLL.Services.ProductService
         public async Task<OperationResultModel<bool>> UpdateAsync(ProductCharacteristicDBModel entity)
         {
             var result = await _repository.UpdateAsync(entity);
-            return !    result.IsError
+            return !result.IsError
                 ? OperationResultModel<bool>.Success(true)
                 : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
@@ -102,6 +102,58 @@ namespace BLL.Services.ProductService
 
             var dbModels = await _repository.ProcessQueryAsync(query);
             return _mapper.Map<IEnumerable<ProductCharacteristicResponseModel>>(dbModels);
+        }
+
+        public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetDetailedCharacteristics(int productId)
+        {
+            var query = _repository.GetQuery()
+                .Where(pc => pc.ProductId == productId)
+                .Select(pc => new
+                {
+                    ProductCharacteristic = pc,
+                    Characteristic = pc.Characteristic,
+                    ProductCategoryId = pc.Product.CategoryId, // Предполагаем, что Product имеет связь с Category
+                    Group = pc.Characteristic.CharacteristicGroup
+                })
+                .Select(x => new
+                {
+                    x.ProductCharacteristic,
+                    x.Characteristic,
+                    x.ProductCategoryId,
+                    x.Group,
+                    CategoryGroup = x.Group.CategoryCharacteristicGroups
+                        .FirstOrDefault(cg => cg.CategoryId == x.ProductCategoryId)
+                });
+
+            var result = query.AsEnumerable()
+               .GroupBy(x => new
+               {
+                   x.Group.Id,
+                   x.Group.Title,
+                   x.CategoryGroup
+               })
+               .OrderBy(g => g.Key.CategoryGroup != null ? g.Key.CategoryGroup.GroupDisplayOrder : int.MaxValue)
+               .Select(g => new ProductCharacteristicGroupResponseModel
+               {
+                   CharacteristicGroupId = g.Key.Id,
+                   CharacteristicGroupTitle = g.Key.Title,
+                   GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
+                   ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
+                   {
+                       ProductId = x.ProductCharacteristic.ProductId,
+                       CharacteristicId = x.ProductCharacteristic.CharacteristicId,
+                       CharacteristicTitle = x.Characteristic.Title,
+                       CharacteristicUnit = x.Characteristic.Unit,
+                       CharacteristicDataType = x.Characteristic.DataType,
+                       ValueText = x.ProductCharacteristic.ValueText,
+                       ValueNumber = x.ProductCharacteristic.ValueNumber,
+                       ValueBoolean = x.ProductCharacteristic.ValueBoolean,
+                       ValueDate = x.ProductCharacteristic.ValueDate
+                   })
+               })
+               .ToList();
+
+            return result;
         }
     }
 }

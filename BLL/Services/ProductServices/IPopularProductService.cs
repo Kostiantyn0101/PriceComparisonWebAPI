@@ -7,7 +7,7 @@ using Domain.Models.Response.Products;
 
 namespace BLL.Services.ProductServices
 {
-    public interface IIPopularProductService
+    public interface IPopularProductService
     {
         Task RegisterClickAsync(int productId);
         Task<IEnumerable<PopularCategoryResponseModel>> GetPopularCategories();

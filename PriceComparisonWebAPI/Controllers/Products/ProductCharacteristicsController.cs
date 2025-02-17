@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Domain.Models.Request.Products;
 using Domain.Models.SuccessCodes;
 using Domain.Models.Exceptions;
+using Domain.Models.Response.Products;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
@@ -35,6 +36,18 @@ namespace PriceComparisonWebAPI.Controllers.Products
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
 
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("grouped/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
+        public async Task<JsonResult> GetGroupedProductCharacteristicsByProductId(int productId)
+        {
+            var result = await _productCharacteristicService.GetDetailedCharacteristics(productId);
+            
             return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
