@@ -4,6 +4,7 @@ using BLL.Services.ProductServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
@@ -20,21 +21,43 @@ namespace PriceComparisonWebAPI.Controllers.Products
     {
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductService _productService;
-        private readonly IIPopularProductService _popularProductService;
+        private readonly IPopularProductService _poularProductService;
+        private readonly IPopularProductService _popularProductService;
 
         public ProductsController(ILogger<ProductsController> logger,
             IProductService productService,
-            IIPopularProductService popularProductService
+            IPopularProductService popularProductService,
+            IPopularProductService poularProductService
             )
         {
             _logger = logger;
             _productService = productService;
             _popularProductService = popularProductService;
+            _poularProductService = poularProductService;
         }
 
 
         [HttpGet("{id}")]
         public async Task<JsonResult> GetProductById(int id)
+        {
+            var products = await _productService.GetFromConditionAsync(x => x.Id == id);
+            if (products == null || !products.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            var product = products.First()!;
+            _ = _popularProductService.RegisterClickAsync(product.Id);
+
+            return new JsonResult(product)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("empty/{id}")]
+        public async Task<JsonResult> GetEmptyProductById(int id)
         {
             var products = await _productService.GetFromConditionAsync(x => x.Id == id);
             if (products == null || !products.Any())
@@ -96,6 +119,16 @@ namespace PriceComparisonWebAPI.Controllers.Products
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
+
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
+        }
+
+        [HttpGet("popular")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PopularCategoryResponseModel>))]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetPopularProducts()
+        {
+            var result = await _popularProductService.GetPopularCategoriesWithProducts();
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }

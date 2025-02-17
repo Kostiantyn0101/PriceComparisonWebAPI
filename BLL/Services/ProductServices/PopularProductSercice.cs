@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace BLL.Services.ProductServices
 {
-    public class PopularProductSercice : IIPopularProductService
+    public class PopularProductSercice : IPopularProductService
     {
         private readonly PopularProductsSettings _settings;
         private readonly IRepository<ProductClicksDBModel> _productClickRepository;

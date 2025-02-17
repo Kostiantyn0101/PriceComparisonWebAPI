@@ -10,7 +10,7 @@ namespace BLL.Services.ProductService
     {
         Task<OperationResultModel<bool>> UpdateProductCharacteristicAsync(ProductCharacteristicUpdateRequestModel model);
         Task<IEnumerable<ProductCharacteristicResponseModel>> GetWithIncludeFromConditionAsync(Expression<Func<ProductCharacteristicDBModel, bool>> condition);
-
+        Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetDetailedCharacteristics(int productId);
 
         Task<OperationResultModel<bool>> CreateAsync(ProductCharacteristicDBModel model);
         Task<OperationResultModel<bool>> UpdateAsync(ProductCharacteristicDBModel entity);
