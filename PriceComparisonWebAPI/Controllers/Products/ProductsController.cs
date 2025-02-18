@@ -21,19 +21,16 @@ namespace PriceComparisonWebAPI.Controllers.Products
     {
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductService _productService;
-        private readonly IPopularProductService _poularProductService;
         private readonly IPopularProductService _popularProductService;
 
         public ProductsController(ILogger<ProductsController> logger,
             IProductService productService,
-            IPopularProductService popularProductService,
-            IPopularProductService poularProductService
+            IPopularProductService popularProductService
             )
         {
             _logger = logger;
             _productService = productService;
             _popularProductService = popularProductService;
-            _poularProductService = poularProductService;
         }
 
 
@@ -125,12 +122,14 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("popular")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PopularCategoryResponseModel>))]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetPopularProducts()
         {
             var result = await _popularProductService.GetPopularCategoriesWithProducts();
 
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
         }
     }
 }

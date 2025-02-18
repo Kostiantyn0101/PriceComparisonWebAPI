@@ -2,6 +2,7 @@
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
+using Domain.Models.Extensions;
 using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace BLL.Services.ProductServices
     public class PopularProductSercice : IPopularProductService
     {
         private readonly PopularProductsSettings _settings;
+        private readonly FileStorageConfiguration _storageSettings;
         private readonly IRepository<ProductClicksDBModel> _productClickRepository;
         private readonly ILogger<PopularProductSercice> _logger;
         private readonly IRepository<ProductDBModel> _producRepository;
@@ -22,12 +24,14 @@ namespace BLL.Services.ProductServices
             IRepository<ProductClicksDBModel> productClickRepository,
             IRepository<ProductDBModel> producRepository,
             ILogger<PopularProductSercice> logger,
-            IOptions<PopularProductsSettings> options)
+            IOptions<PopularProductsSettings> options,
+            IOptions<FileStorageConfiguration> storageOptions)
         {
             _productClickRepository = productClickRepository;
             _producRepository = producRepository;
             _logger = logger;
             _settings = options.Value;
+            _storageSettings = storageOptions.Value;
         }
 
 
@@ -111,7 +115,6 @@ namespace BLL.Services.ProductServices
                 .OrderByDescending(c => c.TotalClicks)
                 .Take(_settings.PopularCategoriesCount);
 
-
             var topCategoriesWithProductsQuery = topCategoriesQuery.Select(c => new PopularCategoryResponseModel
             {
                 Id = c.CategoryId,
@@ -145,6 +148,10 @@ namespace BLL.Services.ProductServices
             });
 
             var topCategoriesWithProducts = await topCategoriesWithProductsQuery.ToListAsync();
+            
+            // Add server url to product image path
+            topCategoriesWithProducts.ForEach(c => c.Products?.ToList().ForEach(p => p.ApplyServerUrl(_storageSettings.ServerURL)));
+            
             return topCategoriesWithProducts;
         }
     }
