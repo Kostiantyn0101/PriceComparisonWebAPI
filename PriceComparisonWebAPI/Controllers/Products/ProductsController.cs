@@ -1,6 +1,7 @@
 using AutoMapper;
 using BLL.Services.ProductService;
 using BLL.Services.ProductServices;
+using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
@@ -10,6 +11,7 @@ using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
@@ -127,6 +129,26 @@ namespace PriceComparisonWebAPI.Controllers.Products
             var result = await _popularProductService.GetPopularCategoriesWithProducts();
 
             return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("bycategory/{categoryId}")]
+        public async Task<JsonResult> GetProductsByCategory(int categoryId, [FromQuery] int page = 1)
+        {
+            const int pageSize = 10;
+
+            Expression<Func<ProductDBModel, bool>> condition = p => p.CategoryId == categoryId;
+
+            var result = await _productService.GetPaginatedProductsAsync(condition, page, pageSize);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return new JsonResult(result.Data)
             {
                 StatusCode = StatusCodes.Status200OK
             };

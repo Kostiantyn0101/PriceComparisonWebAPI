@@ -6,6 +6,7 @@ using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services.ProductService
 {
@@ -54,6 +55,29 @@ namespace BLL.Services.ProductService
                 : OperationResultModel<bool>.Failure(result.Message, result.Exception);
         }
 
+        public async Task<OperationResultModel<PaginatedResponse<ProductResponseModel>>> GetPaginatedProductsAsync(
+                    Expression<Func<ProductDBModel, bool>> condition, int page, int pageSize)
+        {
+            var query = _repository.GetQuery().Where(condition);
+
+            var totalItems = await query.CountAsync();
+
+            var products = await query.Skip((page - 1) * pageSize)
+                                      .Take(pageSize)
+                                      .ToListAsync();
+
+            var mappedProducts = _mapper.Map<IEnumerable<ProductResponseModel>>(products);
+
+            var response = new PaginatedResponse<ProductResponseModel>
+            {
+                Data = mappedProducts,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            return OperationResultModel<PaginatedResponse<ProductResponseModel>>.Success(response);
+        }
 
         public IQueryable<ProductDBModel> GetQuery()
         {
