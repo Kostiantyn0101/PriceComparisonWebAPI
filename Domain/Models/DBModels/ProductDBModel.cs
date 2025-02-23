@@ -4,8 +4,12 @@ namespace Domain.Models.DBModels
 {
     public class ProductDBModel : EntityDBModel
     {
+        public string Brand { get; set; }
         public string Title { get; set; }
+        public string? ModelNumber { get; set; }
         public string? Description { get; set; }
+        public string? GTIN { get; set; }
+        public string? UPC { get; set; }
 
         public int CategoryId { get; set; }
         public CategoryDBModel Category { get; set; }

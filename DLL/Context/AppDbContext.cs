@@ -241,8 +241,19 @@ namespace DLL.Context
             modelBuilder.Entity<ProductDBModel>(entity =>
             {
                 entity.Property(p => p.Title)
-                    .IsRequired()
                     .HasMaxLength(255);
+
+                entity.Property(p => p.Brand)
+                    .HasMaxLength(255);
+
+                entity.Property(p => p.ModelNumber)
+                    .HasMaxLength(255);
+
+                entity.Property(p => p.GTIN)
+                    .HasMaxLength(15);
+
+                entity.Property(p => p.UPC)
+                    .HasMaxLength(15);
 
                 entity.HasOne(p => p.Category)
                     .WithMany(c => c.Products)
