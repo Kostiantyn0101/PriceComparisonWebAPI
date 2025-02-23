@@ -36,13 +36,6 @@ namespace DLL.Migrations
                 table: "SellerProductDetails",
                 newName: "IX_SellerProductDetails_SellerId");
 
-            migrationBuilder.AddColumn<int>(
-                name: "Id",
-                table: "SellerProductDetails",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
-
             migrationBuilder.AddPrimaryKey(
                 name: "PK_SellerProductDetails",
                 table: "SellerProductDetails",
@@ -78,10 +71,6 @@ namespace DLL.Migrations
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_SellerProductDetails",
-                table: "SellerProductDetails");
-
-            migrationBuilder.DropColumn(
-                name: "Id",
                 table: "SellerProductDetails");
 
             migrationBuilder.RenameTable(

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.Models.Response;
 
 namespace BLL.Services.SellerServices
 {
     public interface ISellerProductService
     {
-        Task ProcessXmlAsync(string xmlContent);
+        Task<OperationResultModel<string>> ProcessXmlAsync(Stream stream);
     }
 }

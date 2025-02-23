@@ -13,7 +13,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             builder.Services.AddScoped<ICategoryCharacteristicRepository, CategoryCharacteristicRepository>();
             builder.Services.AddScoped<IProductCharacteristicRepository, ProductCharacteristicRepository>();
             builder.Services.AddScoped<IRelatedCategoryRepository, RelatedCategoryRepository>();
-            builder.Services.AddScoped<IPriceRepository, PriceRepository>();
+            builder.Services.AddScoped<ISellerProductDetailsRepository, SellerProductDetailsRepository>();
         }
     }
 }

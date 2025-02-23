@@ -7,11 +7,11 @@ using System.Linq.Expressions;
 
 namespace DLL.Repository.Abstractions
 {
-    public class PriceRepository : IPriceRepository
+    public class SellerProductDetailsRepository : ISellerProductDetailsRepository
     {
         private readonly AppDbContext _context;
 
-        public PriceRepository(AppDbContext context)
+        public SellerProductDetailsRepository(AppDbContext context)
         {
             _context = context;
         }

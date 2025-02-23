@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace DLL.Repository
 {
-    public interface IPriceRepository
+    public interface ISellerProductDetailsRepository
     {
         Task<OperationDetailsResponseModel> CreateAsync(SellerProductDetailsDBModel entity);
         Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entityNew);

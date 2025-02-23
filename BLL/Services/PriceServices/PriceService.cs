@@ -7,9 +7,9 @@ namespace BLL.Services.PriceServices
 {
     public class PriceService : IPriceService
     {
-        private readonly IPriceRepository _repository;
+        private readonly ISellerProductDetailsRepository _repository;
 
-        public PriceService(IPriceRepository repository)
+        public PriceService(ISellerProductDetailsRepository repository)
         {
             _repository = repository;
         }

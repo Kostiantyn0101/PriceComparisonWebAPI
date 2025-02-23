@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250223212341_PricesTableRenaimed")]
+    [Migration("20250223213505_PricesTableRenaimed")]
     partial class PricesTableRenaimed
     {
         /// <inheritdoc />
@@ -721,9 +721,6 @@ namespace DLL.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("SellerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastUpdated")

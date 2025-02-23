@@ -1,27 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Models.DBModels;
+﻿using Domain.Models.DBModels;
 using Microsoft.Extensions.Options;
 using System.Xml.Linq;
 using DLL.Repository;
-using BLL.Services.ProductServices;
 using Domain.Models.Configuration;
+using Domain.Models.Response;
 
 namespace BLL.Services.SellerServices
 {
     public class SellerProductService : ISellerProductService
     {
-        private readonly IRepository<SellerProductDetailsDBModel> _repository;
+        private readonly ISellerProductDetailsRepository _repository;
         private readonly IRepository<ProductDBModel> _productRepository;
         private readonly IRepository<SellerDBModel> _sellerRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
 
-        public SellerProductService(IRepository<SellerProductDetailsDBModel> repository, 
-            IRepository<ProductDBModel> productRepository, 
+        public SellerProductService(ISellerProductDetailsRepository repository,
+            IRepository<ProductDBModel> productRepository,
             IRepository<SellerDBModel> sellerRepository, IOptions<SellerAccountConfiguration> options)
         {
             _repository = repository;
@@ -30,77 +24,86 @@ namespace BLL.Services.SellerServices
             _accountConfiguration = options.Value;
         }
 
-        public async Task ProcessXmlAsync(string xmlContent)
+        public async Task<OperationResultModel<string>> ProcessXmlAsync(Stream stream)
         {
-            //    var doc = XDocument.Parse(xmlContent);
-            //    var apiKey = doc.Root?.Element("api_key")?.Value;
-            //    var seller = (await _sellerRepository.GetFromConditionAsync(s => s.ApiKey == apiKey)).FirstOrDefault();
+            var xmlDoc = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
+            var priceListDate = DateTime.Parse(xmlDoc.Root.Attribute("date").Value);
+            var apiKey = xmlDoc.Root.Element("api_key").Value;
 
-            //    if (seller == null || !seller.IsActive || seller.AccountBalance < _minimumBalance)
-            //    {
-            //        throw new Exception("Invalid or insufficient seller account.");
-            //    }
+            // Поиск продавца
+            var seller = (await _sellerRepository.GetFromConditionAsync(s => s.ApiKey == apiKey))
+                .FirstOrDefault();
 
-            //    var currencyRates = doc.Root?.Element("currencies")?.Elements("currency")
-            //        .ToDictionary(c => c.Attribute("id")?.Value, c => decimal.Parse(c.Attribute("rate")?.Value, CultureInfo.InvariantCulture));
+            if (seller == null || !seller.IsActive || seller.AccountBalance < _accountConfiguration.MinBalanceToProceed)
+            {
+                throw new Exception("Invalid seller");
+            }
 
-            //    var offers = doc.Root?.Element("offers")?.Elements("offer");
-            //    foreach (var offer in offers)
-            //    {
-            //        var gtin = offer.Element("gtin")?.Value;
-            //        var product = await _context.Products.FirstOrDefaultAsync(p => p.GTIN == gtin || p.UPC == gtin);
+            // Обработка валют
+            var currencies = xmlDoc.Root.Element("currencies").Elements("currency")
+                .ToDictionary(
+                    c => c.Attribute("id").Value,
+                    c => decimal.Parse(c.Attribute("rate").Value)
+                );
 
-            //        if (product == null)
-            //        {
-            //            product = new ProductDBModel
-            //            {
-            //                GTIN = gtin,
-            //                Name = offer.Element("name")?.Value,
-            //                Brand = offer.Element("brand")?.Value,
-            //                CreatedAt = DateTime.UtcNow
-            //            };
-            //            _context.Products.Add(product);
-            //            await _context.SaveChangesAsync();
-            //        }
+            // Обработка товаров
+            foreach (var offer in xmlDoc.Root.Element("offers").Elements("offer"))
+            {
+                var gtin = offer.Element("gtin").Value;
 
-            //        var priceValue = decimal.Parse(offer.Element("price")?.Value, CultureInfo.InvariantCulture);
-            //        var currencyId = offer.Element("currencyId")?.Value;
-            //        if (currencyRates.ContainsKey(currencyId))
-            //        {
-            //            priceValue *= currencyRates[currencyId];
-            //        }
+                // Поиск товара
+                var product = (await _productRepository.GetFromConditionAsync(p => p.GTIN == gtin || p.UPC == gtin)).FirstOrDefault();
 
-            //        var productStoreUrl = offer.Element("url")?.Value;
+                // Создание нового товара если не найден
+                if (product == null)
+                {
+                    //product = new ProductDBModel
+                    //{
+                    //    GTIN = gtin,
+                    //    Name = offer.Element("name").Value,
+                    //    Brand = offer.Element("brand").Value,
+                    //    Model = offer.Element("model").Value,
+                    //    Description = offer.Element("description").Value,
+                    //    CategoryId = int.Parse(offer.Element("categoryId").Value),
+                    //    AddedToDatabase = DateTime.UtcNow
+                    //};
 
-            //        var priceHistory = new PriceHistoryDBModel
-            //        {
-            //            ProductId = product.Id,
-            //            SellerId = seller.Id,
-            //            PriceValue = priceValue,
-            //            CreatedAt = DateTime.UtcNow
-            //        };
-            //        _context.PriceHistories.Add(priceHistory);
+                    //await _productRepository.AddAsync(product);
 
-            //        var existingDetails = await _context.SellerProductDetails.FirstOrDefaultAsync(p => p.ProductId == product.Id && p.SellerId == seller.Id);
-            //        if (existingDetails != null)
-            //        {
-            //            existingDetails.PriceValue = priceValue;
-            //            existingDetails.LastUpdated = DateTime.UtcNow;
-            //            existingDetails.ProductStoreUrl = productStoreUrl;
-            //        }
-            //        else
-            //        {
-            //            _context.SellerProductDetails.Add(new SellerProductDetailsDBModel
-            //            {
-            //                ProductId = product.Id,
-            //                SellerId = seller.Id,
-            //                PriceValue = priceValue,
-            //                LastUpdated = DateTime.UtcNow,
-            //                ProductStoreUrl = productStoreUrl
-            //            });
-            //        }
-            //    }
-            //    await _context.SaveChangesAsync();
+                    continue;
+                }
+
+                // Конвертация цены
+                var currencyId = offer.Element("currencyId").Value;
+                var price = decimal.Parse(offer.Element("price").Value);
+                var priceUah = currencyId == "UAH" ? price : price * currencies[currencyId];
+
+                // Работа с SellerProductDetails
+                var details = (await _repository.GetFromConditionAsync(
+                    d => d.ProductId == product.Id && d.SellerId == seller.UserId))
+                    .FirstOrDefault();
+
+                if (details == null)
+                {
+                    await _repository.CreateAsync(new SellerProductDetailsDBModel
+                    {
+                        ProductId = product.Id,
+                        SellerId = seller.UserId,
+                        PriceValue = priceUah,
+                        LastUpdated = priceListDate,
+                        ProductStoreUrl = offer.Element("url").Value
+                    });
+                }
+                else
+                {
+                    details.PriceValue = priceUah;
+                    details.LastUpdated = priceListDate;
+                    details.ProductStoreUrl = offer.Element("url").Value;
+                    await _repository.UpdateAsync(details);
+                }
+            }
+
+            return OperationResultModel<string>.Success();
         }
     }
 }

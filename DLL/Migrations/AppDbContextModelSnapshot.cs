@@ -720,9 +720,6 @@ namespace DLL.Migrations
                     b.Property<int>("SellerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("DATETIME2(0)");
 

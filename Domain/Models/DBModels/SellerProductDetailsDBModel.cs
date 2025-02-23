@@ -2,7 +2,7 @@
 
 namespace Domain.Models.DBModels
 {
-    public class SellerProductDetailsDBModel : EntityDBModel
+    public class SellerProductDetailsDBModel
     {
         public int ProductId { get; set; }
         public ProductDBModel Product { get; set; }

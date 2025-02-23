@@ -1,4 +1,5 @@
-﻿using BLL.Services.SellerServices;
+﻿using System.Xml.Linq;
+using BLL.Services.SellerServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
@@ -20,7 +21,9 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             _sellerProductService = sellerProductService;
         }
 
-        [HttpPost("upload-xml-file")]
+        [HttpPost("upload-file")]
+        [Consumes("multipart/form-data")]
+        //[Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UploadXmlFile([FromForm] IFormFile file)
@@ -31,19 +34,21 @@ namespace PriceComparisonWebAPI.Controllers.Seller
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, "File not found");
             }
 
-            using var stream = new StreamReader(file.OpenReadStream());
-            var xmlContent = await stream.ReadToEndAsync();
-            await _sellerProductService.ProcessXmlAsync(xmlContent);
+            using var stream = file.OpenReadStream();
+            await _sellerProductService.ProcessXmlAsync(stream);
+
+            
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
         }
 
-        [HttpPost("upload-xml")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<IActionResult> UploadXml([FromBody] string xmlContent)
-        {
-            await _sellerProductService.ProcessXmlAsync(xmlContent);
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
-        }
+
+        //[HttpPost("upload-xml")]
+        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        //public async Task<IActionResult> UploadXml([FromBody] string xmlContent)
+        //{
+        //    //await _sellerProductService.ProcessXmlAsync(xmlContent);
+        //    //return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
+        //}
     }
 }
