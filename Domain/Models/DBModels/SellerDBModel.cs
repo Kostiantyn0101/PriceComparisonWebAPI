@@ -8,6 +8,7 @@ namespace Domain.Models.DBModels
         public string? LogoImageUrl { get; set; }
         public string? WebsiteUrl { get; set; }
         public bool IsActive { get; set; }
+        public decimal AccoundBalance { get; set; }
 
         public int UserId { get; set; }
         public ApplicationUserDBModel User { get; set; }

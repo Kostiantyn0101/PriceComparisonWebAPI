@@ -356,6 +356,9 @@ namespace DLL.Context
                 entity.Property(s => s.WebsiteUrl)
                     .HasMaxLength(2083);
 
+                entity.Property(s => s.AccoundBalance)
+                    .HasPrecision(18,2);
+
                 entity.HasOne(s => s.User)
                     .WithMany(u => u.Sellers)
                     .HasForeignKey(s => s.UserId);
