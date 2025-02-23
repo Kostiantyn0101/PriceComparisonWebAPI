@@ -14,6 +14,22 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
                 .NotEmpty().WithMessage("Product title is required.")
                 .MaximumLength(200).WithMessage("Product title length must be less than 200 characters");
 
+            RuleFor(x => x.Brand)
+                .NotEmpty().WithMessage("Product brand is required.")
+                .MaximumLength(255).WithMessage("Product brand length must be less than 255 characters");
+
+            RuleFor(x => x.ModelNumber)
+                .MaximumLength(255).WithMessage("Product model number length must be less than 255 characters")
+                .When(x => x.ModelNumber != null);
+
+            RuleFor(x => x.GTIN)
+                .MaximumLength(15).WithMessage("Product GTIN length must be less than 15 characters")
+                .When(x => x.GTIN != null);
+
+            RuleFor(x => x.UPC)
+                .MaximumLength(15).WithMessage("Product UPC length must be less than 15 characters")
+                .When(x => x.UPC != null);
+
             RuleFor(x => x.CategoryId)
                 .GreaterThan(0).WithMessage("Category id must be greater than 0");
 
