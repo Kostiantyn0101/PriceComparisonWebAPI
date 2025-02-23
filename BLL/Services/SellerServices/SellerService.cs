@@ -22,6 +22,7 @@ namespace BLL.Services.SellerServices
         public async Task<OperationResultModel<bool>> CreateAsync(SellerCreateRequestModel request)
         {
             var model = _mapper.Map<SellerDBModel>(request);
+            model.ApiKey = Guid.NewGuid().ToString();
             var repoResult = await _repository.CreateAsync(model);
             return !repoResult.IsError
                 ? OperationResultModel<bool>.Success(true)
