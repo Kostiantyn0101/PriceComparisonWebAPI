@@ -20,7 +20,7 @@ namespace DLL.Context
         public DbSet<ReviewDBModel> Reviews { get; set; }
         public DbSet<InstructionDBModel> Instructions { get; set; }
         public DbSet<RelatedCategoryDBModel> RelatedCategories { get; set; }
-        public DbSet<PriceDBModel> Prices { get; set; }
+        public DbSet<SellerProductDetailsDBModel> Prices { get; set; }
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
@@ -189,7 +189,6 @@ namespace DLL.Context
             modelBuilder.Entity<InstructionDBModel>(entity =>
             {
                 entity.Property(fi => fi.InstructionUrl)
-                    .IsRequired()
                     .HasMaxLength(2083);
 
                 entity.HasOne(fi => fi.Product)
@@ -197,17 +196,19 @@ namespace DLL.Context
                     .HasForeignKey(fi => fi.ProductId);
             });
 
-            // PriceDBModel
-            modelBuilder.Entity<PriceDBModel>(entity =>
+            // SellerProductDetailsDBModel
+            modelBuilder.Entity<SellerProductDetailsDBModel>(entity =>
             {
                 entity.HasKey(p => new { p.ProductId, p.SellerId });
 
                 entity.Property(pr => pr.PriceValue)
-                    .IsRequired()
                     .HasColumnType("decimal(18,2)");
 
                 entity.Property(pr => pr.LastUpdated)
-                    .IsRequired();
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.Property(pr => pr.ProductStoreUrl)
+                    .HasMaxLength(2083);
 
                 entity.HasOne(pr => pr.Product)
                     .WithMany(p => p.Prices)

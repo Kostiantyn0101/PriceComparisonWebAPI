@@ -14,12 +14,12 @@ namespace BLL.Services.PriceServices
             _repository = repository;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(PriceDBModel model)
+        public async Task<OperationDetailsResponseModel> CreateAsync(SellerProductDetailsDBModel model)
         {
             return await _repository.CreateAsync(model);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(PriceDBModel entity)
+        public async Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
@@ -29,17 +29,17 @@ namespace BLL.Services.PriceServices
             return await _repository.DeleteAsync(productId, sellerId);
         }
 
-        public IQueryable<PriceDBModel> GetQuery()
+        public IQueryable<SellerProductDetailsDBModel> GetQuery()
         {
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<PriceDBModel>> GetFromConditionAsync(Expression<Func<PriceDBModel, bool>> condition)
+        public async Task<IEnumerable<SellerProductDetailsDBModel>> GetFromConditionAsync(Expression<Func<SellerProductDetailsDBModel, bool>> condition)
         {
             return await _repository.GetFromConditionAsync(condition);
         }
 
-        public async Task<IEnumerable<PriceDBModel>> ProcessQueryAsync(IQueryable<PriceDBModel> query)
+        public async Task<IEnumerable<SellerProductDetailsDBModel>> ProcessQueryAsync(IQueryable<SellerProductDetailsDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
         }

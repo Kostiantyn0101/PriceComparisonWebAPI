@@ -20,7 +20,7 @@ namespace Domain.Models.DBModels
         public ICollection<ReviewDBModel> Reviews { get; set; }
         public ICollection<InstructionDBModel> Instructions { get; set; }
         public ICollection<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
-        public ICollection<PriceDBModel> Prices { get; set; }
+        public ICollection<SellerProductDetailsDBModel> Prices { get; set; }
         public ICollection<PriceHistoryDBModel> PricesHistory { get; set; }
         public ICollection<ProductSellerLinkDBModel> SellerLinks { get; set; }
         public ICollection<ProductClicksDBModel> ProductClicks { get; set; }

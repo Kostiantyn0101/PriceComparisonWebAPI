@@ -6,12 +6,12 @@ namespace DLL.Repository
 {
     public interface IPriceRepository
     {
-        Task<OperationDetailsResponseModel> CreateAsync(PriceDBModel entity);
-        Task<OperationDetailsResponseModel> UpdateAsync(PriceDBModel entityNew);
+        Task<OperationDetailsResponseModel> CreateAsync(SellerProductDetailsDBModel entity);
+        Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entityNew);
         Task<OperationDetailsResponseModel> DeleteAsync(int productId, int sellerId);
 
-        Task<IEnumerable<PriceDBModel>> GetFromConditionAsync(Expression<Func<PriceDBModel, bool>> condition);
-        Task<IEnumerable<PriceDBModel>> ProcessQueryAsync(IQueryable<PriceDBModel> query);
-        IQueryable<PriceDBModel> GetQuery();
+        Task<IEnumerable<SellerProductDetailsDBModel>> GetFromConditionAsync(Expression<Func<SellerProductDetailsDBModel, bool>> condition);
+        Task<IEnumerable<SellerProductDetailsDBModel>> ProcessQueryAsync(IQueryable<SellerProductDetailsDBModel> query);
+        IQueryable<SellerProductDetailsDBModel> GetQuery();
     }
 }
