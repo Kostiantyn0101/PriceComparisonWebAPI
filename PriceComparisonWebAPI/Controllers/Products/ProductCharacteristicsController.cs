@@ -1,4 +1,4 @@
-﻿using BLL.Services.ProductService;
+﻿using BLL.Services.ProductServices;
 using Domain.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;

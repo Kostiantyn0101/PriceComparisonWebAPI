@@ -201,6 +201,8 @@ namespace DLL.Context
             {
                 entity.HasKey(p => new { p.ProductId, p.SellerId });
 
+                entity.ToTable("SellerProductDetails");
+
                 entity.Property(pr => pr.PriceValue)
                     .HasColumnType("decimal(18,2)");
 
@@ -370,7 +372,7 @@ namespace DLL.Context
                 entity.Property(s => s.WebsiteUrl)
                     .HasMaxLength(2083);
 
-                entity.Property(s => s.AccoundBalance)
+                entity.Property(s => s.AccountBalance)
                     .HasPrecision(18,2);
 
                 entity.HasOne(s => s.User)

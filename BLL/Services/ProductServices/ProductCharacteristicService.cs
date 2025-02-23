@@ -7,7 +7,7 @@ using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
 
-namespace BLL.Services.ProductService
+namespace BLL.Services.ProductServices
 {
     public class ProductCharacteristicService : IProductCharacteristicService
     {

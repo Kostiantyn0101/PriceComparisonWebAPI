@@ -5,7 +5,7 @@ using BLL.Services.CategoryServices;
 using BLL.Services.FeedbackAndReviewServices;
 using BLL.Services.MediaServices;
 using BLL.Services.PriceServices;
-using BLL.Services.ProductService;
+using BLL.Services.ProductServices;
 using BLL.Services.ProductServices;
 using BLL.Services.SellerServices;
 
