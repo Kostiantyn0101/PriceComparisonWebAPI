@@ -347,7 +347,9 @@ namespace DLL.Context
             modelBuilder.Entity<SellerDBModel>(entity =>
             {
                 entity.Property(s => s.ApiKey)
-                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(s => s.StoreName)
                     .HasMaxLength(255);
 
                 entity.Property(s => s.LogoImageUrl)
