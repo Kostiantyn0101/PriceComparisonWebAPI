@@ -18,6 +18,7 @@ namespace PriceComparisonWebAPI.Infrastructure
                 builder.AddSwagger();
                 builder.AddAutoMapper();
                 builder.AddOthers();
+                builder.AddOpenAI();
             }
             catch (Exception ex)
             {
