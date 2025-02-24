@@ -54,6 +54,18 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+        [HttpGet("short-grouped/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
+        public async Task<JsonResult> GetShortGroupedProductCharacteristicsByProductId(int productId)
+        {
+            var result = await _productCharacteristicService.GetShortCharacteristics(productId);
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
