@@ -7,7 +7,7 @@ using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
 
-namespace BLL.Services.ProductService
+namespace BLL.Services.ProductServices
 {
     public class ProductCharacteristicService : IProductCharacteristicService
     {
@@ -108,6 +108,58 @@ namespace BLL.Services.ProductService
         {
             var query = _repository.GetQuery()
                 .Where(pc => pc.ProductId == productId)
+                .Select(pc => new
+                {
+                    ProductCharacteristic = pc,
+                    Characteristic = pc.Characteristic,
+                    ProductCategoryId = pc.Product.CategoryId, // Предполагаем, что Product имеет связь с Category
+                    Group = pc.Characteristic.CharacteristicGroup
+                })
+                .Select(x => new
+                {
+                    x.ProductCharacteristic,
+                    x.Characteristic,
+                    x.ProductCategoryId,
+                    x.Group,
+                    CategoryGroup = x.Group.CategoryCharacteristicGroups
+                        .FirstOrDefault(cg => cg.CategoryId == x.ProductCategoryId)
+                });
+
+            var result = query.AsEnumerable()
+               .GroupBy(x => new
+               {
+                   x.Group.Id,
+                   x.Group.Title,
+                   x.CategoryGroup
+               })
+               .OrderBy(g => g.Key.CategoryGroup != null ? g.Key.CategoryGroup.GroupDisplayOrder : int.MaxValue)
+               .Select(g => new ProductCharacteristicGroupResponseModel
+               {
+                   CharacteristicGroupId = g.Key.Id,
+                   CharacteristicGroupTitle = g.Key.Title,
+                   GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
+                   ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
+                   {
+                       ProductId = x.ProductCharacteristic.ProductId,
+                       CharacteristicId = x.ProductCharacteristic.CharacteristicId,
+                       CharacteristicTitle = x.Characteristic.Title,
+                       CharacteristicUnit = x.Characteristic.Unit,
+                       CharacteristicDataType = x.Characteristic.DataType,
+                       ValueText = x.ProductCharacteristic.ValueText,
+                       ValueNumber = x.ProductCharacteristic.ValueNumber,
+                       ValueBoolean = x.ProductCharacteristic.ValueBoolean,
+                       ValueDate = x.ProductCharacteristic.ValueDate
+                   })
+               })
+               .ToList();
+
+            return result;
+        }
+
+        public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortCharacteristics(int productId)
+        {
+            var query = _repository.GetQuery()
+                .Where(pc => pc.ProductId == productId && pc.Characteristic.IncludeInShortDescription)
                 .Select(pc => new
                 {
                     ProductCharacteristic = pc,

@@ -1,4 +1,4 @@
-﻿using BLL.Services.ProductService;
+﻿using BLL.Services.ProductServices;
 using Domain.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -48,6 +48,18 @@ namespace PriceComparisonWebAPI.Controllers.Products
         {
             var result = await _productCharacteristicService.GetDetailedCharacteristics(productId);
             
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("short-grouped/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
+        public async Task<JsonResult> GetShortGroupedProductCharacteristicsByProductId(int productId)
+        {
+            var result = await _productCharacteristicService.GetShortCharacteristics(productId);
+
             return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK

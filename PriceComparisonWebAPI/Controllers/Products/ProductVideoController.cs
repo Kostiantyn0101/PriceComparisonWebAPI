@@ -1,4 +1,4 @@
-﻿using BLL.Services.ProductService;
+﻿using BLL.Services.ProductServices;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;

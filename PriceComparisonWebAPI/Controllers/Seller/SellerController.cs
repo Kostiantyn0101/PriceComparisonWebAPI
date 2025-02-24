@@ -37,6 +37,21 @@ namespace PriceComparisonWebAPI.Controllers.Categories
             };
         }
 
+        [HttpGet("getByUserId/{userId}")]
+        public async Task<JsonResult> GetSellerByUserId(int userId)
+        {
+            var result = await _sellerService.GetFromConditionAsync(s => s.UserId == userId);
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(result.First())
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
