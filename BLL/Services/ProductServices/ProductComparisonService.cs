@@ -65,7 +65,7 @@ namespace BLL.Services.ProductServices
                     new Message(Role.User, prompt)
                 },
                 model: "gpt-4o-mini",
-                temperature: 0.7f
+                temperature: 0.3f
             );
 
             //request to OpenAI
@@ -93,6 +93,7 @@ namespace BLL.Services.ProductServices
             sb.AppendLine("3. Set `isHighlighted: true` for the product with the advantage in each comparison");
             sb.AppendLine("4. Leave both products' `isHighlighted: false` when characteristics are equal");
             sb.AppendLine("5. Provide a concise explanation for your overall comparison");
+            sb.AppendLine("6. **Important:** Include ALL characteristic groups provided in the input data, even if some groups have no characteristics.");
             sb.AppendLine();
 
             // Comparison rules with clearer guidelines
