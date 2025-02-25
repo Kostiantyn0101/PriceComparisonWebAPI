@@ -1,7 +1,6 @@
 ﻿using BLL.Services.ProductServices;
-using Domain.Models.Response.Gpt;
-using Domain.Models.Response.Products;
-using Microsoft.AspNetCore.Http;
+using Domain.Models.Exceptions;
+using Domain.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.OpenAI
@@ -21,34 +20,31 @@ namespace PriceComparisonWebAPI.Controllers.OpenAI
         }
 
         [HttpGet("compare")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GptComparisonResponse))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CompareProducts([FromQuery] int productIdA, [FromQuery] int productIdB)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> CompareProducts([FromQuery] int productIdA, [FromQuery] int productIdB)
         {
             if (productIdA <= 0 || productIdB <= 0)
             {
-                return BadRequest("Invalid product IDs.");
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.NotFound,
+                    StatusCodes.Status400BadRequest,
+                    "Invalid product IDs.");
             }
 
-            try
+            var result = await _productComparisonService.CompareProductsAsync(productIdA, productIdB);
+            if (result == null)
             {
-                var (productA, productB, explanation) = await _productComparisonService.CompareProductsAsync(productIdA, productIdB);
-
-                var response = new GptComparisonResponse
-                {
-                    ProductA = productA,
-                    ProductB = productB,
-                    Explanation = explanation
-                };
-
-                return Ok(response);
+                return GeneralApiResponseModel.GetJsonResult(
+                    AppErrors.General.NotFound,
+                    StatusCodes.Status400BadRequest,
+                    "Products not found.");
             }
-            catch (Exception ex)
+
+            return new JsonResult(result)
             {
-                _logger.LogError(ex, "Error while comparing products");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while comparing products.");
-            }
-
+                StatusCode = StatusCodes.Status200OK
+            };
         }
     }
 }

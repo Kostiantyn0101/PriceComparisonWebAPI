@@ -12,6 +12,5 @@
         public decimal? ValueNumber { get; set; }
         public bool? ValueBoolean { get; set; }
         public DateTime? ValueDate { get; set; }
-        public bool IsHighlighted { get; set; }
     }
 }
