@@ -89,30 +89,17 @@ namespace BLL.Services.ProductServices
             // Instructions section with numbered list for clarity
             sb.AppendLine("## Instructions");
             sb.AppendLine($"1. Compare the characteristics of \"{productAName}\" and \"{productBName}\" group by group.");
-            sb.AppendLine("2. For each characteristic, determine which product has the advantage");
-            sb.AppendLine("3. Set `isHighlighted: true` for the product with the advantage in each comparison");
-            sb.AppendLine("4. Leave both products' `isHighlighted: false` when characteristics are equal");
-            sb.AppendLine("5. Provide a concise explanation for your overall comparison");
-            sb.AppendLine("6. **Important:** Include ALL characteristic groups provided in the input data, even if some groups have no characteristics.");
-            sb.AppendLine();
-
-            // Comparison rules with clearer guidelines
-            sb.AppendLine("## Comparison Rules");
-            sb.AppendLine("- **Numerical values**: Higher is better (e.g., processor speed, RAM, battery capacity, resolution)");
-            sb.AppendLine("- **Boolean values**: `true` indicates presence of a feature and is better than `false`");
-            sb.AppendLine("- **Text values**: Compare based on quality, durability, and consumer preferences");
-            sb.AppendLine("- **Missing characteristics**: Highlight the product that has a characteristic when the other doesn't");
-            sb.AppendLine("- **Storage/Memory**: Higher values are better (e.g., 16GB > 8GB, 1TB > 512GB)");
-            sb.AppendLine("- **Display**: Higher resolution, refresh rate, and screen size are generally better");
-            sb.AppendLine("- **Camera**: Higher megapixels, larger sensors, and more lenses typically indicate better cameras");
-            sb.AppendLine("- **Dimensions**: Thinner and lighter devices are typically preferred unless explicitly stated otherwise");
-            sb.AppendLine("- **Material**: Premium materials (e.g., aluminum, glass, titanium) are better than plastic");
+            //sb.AppendLine("2. Set 'isHighlighted: true' for the product where this characteristic is better.");
+            sb.AppendLine("2. Встанови `isHighlighted: true` для того продукту в якого дана характеристика краща.");
+            sb.AppendLine("3. Leave both products' `isHighlighted: false` when characteristics are equal");
+            //sb.AppendLine("4. Не пропускай жодних характеристик, вивести потрібно всі для обох товарів.");
+            sb.AppendLine("4. Do not skip any characteristics; all of them must be displayed for both products.");
             sb.AppendLine();
 
             // Input validation warning
             if (!productA.Any() || !productB.Any())
             {
-                sb.AppendLine("⚠️ WARNING: At least one product appears to have no characteristics. Please verify input data.");
+                //sb.AppendLine("⚠️ WARNING: At least one product appears to have no characteristics. Please verify input data.");
             }
 
             // Expected output format with more detailed example
