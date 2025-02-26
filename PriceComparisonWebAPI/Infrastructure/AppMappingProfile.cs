@@ -6,6 +6,7 @@ using Domain.Models.Request.Products;
 using Domain.Models.Request.Seller;
 using Domain.Models.Response.Categories;
 using Domain.Models.Response.Feedback;
+using Domain.Models.Response.Gpt.Product;
 using Domain.Models.Response.Products;
 using Domain.Models.Response.Seller;
 using PriceComparisonWebAPI.Infrastructure.MapperResolvers;
@@ -21,7 +22,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
             CreateMap<CharacteristicRequestModel, CharacteristicDBModel>()
                     .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            
+
             CreateMap<CharacteristicGroupDBModel, CharacteristicGroupResponseModel>();
             CreateMap<CharacteristicGroupRequestModel, CharacteristicGroupDBModel>();
             CreateMap<CharacteristicGroupCreateRequestModel, CharacteristicGroupDBModel>();
@@ -47,7 +48,7 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
             CreateMap<CategoryCharacteristicRequestModel, CategoryCharacteristicDBModel>();
 
-            
+
             // PRODUCTS
             CreateMap<ProductDBModel, ProductResponseModel>();
             CreateMap<ProductRequestModel, ProductDBModel>()
@@ -56,7 +57,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             // todo: find desision about nullable type
             CreateMap<ProductImageDBModel, ProductImageResponseModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<ProductImageUrlResolver>());
-                
+
             CreateMap<FeedbackImageDBModel, FeedbackImageResponseModel>()
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom<FeedbackImageUrlResolver>());
 
@@ -65,6 +66,19 @@ namespace PriceComparisonWebAPI.Infrastructure
                .ForMember(dest => dest.CharacteristicDataType, opt => opt.MapFrom(src => src.Characteristic.DataType))
                .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
             CreateMap<ProductCharacteristicValueUpdateModel, ProductCharacteristicDBModel>();
+
+            CreateMap<ProductCharacteristicGroupResponseModel, SimplifiedProductCharacteristicGroupResponseModel>()
+                .ForMember(dest => dest.CharacteristicGroupTitle, opt => opt.MapFrom(src => src.CharacteristicGroupTitle))
+                .ForMember(dest => dest.ProductCharacteristics, opt => opt.MapFrom(src => src.ProductCharacteristics));
+
+            CreateMap<ProductCharacteristicResponseModel, SimplifiedProductCharacteristicResponseModel>()
+                .ForMember(dest => dest.CharacteristicTitle, opt => opt.MapFrom(src => src.CharacteristicTitle))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src =>
+                    src.ValueText ??
+                    (src.ValueNumber.HasValue ? src.ValueNumber.Value.ToString() :
+                    (src.ValueBoolean.HasValue ? src.ValueBoolean.Value.ToString() :
+                    (src.ValueDate.HasValue ? src.ValueDate.Value.ToString("o") : string.Empty)))));
+
 
             CreateMap<ProductVideoDBModel, ProductVideoResponseModel>();
             CreateMap<ProductVideoCreateRequestModel, ProductVideoDBModel>();
