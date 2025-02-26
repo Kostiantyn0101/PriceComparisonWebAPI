@@ -7,16 +7,16 @@ using System.Linq.Expressions;
 
 namespace DLL.Repository.Abstractions
 {
-    public class PriceRepository : IPriceRepository
+    public class SellerProductDetailsRepository : ISellerProductDetailsRepository
     {
         private readonly AppDbContext _context;
 
-        public PriceRepository(AppDbContext context)
+        public SellerProductDetailsRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(PriceDBModel entity)
+        public async Task<OperationDetailsResponseModel> CreateAsync(SellerProductDetailsDBModel entity)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace DLL.Repository.Abstractions
             }
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(PriceDBModel entity)
+        public async Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entity)
         {
             try
             {
@@ -70,12 +70,12 @@ namespace DLL.Repository.Abstractions
             }
         }
 
-        public virtual async Task<IEnumerable<PriceDBModel>> GetFromConditionAsync(Expression<Func<PriceDBModel, bool>> condition) =>
+        public virtual async Task<IEnumerable<SellerProductDetailsDBModel>> GetFromConditionAsync(Expression<Func<SellerProductDetailsDBModel, bool>> condition) =>
             await _context.Prices.Where(condition).ToListAsync().ConfigureAwait(false);
 
-        public IQueryable<PriceDBModel> GetQuery() => _context.Prices.AsQueryable();
+        public IQueryable<SellerProductDetailsDBModel> GetQuery() => _context.Prices.AsQueryable();
 
-        public async Task<IEnumerable<PriceDBModel>> ProcessQueryAsync(IQueryable<PriceDBModel> query) => 
+        public async Task<IEnumerable<SellerProductDetailsDBModel>> ProcessQueryAsync(IQueryable<SellerProductDetailsDBModel> query) => 
             await query.ToListAsync();
     }
 }

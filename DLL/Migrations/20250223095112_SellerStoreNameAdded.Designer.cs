@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250223095112_SellerStoreNameAdded")]
+    partial class SellerStoreNameAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -378,6 +381,27 @@ namespace DLL.Migrations
                     b.ToTable("PaymentPlans");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.PriceDBModel", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SellerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PriceValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ProductId", "SellerId");
+
+                    b.HasIndex("SellerId");
+
+                    b.ToTable("Prices");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.PriceHistoryDBModel", b =>
                 {
                     b.Property<int>("Id")
@@ -468,33 +492,16 @@ namespace DLL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("GTIN")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.Property<string>("ModelNumber")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("UPC")
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
 
@@ -644,7 +651,7 @@ namespace DLL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("AccountBalance")
+                    b.Property<decimal>("AccoundBalance")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -710,32 +717,6 @@ namespace DLL.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("SellerPaymentPlans");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.SellerProductDetailsDBModel", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SellerId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("DATETIME2(0)");
-
-                    b.Property<decimal>("PriceValue")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ProductStoreUrl")
-                        .IsRequired()
-                        .HasMaxLength(2083)
-                        .HasColumnType("nvarchar(2083)");
-
-                    b.HasKey("ProductId", "SellerId");
-
-                    b.HasIndex("SellerId");
-
-                    b.ToTable("SellerProductDetails", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -998,6 +979,25 @@ namespace DLL.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.PriceDBModel", b =>
+                {
+                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
+                        .WithMany("Prices")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.DBModels.SellerDBModel", "Seller")
+                        .WithMany("Prices")
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Seller");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.PriceHistoryDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
@@ -1151,25 +1151,6 @@ namespace DLL.Migrations
                         .IsRequired();
 
                     b.Navigation("PaymentPlan");
-
-                    b.Navigation("Seller");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.SellerProductDetailsDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
-                        .WithMany("Prices")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.DBModels.SellerDBModel", "Seller")
-                        .WithMany("Prices")
-                        .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
 
                     b.Navigation("Seller");
                 });

@@ -1,6 +1,8 @@
-﻿namespace Domain.Models.DBModels
+﻿using Domain.Models.Primitives;
+
+namespace Domain.Models.DBModels
 {
-    public class PriceDBModel
+    public class SellerProductDetailsDBModel
     {
         public int ProductId { get; set; }
         public ProductDBModel Product { get; set; }
@@ -10,5 +12,6 @@
 
         public decimal PriceValue { get; set; }
         public DateTime LastUpdated { get; set; }
+        public string ProductStoreUrl { get; set; }
     }
 }

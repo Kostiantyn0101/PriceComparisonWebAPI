@@ -3,7 +3,7 @@ using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Response;
 
-namespace BLL.Services.ProductService
+namespace BLL.Services.ProductServices
 {
     public class ProductSellerLinkService : IProductSellerLinkService
     {

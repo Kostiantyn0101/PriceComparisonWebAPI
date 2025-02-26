@@ -1,16 +1,17 @@
-﻿using System.Linq.Expressions;
-using Domain.Models.DBModels;
+﻿using Domain.Models.DBModels;
 using Domain.Models.Response;
+using System.Linq.Expressions;
 
-namespace BLL.Services.PriceServices
+namespace DLL.Repository
 {
-    public interface IPriceService
+    public interface ISellerProductDetailsRepository
     {
-        Task<OperationDetailsResponseModel> CreateAsync(SellerProductDetailsDBModel model);
-        Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entity);
+        Task<OperationDetailsResponseModel> CreateAsync(SellerProductDetailsDBModel entity);
+        Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entityNew);
         Task<OperationDetailsResponseModel> DeleteAsync(int productId, int sellerId);
-        IQueryable<SellerProductDetailsDBModel> GetQuery();
+
         Task<IEnumerable<SellerProductDetailsDBModel>> GetFromConditionAsync(Expression<Func<SellerProductDetailsDBModel, bool>> condition);
         Task<IEnumerable<SellerProductDetailsDBModel>> ProcessQueryAsync(IQueryable<SellerProductDetailsDBModel> query);
+        IQueryable<SellerProductDetailsDBModel> GetQuery();
     }
 }

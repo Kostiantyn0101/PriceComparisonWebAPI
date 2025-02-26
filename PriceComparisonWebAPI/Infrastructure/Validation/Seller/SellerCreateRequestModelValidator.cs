@@ -7,8 +7,11 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Seller
     {
         public SellerCreateRequestModelValidator()
         {
-            RuleFor(x => x.ApiKey)
-                .NotEmpty().WithMessage("ApiKey is required.");
+            RuleFor(x => x.StoreName)
+                .NotEmpty().WithMessage("Store name is required.");
+            
+            RuleFor(x => x.WebsiteUrl)
+            .NotEmpty().WithMessage("Website url is required.");
 
             RuleFor(x => x.UserId)
                 .GreaterThan(0).WithMessage("UserId must be greater than 0.");
