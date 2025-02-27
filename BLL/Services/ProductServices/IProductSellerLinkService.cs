@@ -2,7 +2,7 @@
 using Domain.Models.DBModels;
 using Domain.Models.Response;
 
-namespace BLL.Services.ProductService
+namespace BLL.Services.ProductServices
 {
     public interface IProductSellerLinkService
     {

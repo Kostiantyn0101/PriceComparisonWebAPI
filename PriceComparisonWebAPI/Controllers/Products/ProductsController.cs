@@ -1,5 +1,5 @@
 using AutoMapper;
-using BLL.Services.ProductService;
+using BLL.Services.ProductServices;
 using BLL.Services.ProductServices;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
