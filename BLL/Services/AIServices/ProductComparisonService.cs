@@ -4,33 +4,34 @@ using Domain.Models.Response.Gpt;
 using Domain.Models.Response.Gpt.Product;
 using OpenAI;
 using OpenAI.Chat;
+using OpenAI.Threads;
 using System.Text;
 using System.Text.Json;
 using Role = OpenAI.Role;
 
 
-namespace BLL.Services.ProductServices
+namespace BLL.Services.AIServices
 {
     public class ProductComparisonService : IProductComparisonService
     {
-        private readonly OpenAIClient _client;
+        private readonly IAIServiceFactory _aiServiceFactory;
         private readonly IProductCharacteristicService _productCharacteristicService;
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
 
         public ProductComparisonService(
-            OpenAIClient openAIClient,
+            IAIServiceFactory aiServiceFactory,
             IProductCharacteristicService productCharacteristicService,
             IProductService productService,
             IMapper mapper)
         {
-            _client = openAIClient;
+            _aiServiceFactory = aiServiceFactory;
             _productCharacteristicService = productCharacteristicService;
             _productService = productService;
             _mapper = mapper;
         }
 
-        public async Task<GptComparisonProductCharacteristicResponseModel> CompareProductsAsync(int productIdA, int productIdB)
+        public async Task<AIComparisonProductCharacteristicResponseModel> CompareProductsAsync(int productIdA, int productIdB, AIProvider? provider = null)
         {
             // get character for product
             var productAData = await _productCharacteristicService.GetDetailedCharacteristics(productIdA);
@@ -48,29 +49,17 @@ namespace BLL.Services.ProductServices
             // prompt to GPT return JSON
             string prompt = GeneratePrompt(simplifiedProductA, simplifiedProductB, productATitle, productBTitle);
 
+            // service provider
+            var aiService = provider.HasValue ? _aiServiceFactory.GetService(provider.Value) : _aiServiceFactory.GetDefaultService();
+
             // send request
-            string rawGptResponse = await SendChatRequestAsync(prompt, "You are an expert product analyst.");
+            string rawResponse = await aiService.GetCompletionAsync(prompt, "You are an expert product analyst.");
 
             // process response
-            return ProcessGptResponse(rawGptResponse, simplifiedProductA, simplifiedProductB, productATitle, productBTitle);
-        }
+            var result = ProcessAIResponse(rawResponse, simplifiedProductA, simplifiedProductB, productATitle, productBTitle);
+            result.AIProvider = aiService.ProviderName;
 
-        private async Task<string> SendChatRequestAsync(string prompt, string systemMessage)
-        {
-            //create request to OpenAI
-            var chatRequest = new ChatRequest(
-                new[]
-                {
-                    new Message(Role.System, systemMessage),
-                    new Message(Role.User, prompt)
-                },
-                model: "gpt-4o-mini",
-                temperature: 0.3f
-            );
-
-            //request to OpenAI
-            var response = await _client.ChatEndpoint.GetCompletionAsync(chatRequest);
-            return response.FirstChoice.Message.Content.ToString();
+            return result;
         }
 
         private string GeneratePrompt(
@@ -173,86 +162,7 @@ namespace BLL.Services.ProductServices
             return sb.ToString();
         }
 
-        //private string GeneratePrompt(
-        //                    IEnumerable<SimplifiedProductCharacteristicGroupRsponseModel> productA,
-        //                    IEnumerable<SimplifiedProductCharacteristicGroupRsponseModel> productB)
-        //{
-        //    var sb = new StringBuilder();
-        //    sb.AppendLine("You are an expert in product comparison. Your task is to analyze two products based on their characteristics and determine which product has better features.");
-        //    sb.AppendLine();
-        //    sb.AppendLine("### **Instructions:**");
-        //    sb.AppendLine("1. You will receive two products in JSON format, where each product has a list of characteristic groups.");
-        //    sb.AppendLine("2. Compare the characteristics of Product A and Product B group by group.");
-        //    sb.AppendLine("3. Identify the **better characteristic** and set `isHighlighted: true` for the product that has the advantage.");
-        //    sb.AppendLine("4. If both characteristics are equal, do not highlight any characteristic.");
-        //    sb.AppendLine("5. Provide a brief **explanation** for the comparison.");
-        //    sb.AppendLine();
-        //    sb.AppendLine("### **Comparison Rules:**");
-        //    sb.AppendLine("- **Higher numerical values** (e.g., processor speed, RAM, battery capacity) are generally better.");
-        //    sb.AppendLine("- **Boolean values** (`true` is better than `false` if it represents a feature like waterproofing, extra security, or advanced functionality).");
-        //    sb.AppendLine("- **Text values** (e.g., material type, additional features) should be compared based on **quality, durability, and consumer preferences**.");
-        //    sb.AppendLine("- If the characteristic **exists in one product but not the other**, highlight the one that has it.");
-        //    sb.AppendLine("- If both products have **identical values**, do not highlight either.");
-        //    sb.AppendLine();
-        //    sb.AppendLine("### **Return Format:**");
-        //    sb.AppendLine("Ensure the response is a valid JSON object with the following structure:");
-        //    sb.AppendLine(@"
-        //                    {
-        //                      ""productA"": [
-        //                        {
-        //                          ""characteristicGroupTitle"": ""string"",
-        //                          ""productCharacteristics"": [
-        //                            {
-        //                              ""characteristicTitle"": ""string"",
-        //                              ""characteristicDataType"": ""string"",
-        //                              ""valueText"": ""string"",
-        //                              ""valueNumber"": 0,
-        //                              ""valueBoolean"": true,
-        //                              ""valueDate"": ""2025-02-25T13:54:36.128Z"",
-        //                              ""isHighlighted"": true
-        //                            }
-        //                          ]
-        //                        }
-        //                      ],
-        //                      ""productB"": [
-        //                        {
-        //                          ""characteristicGroupTitle"": ""string"",
-        //                          ""productCharacteristics"": [
-        //                            {
-        //                              ""characteristicTitle"": ""string"",
-        //                              ""characteristicDataType"": ""string"",
-        //                              ""valueText"": ""string"",
-        //                              ""valueNumber"": 0,
-        //                              ""valueBoolean"": true,
-        //                              ""valueDate"": ""2025-02-25T13:54:36.128Z"",
-        //                              ""isHighlighted"": false
-        //                            }
-        //                          ]
-        //                        }
-        //                      ],
-        //                      ""explanation"": ""String for explantation""
-        //                    }");
-        //    sb.AppendLine();
-        //    sb.AppendLine("### **Product A Details:**");
-        //    sb.AppendLine(JsonSerializer.Serialize(productA,
-        //        new JsonSerializerOptions
-        //        {
-        //            WriteIndented = true,
-        //            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        //        }));
-        //    sb.AppendLine();
-        //    sb.AppendLine("### **Product B Details:**");
-        //    sb.AppendLine(JsonSerializer.Serialize(productB,
-        //        new JsonSerializerOptions
-        //        {
-        //            WriteIndented = true,
-        //            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        //        }));
-        //    sb.AppendLine();
-        //    sb.AppendLine("Return only valid JSON without any extra commentary.");
-
-        //    return sb.ToString();
-        //}
+        
 
         private string CleanGptResponse(string input)
         {
@@ -271,7 +181,7 @@ namespace BLL.Services.ProductServices
         private bool IsValidJson(string input)
         {
             input = input.Trim();
-            if (string.IsNullOrEmpty(input) || (!input.StartsWith("{") && !input.StartsWith("[")))
+            if (string.IsNullOrEmpty(input) || !input.StartsWith("{") && !input.StartsWith("["))
             {
                 return false;
             }
@@ -286,7 +196,7 @@ namespace BLL.Services.ProductServices
             }
         }
 
-        private GptComparisonProductCharacteristicResponseModel ProcessGptResponse(string gptResponse,
+        private AIComparisonProductCharacteristicResponseModel ProcessAIResponse(string gptResponse,
                     IEnumerable<SimplifiedProductCharacteristicGroupResponseModel> defaultA,
                     IEnumerable<SimplifiedProductCharacteristicGroupResponseModel> defaultB,
                     string productATitle,
@@ -296,7 +206,7 @@ namespace BLL.Services.ProductServices
 
             if (!IsValidJson(cleanedResponse))
             {
-                return new GptComparisonProductCharacteristicResponseModel
+                return new AIComparisonProductCharacteristicResponseModel
                 {
                     ProductATitle = productATitle,
                     ProductBTitle = productBTitle,
@@ -308,7 +218,7 @@ namespace BLL.Services.ProductServices
 
             try
             {
-                var parsed = JsonSerializer.Deserialize<GptComparisonProductCharacteristicResponseModel>(
+                var parsed = JsonSerializer.Deserialize<AIComparisonProductCharacteristicResponseModel>(
                     cleanedResponse,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -340,7 +250,7 @@ namespace BLL.Services.ProductServices
             }
             catch (JsonException)
             {
-                return new GptComparisonProductCharacteristicResponseModel
+                return new AIComparisonProductCharacteristicResponseModel
                 {
                     ProductATitle = productATitle,
                     ProductBTitle = productBTitle,
@@ -350,7 +260,7 @@ namespace BLL.Services.ProductServices
                 };
             }
 
-            return new GptComparisonProductCharacteristicResponseModel
+            return new AIComparisonProductCharacteristicResponseModel
             {
                 ProductATitle = productATitle,
                 ProductBTitle = productBTitle,
