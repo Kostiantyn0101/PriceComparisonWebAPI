@@ -24,9 +24,8 @@ namespace DLL.Context
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
-        public DbSet<ClickTrackingDBModel> ClickTrackings { get; set; }
+        public DbSet<ProductSellerReferenceClickDBModel> ClickTrackings { get; set; }
         public DbSet<PaymentPlanDBModel> PaymentPlans { get; set; }
-        public DbSet<ProductSellerLinkDBModel> ProductSellerLinks { get; set; }
         public DbSet<SellerPaymentPlanDBModel> SellerPaymentPlans { get; set; }
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<RoleDBModel> Roles { get; set; }
@@ -293,18 +292,6 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
-            // ProductSellerLinkDBModel
-            modelBuilder.Entity<ProductSellerLinkDBModel>(entity =>
-            {
-                entity.Property(p => p.SellerUrl)
-                    .IsRequired()
-                    .HasMaxLength(2083);
-
-                entity.HasOne(p => p.Product)
-                    .WithMany(c => c.SellerLinks)
-                    .HasForeignKey(p => p.ProductId);
-            });
-
             // ProductVideoDBModel
             modelBuilder.Entity<ProductVideoDBModel>(entity =>
             {
@@ -351,10 +338,6 @@ namespace DLL.Context
                 entity.Property(r => r.Title)
                     .IsRequired()
                     .HasMaxLength(50);
-
-                //entity.HasMany(r => r.Users)
-                //    .WithOne(u => u.Role)
-                //    .HasForeignKey(u => u.RoleId);
             });
 
             // SellerDBModel
@@ -401,7 +384,7 @@ namespace DLL.Context
             });
 
             // ClickTrackingDBModel
-            modelBuilder.Entity<ClickTrackingDBModel>(entity =>
+            modelBuilder.Entity<ProductSellerReferenceClickDBModel>(entity =>
             {
                 entity.HasOne(e => e.Product)
                       .WithMany()
@@ -412,11 +395,6 @@ namespace DLL.Context
                       .WithMany()
                       .HasForeignKey(e => e.SellerId)
                       .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(e => e.ProductSellerLink)
-                      .WithMany(psl => psl.ClickTrackings)
-                      .HasForeignKey(e => e.ProductSellerLinkId)
-                      .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(e => e.UserIp)
                       .IsRequired()
@@ -438,21 +416,6 @@ namespace DLL.Context
                 entity.Property(e => e.MonthlyPrice)
                       .HasColumnType("decimal(18,2)")
                       .IsRequired();
-            });
-
-            // ProductSellerLinkDBModel
-            modelBuilder.Entity<ProductSellerLinkDBModel>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.HasOne(e => e.Product)
-                      .WithMany(p => p.SellerLinks)
-                      .HasForeignKey(e => e.ProductId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.Property(e => e.SellerUrl)
-                      .IsRequired()
-                      .HasMaxLength(2083);
             });
 
             // SellerPaymentPlanDBModel
