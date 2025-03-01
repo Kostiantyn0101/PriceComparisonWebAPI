@@ -16,5 +16,6 @@ namespace Domain.Models.DBModels
         public ICollection<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; } //+
         public ICollection<RelatedCategoryDBModel> RelatedCategories { get; set; }
         public ICollection<ProductDBModel> Products { get; set; }
+        public ICollection<AuctionClickRateDBModel> AuctionClickRates { get; set; }
     }
 }

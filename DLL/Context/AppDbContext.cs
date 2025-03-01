@@ -25,8 +25,6 @@ namespace DLL.Context
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
         public DbSet<ProductSellerReferenceClickDBModel> ClickTrackings { get; set; }
-        public DbSet<PaymentPlanDBModel> PaymentPlans { get; set; }
-        public DbSet<SellerPaymentPlanDBModel> SellerPaymentPlans { get; set; }
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
@@ -40,9 +38,9 @@ namespace DLL.Context
             // AuctionClickRateDBModel
             modelBuilder.Entity<AuctionClickRateDBModel>(entity =>
             {
-                entity.HasOne(e => e.Product)
+                entity.HasOne(e => e.Category)
                     .WithMany(p => p.AuctionClickRates)
-                    .HasForeignKey(e => e.ProductId)
+                    .HasForeignKey(e => e.CategoryId)
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(e => e.Seller)
@@ -411,46 +409,6 @@ namespace DLL.Context
 
                 entity.Property(e => e.ClickedAt);
             });
-
-            // PaymentPlanDBModel
-            modelBuilder.Entity<PaymentPlanDBModel>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.Title)
-                      .IsRequired()
-                      .HasMaxLength(100);
-
-                entity.Property(e => e.MonthlyPrice)
-                      .HasColumnType("decimal(18,2)")
-                      .IsRequired();
-            });
-
-            // SellerPaymentPlanDBModel
-            modelBuilder.Entity<SellerPaymentPlanDBModel>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.HasOne(e => e.Seller)
-                      .WithMany()
-                      .HasForeignKey(e => e.SellerId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(e => e.PaymentPlan)
-                      .WithMany()
-                      .HasForeignKey(e => e.PaymentPlanId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.Property(e => e.StartDate)
-                      .IsRequired();
-
-                entity.Property(e => e.EndDate)
-                      .IsRequired(false);
-
-                entity.Property(e => e.IsActive)
-                      .IsRequired();
-            });
-
         }
 
     }
