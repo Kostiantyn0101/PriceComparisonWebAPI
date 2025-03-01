@@ -259,6 +259,9 @@ namespace DLL.Context
                 entity.Property(p => p.Title)
                     .HasMaxLength(255);
 
+                entity.Property(p => p.NormalizedTitle)
+                    .HasMaxLength(255);
+
                 entity.Property(p => p.Brand)
                     .HasMaxLength(255);
 

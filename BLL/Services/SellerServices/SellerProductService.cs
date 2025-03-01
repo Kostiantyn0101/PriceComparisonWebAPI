@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.Response;
+using OpenAI.Moderations;
 
 namespace BLL.Services.SellerServices
 {
@@ -30,33 +31,52 @@ namespace BLL.Services.SellerServices
             var priceListDate = DateTime.Parse(xmlDoc.Root.Attribute("date").Value);
             var apiKey = xmlDoc.Root.Element("api_key").Value;
 
-            // Поиск продавца
+            // Seller search
             var seller = (await _sellerRepository.GetFromConditionAsync(s => s.ApiKey == apiKey))
                 .FirstOrDefault();
 
-            if (seller == null || !seller.IsActive || seller.AccountBalance < _accountConfiguration.MinBalanceToProceed)
+            if (seller == null)
             {
-                throw new Exception("Invalid seller");
+                return OperationResultModel<string>.Failure($"Seller with api key {apiKey} not found");
             }
 
-            // Обработка валют
-            var currencies = xmlDoc.Root.Element("currencies").Elements("currency")
-                .ToDictionary(
-                    c => c.Attribute("id").Value,
-                    c => decimal.Parse(c.Attribute("rate").Value)
-                );
+            if (!seller.IsActive || seller.AccountBalance < _accountConfiguration.MinBalanceToProceed)
+            {
+                return OperationResultModel<string>.Failure($"Seller with api key {apiKey} is inactive or has no account balance");
+            }
 
-            // Обработка товаров
+            // Currency processing
+            Dictionary<string, decimal> currencies = xmlDoc.Root?.Element("currencies") is XElement currenciesElement 
+                && currenciesElement.Elements("currency").Any()
+                ? currenciesElement.Elements("currency")
+                    .ToDictionary(
+                        c => c.Attribute("id").Value,
+                        c => decimal.Parse(c.Attribute("rate").Value)
+                    )
+                : new Dictionary<string, decimal>();
+
+            // Categories processing
+            Dictionary<int, string> categories = xmlDoc.Root?.Element("categories") is XElement categoriesElement
+                && categoriesElement.Elements("category").Any()
+                ? categoriesElement.Elements("category")
+                   .ToDictionary(
+                        c => int.Parse(c.Attribute("id")?.Value ?? "0"),  // Key: ID
+                        c => c.Value.Trim()  // Value: Category name
+                    )
+                : new Dictionary<int, string>();
+
+            // Product processing
             foreach (var offer in xmlDoc.Root.Element("offers").Elements("offer"))
             {
                 var gtin = offer.Element("gtin").Value;
 
-                // Поиск товара
                 var product = (await _productRepository.GetFromConditionAsync(p => p.GTIN == gtin || p.UPC == gtin)).FirstOrDefault();
 
                 // Создание нового товара если не найден
                 if (product == null)
                 {
+                    
+                    
                     //product = new ProductDBModel
                     //{
                     //    GTIN = gtin,
