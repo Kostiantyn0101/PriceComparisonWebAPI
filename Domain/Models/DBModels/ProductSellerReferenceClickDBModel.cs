@@ -10,7 +10,7 @@ namespace Domain.Models.DBModels
         public int SellerId { get; set; }
         public SellerDBModel Seller { get; set; }
 
-        public DateTime ClickedAt { get; set; }
         public string UserIp { get; set; }
+        public DateTime ClickedAt { get; set; }
     }
 }

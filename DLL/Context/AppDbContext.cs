@@ -383,25 +383,25 @@ namespace DLL.Context
                     .HasForeignKey(f => f.UserId);
             });
 
-            // ClickTrackingDBModel
+            // ProductSellerReferenceClickDBModel. ClickTracking
             modelBuilder.Entity<ProductSellerReferenceClickDBModel>(entity =>
             {
+                entity.ToTable("ProductSellerReferenceClicks");
+
                 entity.HasOne(e => e.Product)
-                      .WithMany()
+                      .WithMany(p=>p.ProductSellerReferenceClicks)
                       .HasForeignKey(e => e.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(e => e.Seller)
-                      .WithMany()
+                      .WithMany(p => p.ProductSellerReferenceClicks)
                       .HasForeignKey(e => e.SellerId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.Property(e => e.UserIp)
-                      .IsRequired()
                       .HasMaxLength(50);
 
-                entity.Property(e => e.ClickedAt)
-                      .IsRequired();
+                entity.Property(e => e.ClickedAt);
             });
 
             // PaymentPlanDBModel
