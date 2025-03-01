@@ -32,11 +32,28 @@ namespace DLL.Context
         public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
+        public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // AuctionClickRateDBModel
+            modelBuilder.Entity<AuctionClickRateDBModel>(entity =>
+            {
+                entity.HasOne(e => e.Product)
+                    .WithMany(p => p.AuctionClickRates)
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Seller)
+                    .WithMany(p => p.AuctionClickRates)
+                    .HasForeignKey(e => e.SellerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(e=>e.ClickRate)
+                    .HasColumnType("decimal(18,2)");
+            });
 
             // CategoryCharacteristicGroupDBModel
             modelBuilder.Entity<CategoryCharacteristicGroupDBModel>(entity =>
