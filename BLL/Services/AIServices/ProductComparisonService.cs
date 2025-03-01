@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BLL.Services.ProductService;
+using BLL.Services.ProductServices;
 using Domain.Models.Response.Gpt;
 using Domain.Models.Response.Gpt.Product;
 using OpenAI;
