@@ -26,8 +26,9 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         //[Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UploadXmlFile([FromBody] IFormFile file)
+        public async Task<JsonResult> UploadXmlFile()
         {
+            var file = this.Request.Form.Files[0];
             if (file == null || file.Length == 0)
             {
                 _logger.LogError(AppErrors.General.NotFound);
