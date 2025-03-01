@@ -28,7 +28,6 @@ namespace DLL.Context
         public DbSet<PaymentPlanDBModel> PaymentPlans { get; set; }
         public DbSet<SellerPaymentPlanDBModel> SellerPaymentPlans { get; set; }
         public DbSet<ApplicationUserDBModel> Users { get; set; }
-        public DbSet<RoleDBModel> Roles { get; set; }
         public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
@@ -347,14 +346,6 @@ namespace DLL.Context
                 entity.HasOne(p => p.Product)
                     .WithMany(c => c.Reviews)
                     .HasForeignKey(p => p.ProductId);
-            });
-
-            // RoleDBModel
-            modelBuilder.Entity<RoleDBModel>(entity =>
-            {
-                entity.Property(r => r.Title)
-                    .IsRequired()
-                    .HasMaxLength(50);
             });
 
             // SellerDBModel
