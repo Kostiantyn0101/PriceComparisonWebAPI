@@ -10,10 +10,12 @@ using Domain.Models.Request.Products;
 using Microsoft.Extensions.Logging;
 using Domain.Models.Exceptions;
 using Microsoft.IdentityModel.Tokens;
+using Domain.Models.Response.Seller;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services.SellerServices
 {
-    public class SellerProductService : ISellerProductService
+    public class SellerProductDetailsService : ISellerProductDetailsService
     {
         private readonly ISellerProductDetailsRepository _repository;
         private readonly IRepository<ProductDBModel> _productRepository;
@@ -23,11 +25,11 @@ namespace BLL.Services.SellerServices
         private readonly SellerAccountConfiguration _accountConfiguration;
         private readonly IProductImageService _productImageService;
         private readonly IFileService _fileService;
-        private readonly ILogger<SellerProductService> _logger;
+        private readonly ILogger<SellerProductDetailsService> _logger;
 
         private const string defaultCategoryName = "NEW PRODUCT UNKNOWN CATEGORY";
 
-        public SellerProductService(ISellerProductDetailsRepository repository,
+        public SellerProductDetailsService(ISellerProductDetailsRepository repository,
             IRepository<ProductDBModel> productRepository,
             IRepository<SellerDBModel> sellerRepository,
             IRepository<CategoryDBModel> categoryRepository,
@@ -35,7 +37,7 @@ namespace BLL.Services.SellerServices
             IProductImageService productImageService,
             IFileService fileService,
             IOptions<SellerAccountConfiguration> options,
-            ILogger<SellerProductService> logger)
+            ILogger<SellerProductDetailsService> logger)
         {
             _repository = repository;
             _productRepository = productRepository;
@@ -196,5 +198,29 @@ namespace BLL.Services.SellerServices
 
             return OperationResultModel<string>.Success();
         }
+
+
+        public async Task<IEnumerable<SellerProductDetailsResponseModel>> GetSellerProductDetailsAsync(int productId)
+        {
+            var result = await _repository.GetQuery()
+                .Where(spd => spd.ProductId == productId)
+                .Where(spd => spd.Seller.IsActive && spd.Seller.AccountBalance > 0)
+                .Select(spd => new SellerProductDetailsResponseModel
+                {
+                    StoreName = spd.Seller.StoreName,
+                    LogoImageUrl = spd.Seller.LogoImageUrl,
+                    PriceValue = spd.PriceValue,
+                    ProductStoreUrl = spd.ProductStoreUrl,
+                    StoreUrlClickRate = spd.Seller.AuctionClickRates
+                        .Where(acr => acr.CategoryId == spd.Product.CategoryId)
+                        .Select(acr => (decimal?)acr.ClickRate)
+                        .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
+                })
+                .OrderByDescending(x => x.StoreUrlClickRate)
+                .ToListAsync();
+
+            return result;
+        }
+
     }
 }

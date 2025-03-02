@@ -11,5 +11,6 @@ namespace Domain.Models.Configuration
         public const string Position = "SellerAccount";
         public decimal MinBalanceToProceed { get; set; }
         public decimal MinBalanceWarning { get; set; }
+        public decimal DefaultClickRate { get; set; }
     }
 }
