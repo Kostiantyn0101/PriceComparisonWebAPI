@@ -17,18 +17,21 @@ namespace BLL.Services.ProductServices
         private readonly IRepository<ProductSellerReferenceClickDBModel> _repository;
         private readonly IRepository<AuctionClickRateDBModel> _auctionClickRateRepository;
         private readonly IRepository<SellerDBModel> _sellerRepository;
+        private readonly IRepository<ProductDBModel> _productRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
         private readonly IMapper _mapper;
 
         public ProductSellerReferenceClickService(IRepository<ProductSellerReferenceClickDBModel> repository,
             IRepository<AuctionClickRateDBModel> auctionClickRaterepository,
             IRepository<SellerDBModel> sellerRepository,
+            IRepository<ProductDBModel> productRepository,
             IOptions<SellerAccountConfiguration> options,
             IMapper mapper)
         {
             _repository = repository;
             _auctionClickRateRepository = auctionClickRaterepository;
             _sellerRepository = sellerRepository;
+            _productRepository = productRepository;
             _accountConfiguration = options.Value;
             _mapper = mapper;
         }
@@ -37,33 +40,33 @@ namespace BLL.Services.ProductServices
         {
             var model = _mapper.Map<ProductSellerReferenceClickDBModel>(request);
             model.ClickedAt = DateTime.Now;
+            var categoryId = (await _productRepository.GetFromConditionAsync(p => p.Id == model.ProductId)).FirstOrDefault()?.CategoryId ?? 0;
 
             var defaultClickRate = _accountConfiguration.DefaultClickRate;
-            var currentClickRate = _auctionClickRateRepository.GetQuery()
-                    .Where(acr => acr.SellerId == model.SellerId && acr.CategoryId == model.Product.CategoryId)
+            var currentClickRate = await _auctionClickRateRepository.GetQuery()
+                    .Where(acr => acr.SellerId == model.SellerId && acr.CategoryId == categoryId)
                     .Select(acr => (decimal?)acr.ClickRate)
-                    .FirstOrDefault() ?? defaultClickRate;
+                    .FirstOrDefaultAsync() ?? defaultClickRate;
 
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
 
-            var existingClicks = await _repository.GetFromConditionAsync(x => x.SellerId == model.SellerId && x.UserIp.Equals(model.UserIp) && x.ClickedAt.Date == DateTime.Today);
+            var existingClicks = await _repository.GetFromConditionAsync(x =>
+                x.SellerId == model.SellerId &&
+                x.UserIp.Equals(model.UserIp) &&
+                x.ClickedAt >= today &&
+                x.ClickedAt < tomorrow);
 
             if (existingClicks == null || !existingClicks.Any())
             {
                 // if there were no clicks yet write off current click rate from account balance
                 await WriteOffClickFromTheBalanseAsync(model, currentClickRate);
-                //var seller = (await _sellerRepository.GetFromConditionAsync(s => s.Id == model.SellerId)).FirstOrDefault();
-
-                //if (seller != null)
-                //{
-                //    seller.AccountBalance -= currentClickRate;
-                //    _ = await _sellerRepository.UpdateAsync(seller);
-                //}
             }
             else if (currentClickRate > defaultClickRate)
             {
                 // otherwithe check whether the current click rate is bigger than clicked earlier... 
                 var maxExistingClickRate = await _repository.GetQuery()
-                    .Where(psrc => psrc.SellerId == model.SellerId && psrc.UserIp.Equals(model.UserIp) && psrc.ClickedAt.Date == DateTime.Today)
+                    .Where(psrc => psrc.SellerId == model.SellerId && psrc.UserIp.Equals(model.UserIp) && psrc.ClickedAt >= today && psrc.ClickedAt < tomorrow)
                     .Select(psrc => psrc.Seller.AuctionClickRates
                         .Where(acr => acr.CategoryId == psrc.Product.CategoryId)
                         .Select(acr => (decimal?)acr.ClickRate)
@@ -90,7 +93,7 @@ namespace BLL.Services.ProductServices
 
             if (seller != null)
             {
-                seller.AccountBalance-= clickRate;
+                seller.AccountBalance -= clickRate;
                 _ = await _sellerRepository.UpdateAsync(seller);
             }
         }
