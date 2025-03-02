@@ -59,7 +59,7 @@ namespace BLL.Services.ProductServices
 
             if (existingClicks == null || !existingClicks.Any())
             {
-                // if there were no clicks yet write off current click rate from account balance
+                // if there were no clicks yet write off current click rate from account balance.
                 await WriteOffClickFromTheBalanseAsync(model, currentClickRate);
             }
             else if (currentClickRate > defaultClickRate)
