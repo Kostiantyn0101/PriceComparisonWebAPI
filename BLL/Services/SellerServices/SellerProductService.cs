@@ -182,7 +182,7 @@ namespace BLL.Services.SellerServices
                 {
                     ProductId = product.Id,
                     SellerId = seller.UserId,
-                    CreatedAt = priceListDate,
+                    CreatedAt = DateTime.Now,
                     PriceDate = priceListDate,
                     PriceValue = priceUah
                 });
