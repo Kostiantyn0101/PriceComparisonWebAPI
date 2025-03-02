@@ -63,10 +63,10 @@ namespace PriceComparisonWebAPI.Controllers.Category
         {
             var result = await _categoryService.CreateAsync(categoryRequest);
 
-            if (result.IsError)
+            if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.CreateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.Exception.Message);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.Exception?.Message);
             }
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);

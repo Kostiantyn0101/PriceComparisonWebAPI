@@ -12,7 +12,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Category
                 .MaximumLength(100).WithMessage("Category name length must be less than 100 characters");
 
             RuleFor(x => x.ParentCategoryId)
-                .GreaterThan(1).When(x => x.ParentCategoryId.HasValue)
+                .GreaterThanOrEqualTo(1).When(x => x.ParentCategoryId.HasValue)
                 .WithMessage("Parent category id must be 1 or greater");
 
             RuleFor(x => x.Image)

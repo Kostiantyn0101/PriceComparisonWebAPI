@@ -25,9 +25,9 @@ namespace BLL.Services.ProductServices
         {
             var mapped = _mapper.Map<ProductDBModel>(model);
             var result = await _repository.CreateAsync(mapped);
-            return !result.IsError
+            return result.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> UpdateAsync(ProductRequestModel model)

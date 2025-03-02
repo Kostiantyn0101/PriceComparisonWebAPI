@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250301155803_ClickTrackingsTableChangedAndRenaimed")]
+    partial class ClickTrackingsTableChangedAndRenaimed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,32 +104,6 @@ namespace DLL.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.AuctionClickRateDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("ClickRate")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("SellerId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("SellerId");
-
-                    b.ToTable("AuctionClickRates");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.CategoryCharacteristicDBModel", b =>
@@ -347,6 +324,27 @@ namespace DLL.Migrations
                     b.ToTable("Instructions");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.PaymentPlanDBModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PaymentPlans");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.PriceHistoryDBModel", b =>
                 {
                     b.Property<int>("Id")
@@ -437,9 +435,6 @@ namespace DLL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("AddedToDatabase")
-                        .HasColumnType("DATETIME2(0)");
-
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -455,15 +450,7 @@ namespace DLL.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
-                    b.Property<bool>("IsUnderModeration")
-                        .HasColumnType("bit");
-
                     b.Property<string>("ModelNumber")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("NormalizedTitle")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
@@ -601,6 +588,24 @@ namespace DLL.Migrations
                     b.ToTable("Reviews");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.RoleDBModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.SellerDBModel", b =>
                 {
                     b.Property<int>("Id")
@@ -643,6 +648,38 @@ namespace DLL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Sellers");
+                });
+
+            modelBuilder.Entity("Domain.Models.DBModels.SellerPaymentPlanDBModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PaymentPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SellerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentPlanId");
+
+                    b.HasIndex("SellerId");
+
+                    b.ToTable("SellerPaymentPlans");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.SellerProductDetailsDBModel", b =>
@@ -802,25 +839,6 @@ namespace DLL.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.AuctionClickRateDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.CategoryDBModel", "Category")
-                        .WithMany("AuctionClickRates")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.DBModels.SellerDBModel", "Seller")
-                        .WithMany("AuctionClickRates")
-                        .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Seller");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.CategoryCharacteristicDBModel", b =>
@@ -1065,6 +1083,25 @@ namespace DLL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.SellerPaymentPlanDBModel", b =>
+                {
+                    b.HasOne("Domain.Models.DBModels.PaymentPlanDBModel", "PaymentPlan")
+                        .WithMany()
+                        .HasForeignKey("PaymentPlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.DBModels.SellerDBModel", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PaymentPlan");
+
+                    b.Navigation("Seller");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.SellerProductDetailsDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
@@ -1144,8 +1181,6 @@ namespace DLL.Migrations
 
             modelBuilder.Entity("Domain.Models.DBModels.CategoryDBModel", b =>
                 {
-                    b.Navigation("AuctionClickRates");
-
                     b.Navigation("CategoryCharacteristicGroups");
 
                     b.Navigation("CategoryCharacteristics");
@@ -1201,8 +1236,6 @@ namespace DLL.Migrations
 
             modelBuilder.Entity("Domain.Models.DBModels.SellerDBModel", b =>
                 {
-                    b.Navigation("AuctionClickRates");
-
                     b.Navigation("PriceHistories");
 
                     b.Navigation("Prices");

@@ -58,9 +58,9 @@ namespace BLL.Services.ProductServices
                 };
 
                 var createResult = await _repository.CreateAsync(productImage);
-                if (createResult.IsError)
+                if (!createResult.IsSuccess)
                 {
-                    return OperationResultModel<bool>.Failure(createResult.Message, createResult.Exception);
+                    return OperationResultModel<bool>.Failure(createResult.ErrorMessage!, createResult.Exception);
                 }
             }
             return OperationResultModel<bool>.Success(true);

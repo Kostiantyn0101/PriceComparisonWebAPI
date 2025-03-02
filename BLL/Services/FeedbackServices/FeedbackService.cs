@@ -24,9 +24,9 @@ namespace BLL.Services.FeedbackAndReviewServices
 
             model.CreatedAt = DateTime.UtcNow;
             var result = await _repository.CreateAsync(model);
-            return !result.IsError
+            return result.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> UpdateAsync(FeedbackUpdateRequestModel request)

@@ -24,9 +24,9 @@ namespace BLL.Services.ProductServices
         {
             var model = _mapper.Map<ProductVideoDBModel>(request);
             var result = await _repository.CreateAsync(model);
-            return !result.IsError
+            return result.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> UpdateAsync(ProductVideoUpdateRequestModel request)

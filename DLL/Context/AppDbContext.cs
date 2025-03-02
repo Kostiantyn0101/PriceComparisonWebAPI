@@ -25,18 +25,32 @@ namespace DLL.Context
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
         public DbSet<ProductSellerReferenceClickDBModel> ClickTrackings { get; set; }
-        public DbSet<PaymentPlanDBModel> PaymentPlans { get; set; }
-        public DbSet<SellerPaymentPlanDBModel> SellerPaymentPlans { get; set; }
         public DbSet<ApplicationUserDBModel> Users { get; set; }
-        public DbSet<RoleDBModel> Roles { get; set; }
         public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
+        public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // AuctionClickRateDBModel
+            modelBuilder.Entity<AuctionClickRateDBModel>(entity =>
+            {
+                entity.HasOne(e => e.Category)
+                    .WithMany(p => p.AuctionClickRates)
+                    .HasForeignKey(e => e.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Seller)
+                    .WithMany(p => p.AuctionClickRates)
+                    .HasForeignKey(e => e.SellerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(e=>e.ClickRate)
+                    .HasColumnType("decimal(18,2)");
+            });
 
             // CategoryCharacteristicGroupDBModel
             modelBuilder.Entity<CategoryCharacteristicGroupDBModel>(entity =>
@@ -245,6 +259,9 @@ namespace DLL.Context
                 entity.Property(p => p.Title)
                     .HasMaxLength(255);
 
+                entity.Property(p => p.NormalizedTitle)
+                    .HasMaxLength(255);
+
                 entity.Property(p => p.Brand)
                     .HasMaxLength(255);
 
@@ -256,6 +273,9 @@ namespace DLL.Context
 
                 entity.Property(p => p.UPC)
                     .HasMaxLength(15);
+
+                entity.Property(c => c.AddedToDatabase)
+                    .HasColumnType("DATETIME2(0)");
 
                 entity.HasOne(p => p.Category)
                     .WithMany(c => c.Products)
@@ -332,14 +352,6 @@ namespace DLL.Context
                     .HasForeignKey(p => p.ProductId);
             });
 
-            // RoleDBModel
-            modelBuilder.Entity<RoleDBModel>(entity =>
-            {
-                entity.Property(r => r.Title)
-                    .IsRequired()
-                    .HasMaxLength(50);
-            });
-
             // SellerDBModel
             modelBuilder.Entity<SellerDBModel>(entity =>
             {
@@ -383,66 +395,26 @@ namespace DLL.Context
                     .HasForeignKey(f => f.UserId);
             });
 
-            // ClickTrackingDBModel
+            // ProductSellerReferenceClickDBModel. ClickTracking
             modelBuilder.Entity<ProductSellerReferenceClickDBModel>(entity =>
             {
+                entity.ToTable("ProductSellerReferenceClicks");
+
                 entity.HasOne(e => e.Product)
-                      .WithMany()
+                      .WithMany(p=>p.ProductSellerReferenceClicks)
                       .HasForeignKey(e => e.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(e => e.Seller)
-                      .WithMany()
+                      .WithMany(p => p.ProductSellerReferenceClicks)
                       .HasForeignKey(e => e.SellerId)
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.Property(e => e.UserIp)
-                      .IsRequired()
                       .HasMaxLength(50);
 
-                entity.Property(e => e.ClickedAt)
-                      .IsRequired();
+                entity.Property(e => e.ClickedAt);
             });
-
-            // PaymentPlanDBModel
-            modelBuilder.Entity<PaymentPlanDBModel>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.Title)
-                      .IsRequired()
-                      .HasMaxLength(100);
-
-                entity.Property(e => e.MonthlyPrice)
-                      .HasColumnType("decimal(18,2)")
-                      .IsRequired();
-            });
-
-            // SellerPaymentPlanDBModel
-            modelBuilder.Entity<SellerPaymentPlanDBModel>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.HasOne(e => e.Seller)
-                      .WithMany()
-                      .HasForeignKey(e => e.SellerId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(e => e.PaymentPlan)
-                      .WithMany()
-                      .HasForeignKey(e => e.PaymentPlanId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.Property(e => e.StartDate)
-                      .IsRequired();
-
-                entity.Property(e => e.EndDate)
-                      .IsRequired(false);
-
-                entity.Property(e => e.IsActive)
-                      .IsRequired();
-            });
-
         }
 
     }

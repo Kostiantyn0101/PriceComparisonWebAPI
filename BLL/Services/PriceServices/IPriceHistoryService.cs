@@ -6,7 +6,7 @@ namespace BLL.Services.PriceServices
 {
     public interface IPriceHistoryService
     {
-        Task<OperationDetailsResponseModel> CreateAsync(PriceHistoryDBModel model);
+        Task<OperationResultModel<PriceHistoryDBModel>> CreateAsync(PriceHistoryDBModel model);
         Task<OperationDetailsResponseModel> UpdateAsync(PriceHistoryDBModel entity);
         Task<OperationDetailsResponseModel> DeleteAsync(int id);
         IQueryable<PriceHistoryDBModel> GetQuery();

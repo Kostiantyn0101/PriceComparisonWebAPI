@@ -50,13 +50,13 @@ namespace BLL.Services.FeedbackAndReviewServices
                 };
 
                 var repoResult = await _repository.CreateAsync(feedbackImage);
-                if (!repoResult.IsError)
+                if (repoResult.IsSuccess)
                 {
                     successCount++;
                 }
                 else
                 {
-                    errors.Add(repoResult.Message);
+                    errors.Add(repoResult.ErrorMessage!);
                 }
             }
 

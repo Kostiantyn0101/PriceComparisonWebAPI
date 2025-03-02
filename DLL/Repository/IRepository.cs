@@ -6,7 +6,7 @@ namespace DLL.Repository
 {
     public interface IRepository<TEntity> where TEntity : EntityDBModel
     {
-        Task<OperationDetailsResponseModel> CreateAsync(TEntity entity);
+        Task<OperationResultModel<TEntity>> CreateAsync(TEntity entity);
         Task<OperationDetailsResponseModel> UpdateAsync(TEntity entityNew);
         Task<OperationDetailsResponseModel> DeleteAsync(int id);
 

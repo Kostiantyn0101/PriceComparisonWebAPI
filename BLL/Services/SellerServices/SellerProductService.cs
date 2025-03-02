@@ -4,6 +4,8 @@ using System.Xml.Linq;
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.Response;
+using OpenAI.Moderations;
+using BLL.Services.ProductServices;
 
 namespace BLL.Services.SellerServices
 {
@@ -12,16 +14,23 @@ namespace BLL.Services.SellerServices
         private readonly ISellerProductDetailsRepository _repository;
         private readonly IRepository<ProductDBModel> _productRepository;
         private readonly IRepository<SellerDBModel> _sellerRepository;
+        private readonly IRepository<CategoryDBModel> _categoryRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
+        private readonly IProductImageService _productImageService;
 
         public SellerProductService(ISellerProductDetailsRepository repository,
             IRepository<ProductDBModel> productRepository,
-            IRepository<SellerDBModel> sellerRepository, IOptions<SellerAccountConfiguration> options)
+            IRepository<SellerDBModel> sellerRepository,
+            IRepository<CategoryDBModel> categoryRepository,
+            IProductImageService productImageService,
+        IOptions<SellerAccountConfiguration> options)
         {
             _repository = repository;
             _productRepository = productRepository;
             _sellerRepository = sellerRepository;
+            _categoryRepository = categoryRepository;
             _accountConfiguration = options.Value;
+            _productImageService = productImageService;
         }
 
         public async Task<OperationResultModel<string>> ProcessXmlAsync(Stream stream)
@@ -30,47 +39,72 @@ namespace BLL.Services.SellerServices
             var priceListDate = DateTime.Parse(xmlDoc.Root.Attribute("date").Value);
             var apiKey = xmlDoc.Root.Element("api_key").Value;
 
-            // Поиск продавца
+            // Seller search
             var seller = (await _sellerRepository.GetFromConditionAsync(s => s.ApiKey == apiKey))
                 .FirstOrDefault();
 
-            if (seller == null || !seller.IsActive || seller.AccountBalance < _accountConfiguration.MinBalanceToProceed)
+            if (seller == null)
             {
-                throw new Exception("Invalid seller");
+                return OperationResultModel<string>.Failure($"Seller with api key {apiKey} not found");
             }
 
-            // Обработка валют
-            var currencies = xmlDoc.Root.Element("currencies").Elements("currency")
-                .ToDictionary(
-                    c => c.Attribute("id").Value,
-                    c => decimal.Parse(c.Attribute("rate").Value)
-                );
+            if (!seller.IsActive || seller.AccountBalance < _accountConfiguration.MinBalanceToProceed)
+            {
+                return OperationResultModel<string>.Failure($"Seller with api key {apiKey} is inactive or has no account balance");
+            }
 
-            // Обработка товаров
+            // Currency processing
+            Dictionary<string, decimal> currencies = xmlDoc.Root?.Element("currencies") is XElement currenciesElement
+                && currenciesElement.Elements("currency").Any()
+                ? currenciesElement.Elements("currency")
+                    .ToDictionary(
+                        c => c.Attribute("id").Value,
+                        c => decimal.Parse(c.Attribute("rate").Value)
+                    )
+                : new Dictionary<string, decimal>();
+
+            // Categories processing
+            Dictionary<int, string> categories = xmlDoc.Root?.Element("categories") is XElement categoriesElement
+                && categoriesElement.Elements("category").Any()
+                ? categoriesElement.Elements("category")
+                   .ToDictionary(
+                        c => int.Parse(c.Attribute("id")?.Value ?? "0"),  // Key: ID
+                        c => c.Value.Trim()  // Value: Category name
+                    )
+                : new Dictionary<int, string>();
+
+            // Product processing
             foreach (var offer in xmlDoc.Root.Element("offers").Elements("offer"))
             {
-                var gtin = offer.Element("gtin").Value;
+                var gtin = offer.Element("gtin")?.Value ?? string.Empty;
+                var title = offer.Element("name")?.Value ?? string.Empty;
+                var normalizedTitle = title.Trim().ToUpperInvariant();
 
-                // Поиск товара
-                var product = (await _productRepository.GetFromConditionAsync(p => p.GTIN == gtin || p.UPC == gtin)).FirstOrDefault();
+                var product = (await _productRepository.GetFromConditionAsync(p =>
+                    (!string.IsNullOrWhiteSpace(gtin) && (p.GTIN == gtin || p.UPC == gtin)) ||
+                    (string.IsNullOrWhiteSpace(gtin) && p.NormalizedTitle.Equals(normalizedTitle))
+                )).FirstOrDefault();
 
-                // Создание нового товара если не найден
+
+                // Create new product if not found
                 if (product == null)
                 {
-                    //product = new ProductDBModel
-                    //{
-                    //    GTIN = gtin,
-                    //    Name = offer.Element("name").Value,
-                    //    Brand = offer.Element("brand").Value,
-                    //    Model = offer.Element("model").Value,
-                    //    Description = offer.Element("description").Value,
-                    //    CategoryId = int.Parse(offer.Element("categoryId").Value),
-                    //    AddedToDatabase = DateTime.UtcNow
-                    //};
+                    var categoryNormalizedTitle = offer.Element("category")?.Value.Trim().ToUpperInvariant() ?? string.Empty;
+                    var category = (await _categoryRepository.GetFromConditionAsync(c => c.Title.Trim().ToUpperInvariant() == normalizedTitle)).FirstOrDefault();
 
-                    //await _productRepository.AddAsync(product);
+                    product = new ProductDBModel
+                    {
+                        GTIN = gtin,
+                        Title = title,
+                        Brand = offer.Element("brand")?.Value ?? string.Empty,
+                        ModelNumber = offer.Element("model")?.Value ?? string.Empty,
+                        Description = offer.Element("description")?.Value ?? string.Empty,
+                        CategoryId = category?.Id ?? 0,
+                        IsUnderModeration = true,
+                        AddedToDatabase = DateTime.UtcNow,
+                    };
 
-                    continue;
+                    await _productRepository.CreateAsync(product);
                 }
 
                 // Конвертация цены
