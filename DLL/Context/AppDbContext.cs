@@ -274,6 +274,9 @@ namespace DLL.Context
                 entity.Property(p => p.UPC)
                     .HasMaxLength(15);
 
+                entity.Property(c => c.AddedToDatabase)
+                    .HasColumnType("DATETIME2(0)");
+
                 entity.HasOne(p => p.Category)
                     .WithMany(c => c.Products)
                     .HasForeignKey(p => p.CategoryId)

@@ -14,7 +14,7 @@ namespace BLL.Services.PriceServices
             _repository = repository;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(PriceHistoryDBModel model)
+        public async Task<OperationResultModel<PriceHistoryDBModel>> CreateAsync(PriceHistoryDBModel model)
         {
             return await _repository.CreateAsync(model);
         }

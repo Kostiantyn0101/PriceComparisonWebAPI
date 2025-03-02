@@ -23,9 +23,9 @@ namespace BLL.Services.ProductServices
         {
             var model = _mapper.Map<ReviewDBModel>(request);
             var repoResult = await _repository.CreateAsync(model);
-            return !repoResult.IsError
+            return repoResult.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public async Task<OperationResultModel<bool>> UpdateAsync(ReviewUpdateRequestModel request)

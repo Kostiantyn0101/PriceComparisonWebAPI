@@ -22,6 +22,7 @@ namespace Domain.Models.DBModels
         public string? GTIN { get; set; }
         public string? UPC { get; set; }
         public bool IsUnderModeration { get; set; }
+        public DateTime AddedToDatabase { get; set; }
 
         public int CategoryId { get; set; }
         public CategoryDBModel Category { get; set; }
@@ -36,11 +37,5 @@ namespace Domain.Models.DBModels
         public ICollection<PriceHistoryDBModel> PricesHistory { get; set; }
         public ICollection<ProductClicksDBModel> ProductClicks { get; set; }
         public ICollection<ProductSellerReferenceClickDBModel> ProductSellerReferenceClicks { get; set; }
-
-
-        private string Normalize(string input)
-        {
-            return input?.Trim().ToUpperInvariant();
-        }
     }
 }

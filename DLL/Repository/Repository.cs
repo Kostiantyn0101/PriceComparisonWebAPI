@@ -11,17 +11,17 @@ namespace DLL.Repository.Abstractions
         private readonly AppDbContext _context = context;
         protected DbSet<TEntity> Entities => _context.Set<TEntity>();
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(TEntity entity)
+        public async Task<OperationResultModel<TEntity>> CreateAsync(TEntity entity)
         {
             try
             {
                 Entities.Add(entity);
                 await _context.SaveChangesAsync();
-                return new OperationDetailsResponseModel() { IsError = false, Message = "Create success", Exception = null };
+                return OperationResultModel<TEntity>.Success(entity);
             }
             catch (Exception ex)
             {
-                return new OperationDetailsResponseModel() { IsError = true, Message = "Create error", Exception = ex };
+                return OperationResultModel<TEntity>.Failure("Create error", ex);
             }
         }
         public async Task<OperationDetailsResponseModel> DeleteAsync(int id)

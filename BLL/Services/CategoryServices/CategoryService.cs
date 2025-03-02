@@ -24,7 +24,7 @@ namespace BLL.Services.CategoryService
         }
 
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(CategoryCreateRequestModel model)
+        public async Task<OperationResultModel<CategoryDBModel>> CreateAsync(CategoryCreateRequestModel model)
         {
             var dbModel = _mapper.Map<CategoryDBModel>(model);
 
@@ -38,7 +38,7 @@ namespace BLL.Services.CategoryService
                 }
                 else
                 {
-                    return new OperationDetailsResponseModel { IsError = true, Message = "Image save error" };
+                    return OperationResultModel<CategoryDBModel>.Failure("Image save error");
                 }
             }
 
@@ -52,7 +52,7 @@ namespace BLL.Services.CategoryService
                 }
                 else
                 {
-                    return new OperationDetailsResponseModel { IsError = true, Message = "Image save error" };
+                    return OperationResultModel<CategoryDBModel>.Failure("Image save error");
                 }
             }
 

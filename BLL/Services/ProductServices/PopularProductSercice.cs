@@ -40,9 +40,9 @@ namespace BLL.Services.ProductServices
             var dbModel = new ProductClicksDBModel() { ProductId = productId, ClickDate = DateTime.UtcNow };
             var result = await _productClickRepository.CreateAsync(dbModel);
 
-            if (result.IsError)
+            if (!result.IsSuccess)
             {
-                _logger.LogError(result.Message, result.Exception);
+                _logger.LogError(result.ErrorMessage, result.Exception);
             }
         }
 

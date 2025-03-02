@@ -9,7 +9,7 @@ namespace BLL.Services.CategoryService
 {
     public interface ICategoryService
     {
-        Task<OperationDetailsResponseModel> CreateAsync(CategoryCreateRequestModel model);
+        Task<OperationResultModel<CategoryDBModel>> CreateAsync(CategoryCreateRequestModel model);
         Task<OperationDetailsResponseModel> UpdateAsync(CategoryUpdateRequestModel entity);
         Task<OperationDetailsResponseModel> DeleteAsync(int id);
         IQueryable<CategoryDBModel> GetQuery();
