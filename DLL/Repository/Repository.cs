@@ -6,12 +6,18 @@ using System.Linq.Expressions;
 
 namespace DLL.Repository.Abstractions
 {
-    public class Repository<TEntity, TKey>(AppDbContext context) : IRepository<TEntity, TKey> where TEntity : class, IEntity<TKey>
+    public class Repository<TEntity, TKey> : IRepository<TEntity, TKey> where TEntity : class, IEntity<TKey>
     {
-        private readonly AppDbContext _context = context;
-        protected DbSet<TEntity> Entities => _context.Set<TEntity>();
+        protected readonly AppDbContext _context;
+        protected readonly DbSet<TEntity> Entities;
 
-        public async Task<OperationResultModel<TEntity>> CreateAsync(TEntity entity)
+        public Repository(AppDbContext context)
+        {
+            _context = context;
+            Entities = _context.Set<TEntity>();
+        }
+
+        public virtual async Task<OperationResultModel<TEntity>> CreateAsync(TEntity entity)
         {
             try
             {
@@ -24,13 +30,13 @@ namespace DLL.Repository.Abstractions
                 return OperationResultModel<TEntity>.Failure("Create error", ex);
             }
         }
-        public async Task<OperationDetailsResponseModel> DeleteAsync(TKey id)
+        public virtual async Task<OperationDetailsResponseModel> DeleteAsync(TKey id)
         {
             try
             {
                 var toDelete = await Entities
-                    .Where(x => EqualityComparer<TKey>.Default.Equals(x.Id, id))
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(x => EqualityComparer<TKey>.Default.Equals(x.Id, id));
+
 
                 if (toDelete == null)
                 {
@@ -52,7 +58,7 @@ namespace DLL.Repository.Abstractions
             }
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(TEntity entity)
+        public virtual async Task<OperationDetailsResponseModel> UpdateAsync(TEntity entity)
         {
             try
             {
@@ -69,8 +75,8 @@ namespace DLL.Repository.Abstractions
         public virtual async Task<IEnumerable<TEntity>> GetFromConditionAsync(Expression<Func<TEntity, bool>> condition) =>
             await Entities.Where(condition).ToListAsync().ConfigureAwait(false);
 
-        public IQueryable<TEntity> GetQuery() => Entities.AsQueryable();
+        public virtual IQueryable<TEntity> GetQuery() => Entities.AsQueryable();
 
-        public async Task<IEnumerable<TEntity>> ProcessQueryAsync(IQueryable<TEntity> query) => await query.ToListAsync();
+        public virtual async Task<IEnumerable<TEntity>> ProcessQueryAsync(IQueryable<TEntity> query) => await query.ToListAsync();
     }
 }

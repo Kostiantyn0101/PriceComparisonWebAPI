@@ -212,6 +212,8 @@ namespace DLL.Context
             // SellerProductDetailsDBModel
             modelBuilder.Entity<SellerProductDetailsDBModel>(entity =>
             {
+                entity.Ignore(p => p.Id);
+
                 entity.HasKey(p => new { p.ProductId, p.SellerId });
 
                 entity.ToTable("SellerProductDetails");

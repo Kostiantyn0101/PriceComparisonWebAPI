@@ -11,19 +11,19 @@ namespace BLL.Services.SellerServices
 {
     public class SellerProductService : ISellerProductService
     {
-        private readonly ISellerProductDetailsRepository _repository;
+        private readonly ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> _repository;
         private readonly IRepository<ProductDBModel, int> _productRepository;
         private readonly IRepository<SellerDBModel, int> _sellerRepository;
         private readonly IRepository<CategoryDBModel, int> _categoryRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
         private readonly IProductImageService _productImageService;
 
-        public SellerProductService(ISellerProductDetailsRepository repository,
+        public SellerProductService(ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> repository,
             IRepository<ProductDBModel, int> productRepository,
             IRepository<SellerDBModel, int> sellerRepository,
             IRepository<CategoryDBModel, int> categoryRepository,
             IProductImageService productImageService,
-        IOptions<SellerAccountConfiguration> options)
+            IOptions<SellerAccountConfiguration> options)
         {
             _repository = repository;
             _productRepository = productRepository;
