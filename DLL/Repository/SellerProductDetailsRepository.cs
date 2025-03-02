@@ -20,7 +20,7 @@ namespace DLL.Repository.Abstractions
         {
             try
             {
-                _context.Prices.Add(entity);
+                _context.SellerProductDetails.Add(entity);
                 await _context.SaveChangesAsync();
                 return new OperationDetailsResponseModel() { IsError = false, Message = "Create success", Exception = null };
             }
@@ -33,7 +33,7 @@ namespace DLL.Repository.Abstractions
         {
             try
             {
-                var entity = await _context.Prices
+                var entity = await _context.SellerProductDetails
                                       .FirstOrDefaultAsync(cc => cc.ProductId == productId &&
                                                                  cc.SellerId == sellerId);
                 if (entity == null)
@@ -46,7 +46,7 @@ namespace DLL.Repository.Abstractions
                     };
                 }
 
-                _context.Prices.Remove(entity);
+                _context.SellerProductDetails.Remove(entity);
                 await _context.SaveChangesAsync();
                 return new OperationDetailsResponseModel() { IsError = false, Message = "Delete success", Exception = null };
             }
@@ -60,7 +60,7 @@ namespace DLL.Repository.Abstractions
         {
             try
             {
-                _context.Prices.Update(entity);
+                _context.SellerProductDetails.Update(entity);
                 await _context.SaveChangesAsync();
                 return new OperationDetailsResponseModel() { IsError = false, Message = "Update success", Exception = null };
             }
@@ -71,9 +71,9 @@ namespace DLL.Repository.Abstractions
         }
 
         public virtual async Task<IEnumerable<SellerProductDetailsDBModel>> GetFromConditionAsync(Expression<Func<SellerProductDetailsDBModel, bool>> condition) =>
-            await _context.Prices.Where(condition).ToListAsync().ConfigureAwait(false);
+            await _context.SellerProductDetails.Where(condition).ToListAsync().ConfigureAwait(false);
 
-        public IQueryable<SellerProductDetailsDBModel> GetQuery() => _context.Prices.AsQueryable();
+        public IQueryable<SellerProductDetailsDBModel> GetQuery() => _context.SellerProductDetails.AsQueryable();
 
         public async Task<IEnumerable<SellerProductDetailsDBModel>> ProcessQueryAsync(IQueryable<SellerProductDetailsDBModel> query) => 
             await query.ToListAsync();

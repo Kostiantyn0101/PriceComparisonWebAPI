@@ -79,5 +79,71 @@ namespace BLL.Services.MediaServices
                 return OperationResultModel<string>.Failure($"File wasn't saved", ex);
             }
         }
+
+        public async Task<IFormFile> CreateFormFileFromUrlAsync(string imageUrl)
+        {
+            if (string.IsNullOrEmpty(imageUrl))
+            {
+                throw new ArgumentException("Image URL cannot be null or empty", nameof(imageUrl));
+            }
+
+            try
+            {
+                using var httpClient = new HttpClient();
+                // Set a timeout for the entire HTTP operation
+                httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+                // Create a cancellation token for the download
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+
+                // Download the file with the cancellation token
+                using var response = await httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+                response.EnsureSuccessStatusCode();
+
+                var contentType = response.Content.Headers.ContentType?.ToString() ?? "image/webp";
+                var fileName = GetFileNameFromUrl(imageUrl) ?? "image.webp";
+
+                // Create memory stream (without setting timeouts)
+                var memoryStream = new MemoryStream();
+
+                // Copy with the same cancellation token
+                await response.Content.CopyToAsync(memoryStream, cts.Token);
+
+                if (memoryStream.Length == 0)
+                {
+                    throw new InvalidOperationException("Downloaded stream has zero length");
+                }
+
+                memoryStream.Position = 0;
+
+                // Create the FormFile
+                var formFile = new FormFile(
+                    baseStream: memoryStream,
+                    baseStreamOffset: 0,
+                    length: memoryStream.Length,
+                    name: "file",
+                    fileName: fileName)
+                {
+                    ContentType = contentType
+                };
+
+                return formFile;
+            }
+            catch (OperationCanceledException)
+            {
+                throw new TimeoutException($"Timeout occurred while downloading image from: {imageUrl}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to create FormFile from URL: {imageUrl}", ex);
+            }
+        }
+
+        private string GetFileNameFromUrl(string url)
+        {
+            var uri = new Uri(url);
+            var fileName = Path.GetFileName(uri.LocalPath);
+            return !string.IsNullOrEmpty(fileName) ? fileName : "file";
+        }
     }
 }

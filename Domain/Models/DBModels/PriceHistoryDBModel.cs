@@ -11,6 +11,7 @@ namespace Domain.Models.DBModels
         public SellerDBModel Seller { get; set; }
 
         public decimal PriceValue { get; set; }
+        public DateTime PriceDate { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
