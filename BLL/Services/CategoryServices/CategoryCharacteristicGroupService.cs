@@ -10,10 +10,10 @@ namespace BLL.Services.CategoryServices
 {
     public class CategoryCharacteristicGroupService : ICategoryCharacteristicGroupService
     {
-        private readonly IRepository<CategoryCharacteristicGroupDBModel> _repository;
+        private readonly IRepository<CategoryCharacteristicGroupDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public CategoryCharacteristicGroupService(IRepository<CategoryCharacteristicGroupDBModel> repository, IMapper mapper)
+        public CategoryCharacteristicGroupService(IRepository<CategoryCharacteristicGroupDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

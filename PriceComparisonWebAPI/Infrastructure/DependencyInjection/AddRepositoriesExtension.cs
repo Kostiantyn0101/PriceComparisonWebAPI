@@ -7,7 +7,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
     {
         public static void AddRepositories(this WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
             
             //for refactor
             builder.Services.AddScoped<ICategoryCharacteristicRepository, CategoryCharacteristicRepository>();

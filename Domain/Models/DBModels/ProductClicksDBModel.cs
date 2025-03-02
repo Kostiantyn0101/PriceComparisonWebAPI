@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class ProductClicksDBModel : EntityDBModel
+    public class ProductClicksDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public int ProductId { get; set; }
         public DateTime ClickDate { get; set; }
 

@@ -7,9 +7,9 @@ namespace BLL.Services.PriceServices
 {
     public class PriceHistoryService : IPriceHistoryService
     {
-        private readonly IRepository<PriceHistoryDBModel> _repository;
+        private readonly IRepository<PriceHistoryDBModel, int> _repository;
 
-        public PriceHistoryService(IRepository<PriceHistoryDBModel> repository)
+        public PriceHistoryService(IRepository<PriceHistoryDBModel, int> repository)
         {
             _repository = repository;
         }

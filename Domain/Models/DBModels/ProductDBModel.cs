@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class ProductDBModel : EntityDBModel
+    public class ProductDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         private string _title;
 
         public string Brand { get; set; }

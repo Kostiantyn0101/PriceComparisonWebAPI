@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class CategoryDBModel : EntityDBModel
+    public class CategoryDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public string Title { get; set; }
         public string? ImageUrl { get; set; }
         public string? IconUrl { get; set; }

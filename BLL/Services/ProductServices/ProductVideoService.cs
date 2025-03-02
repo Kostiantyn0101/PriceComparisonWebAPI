@@ -10,11 +10,11 @@ namespace BLL.Services.ProductServices
 {
     public class ProductVideoService : IProductVideoService
     {
-        private readonly IRepository<ProductVideoDBModel> _repository;
+        private readonly IRepository<ProductVideoDBModel, int> _repository;
         private readonly IMapper _mapper;
 
 
-        public ProductVideoService(IRepository<ProductVideoDBModel> repository, IMapper mapper)
+        public ProductVideoService(IRepository<ProductVideoDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

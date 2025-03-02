@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace DLL.Repository.Abstractions
 {
-    public class Repository<TEntity>(AppDbContext context) : IRepository<TEntity> where TEntity : EntityDBModel
+    public class Repository<TEntity, TKey>(AppDbContext context) : IRepository<TEntity, TKey> where TEntity : class, IEntity<TKey>
     {
         private readonly AppDbContext _context = context;
         protected DbSet<TEntity> Entities => _context.Set<TEntity>();
@@ -24,11 +24,24 @@ namespace DLL.Repository.Abstractions
                 return OperationResultModel<TEntity>.Failure("Create error", ex);
             }
         }
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
+        public async Task<OperationDetailsResponseModel> DeleteAsync(TKey id)
         {
             try
             {
-                var toDelete = await Entities.Where(x => x.Id == id).FirstOrDefaultAsync();
+                var toDelete = await Entities
+                    .Where(x => EqualityComparer<TKey>.Default.Equals(x.Id, id))
+                    .FirstOrDefaultAsync();
+
+                if (toDelete == null)
+                {
+                    return new OperationDetailsResponseModel
+                    {
+                        IsError = true,
+                        Message = "Entity not found",
+                        Exception = new Exception("Entity not found")
+                    };
+                }
+
                 Entities.Remove(toDelete);
                 await _context.SaveChangesAsync();
                 return new OperationDetailsResponseModel() { IsError = false, Message = "Delete success", Exception = null };

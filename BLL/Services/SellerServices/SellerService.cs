@@ -10,10 +10,10 @@ namespace BLL.Services.SellerServices
 {
     public class SellerService : ISellerService
     {
-        private readonly IRepository<SellerDBModel> _repository;
+        private readonly IRepository<SellerDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public SellerService(IRepository<SellerDBModel> repository, IMapper mapper)
+        public SellerService(IRepository<SellerDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

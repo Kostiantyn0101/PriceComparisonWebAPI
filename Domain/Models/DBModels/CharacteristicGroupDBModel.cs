@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class CharacteristicGroupDBModel : EntityDBModel
+    public class CharacteristicGroupDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public string Title { get; set; }
 
         public ICollection<CharacteristicDBModel> Characteristics { get; set; }

@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class SellerDBModel : EntityDBModel
+    public class SellerDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public string ApiKey { get; set; }
         public string StoreName { get; set; }
         public string? LogoImageUrl { get; set; }

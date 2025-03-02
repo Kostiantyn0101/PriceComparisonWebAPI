@@ -12,11 +12,11 @@ namespace BLL.Services.FeedbackAndReviewServices
     public class FeedbackImageService : IFeedbackImageService
     {
 
-        private readonly IRepository<FeedbackImageDBModel> _repository;
+        private readonly IRepository<FeedbackImageDBModel, int> _repository;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
 
-        public FeedbackImageService(IRepository<FeedbackImageDBModel> repository, IFileService fileService, IMapper mapper)
+        public FeedbackImageService(IRepository<FeedbackImageDBModel, int> repository, IFileService fileService, IMapper mapper)
         {
             _repository = repository;
             _fileService = fileService;

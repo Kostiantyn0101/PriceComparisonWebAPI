@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class FeedbackDBModel : EntityDBModel
+    public class FeedbackDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public int UserId { get; set; }
         public ApplicationUserDBModel User { get; set; }
 

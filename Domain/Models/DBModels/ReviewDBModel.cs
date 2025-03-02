@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class ReviewDBModel : EntityDBModel
+    public class ReviewDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public string ReviewUrl { get; set; }
 
         public int ProductId { get; set; }

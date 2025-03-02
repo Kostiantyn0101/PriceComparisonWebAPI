@@ -13,12 +13,12 @@ namespace BLL.Services.CategoryCharacteristicService
     public class CategoryCharacteristicService : ICategoryCharacteristicService
     {
         private readonly ICategoryCharacteristicRepository _categoryCharacteristicRepository;
-        private readonly IRepository<CharacteristicDBModel> _characteristicRepository;
+        private readonly IRepository<CharacteristicDBModel, int> _characteristicRepository;
         private readonly IMapper _mapper;
 
         public CategoryCharacteristicService(
             ICategoryCharacteristicRepository categoryCharacteristicRepository,
-            IRepository<CharacteristicDBModel> characteristicRepository,
+            IRepository<CharacteristicDBModel, int> characteristicRepository,
             IMapper mapper)
         {
             _categoryCharacteristicRepository = categoryCharacteristicRepository;

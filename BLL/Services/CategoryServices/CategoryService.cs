@@ -11,12 +11,12 @@ namespace BLL.Services.CategoryService
 {
     public class CategoryService : ICategoryService
     {
-        private readonly IRepository<CategoryDBModel> _repository;
+        private readonly IRepository<CategoryDBModel, int> _repository;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
 
 
-        public CategoryService(IRepository<CategoryDBModel> repository, IFileService fileService, IMapper mapper)
+        public CategoryService(IRepository<CategoryDBModel, int> repository, IFileService fileService, IMapper mapper)
         {
             _repository = repository;
             _fileService = fileService;

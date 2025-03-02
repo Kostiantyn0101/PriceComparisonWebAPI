@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class PriceHistoryDBModel : EntityDBModel
+    public class PriceHistoryDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public int ProductId { get; set; }
         public ProductDBModel Product { get; set; }
 
