@@ -242,7 +242,10 @@ namespace DLL.Context
                     .HasColumnType("decimal(18,2)");
 
                 entity.Property(pr => pr.CreatedAt)
-                    .IsRequired();
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.Property(pr => pr.PriceDate)
+                    .HasColumnType("DATETIME2(0)");
 
                 entity.HasOne(pr => pr.Product)
                     .WithMany(p => p.PricesHistory)

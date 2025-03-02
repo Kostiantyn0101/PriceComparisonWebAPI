@@ -4,8 +4,11 @@ using System.Xml.Linq;
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.Response;
-using OpenAI.Moderations;
 using BLL.Services.ProductServices;
+using BLL.Services.MediaServices;
+using Domain.Models.Request.Products;
+using Microsoft.Extensions.Logging;
+using Domain.Models.Exceptions;
 
 namespace BLL.Services.SellerServices
 {
@@ -15,22 +18,33 @@ namespace BLL.Services.SellerServices
         private readonly IRepository<ProductDBModel> _productRepository;
         private readonly IRepository<SellerDBModel> _sellerRepository;
         private readonly IRepository<CategoryDBModel> _categoryRepository;
+        private readonly IRepository<PriceHistoryDBModel> _priceHistoryRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
         private readonly IProductImageService _productImageService;
+        private readonly IFileService _fileService;
+        private readonly ILogger<SellerProductService> _logger;
+
+        private const string defaultCategoryName = "NEW PRODUCT UNKNOWN CATEGORY";
 
         public SellerProductService(ISellerProductDetailsRepository repository,
             IRepository<ProductDBModel> productRepository,
             IRepository<SellerDBModel> sellerRepository,
             IRepository<CategoryDBModel> categoryRepository,
+            IRepository<PriceHistoryDBModel> priceHistoryRepository,
             IProductImageService productImageService,
-        IOptions<SellerAccountConfiguration> options)
+            IFileService fileService,
+            IOptions<SellerAccountConfiguration> options,
+            ILogger<SellerProductService> logger)
         {
             _repository = repository;
             _productRepository = productRepository;
             _sellerRepository = sellerRepository;
             _categoryRepository = categoryRepository;
+            _priceHistoryRepository = priceHistoryRepository;
             _accountConfiguration = options.Value;
             _productImageService = productImageService;
+            _fileService = fileService;
+            _logger = logger;
         }
 
         public async Task<OperationResultModel<string>> ProcessXmlAsync(Stream stream)
@@ -64,14 +78,14 @@ namespace BLL.Services.SellerServices
                 : new Dictionary<string, decimal>();
 
             // Categories processing
-            Dictionary<int, string> categories = xmlDoc.Root?.Element("categories") is XElement categoriesElement
+            Dictionary<string, string> categories = xmlDoc.Root?.Element("categories") is XElement categoriesElement
                 && categoriesElement.Elements("category").Any()
                 ? categoriesElement.Elements("category")
                    .ToDictionary(
-                        c => int.Parse(c.Attribute("id")?.Value ?? "0"),  // Key: ID
+                        c => c.Attribute("id")?.Value.Trim() ?? string.Empty,  // Key: ID
                         c => c.Value.Trim()  // Value: Category name
                     )
-                : new Dictionary<int, string>();
+                : new Dictionary<string, string>();
 
             // Product processing
             foreach (var offer in xmlDoc.Root.Element("offers").Elements("offer"))
@@ -89,8 +103,14 @@ namespace BLL.Services.SellerServices
                 // Create new product if not found
                 if (product == null)
                 {
-                    var categoryNormalizedTitle = offer.Element("category")?.Value.Trim().ToUpperInvariant() ?? string.Empty;
-                    var category = (await _categoryRepository.GetFromConditionAsync(c => c.Title.Trim().ToUpperInvariant() == normalizedTitle)).FirstOrDefault();
+                    //var categoryNormalizedTitle = offer.Element("category")?.Value.Trim().ToUpperInvariant() ?? string.Empty;
+                    var categoryFileId = offer.Element("categoryId")?.Value.Trim() ?? string.Empty;
+                    var categoryTitle = categories.ContainsKey(categoryFileId) ? categories[categoryFileId] : string.Empty;
+                    var category = (await _categoryRepository.GetFromConditionAsync(c => c.Title.Equals(categoryTitle))).FirstOrDefault();
+                    if (category == null)
+                    {
+                        category = (await _categoryRepository.GetFromConditionAsync(c => c.Title.Equals(defaultCategoryName))).FirstOrDefault();
+                    }
 
                     product = new ProductDBModel
                     {
@@ -104,37 +124,68 @@ namespace BLL.Services.SellerServices
                         AddedToDatabase = DateTime.UtcNow,
                     };
 
-                    await _productRepository.CreateAsync(product);
+                    var createResult = await _productRepository.CreateAsync(product);
+                    if (!createResult.IsSuccess)
+                    {
+                        _logger.LogError(createResult.Exception, "New product create error");
+                        continue;
+                    }
+                    var createdProduct = createResult.Data;
+
+                    // Save product image
+                    var imageUrl = offer.Element("picture")?.Value;
+                    if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        // to do: fix file ctreation error
+
+                        //var imageFile = await _fileService.CreateFormFileFromUrlAsync(imageUrl);
+                        //var imageAddResult = await _productImageService.AddAsync(new ProductImageCreateRequestModel()
+                        //{
+                        //    ProductId = createdProduct?.Id ?? 0,
+                        //    Images = new List<Microsoft.AspNetCore.Http.IFormFile> { imageFile }
+                        //});
+                    }
                 }
 
-                // Конвертация цены
-                var currencyId = offer.Element("currencyId").Value;
-                var price = decimal.Parse(offer.Element("price").Value);
+
+                // Price conversion to UAH
+                var currencyId = offer.Element("currencyId")?.Value ?? string.Empty;
+                var price = decimal.Parse(offer.Element("price")?.Value ?? "0");
                 var priceUah = currencyId == "UAH" ? price : price * currencies[currencyId];
 
-                // Работа с SellerProductDetails
+                // Write data to SellerProductDetails
                 var details = (await _repository.GetFromConditionAsync(
                     d => d.ProductId == product.Id && d.SellerId == seller.UserId))
                     .FirstOrDefault();
 
                 if (details == null)
                 {
-                    await _repository.CreateAsync(new SellerProductDetailsDBModel
+                    _ = await _repository.CreateAsync(new SellerProductDetailsDBModel
                     {
                         ProductId = product.Id,
                         SellerId = seller.UserId,
                         PriceValue = priceUah,
                         LastUpdated = priceListDate,
-                        ProductStoreUrl = offer.Element("url").Value
+                        ProductStoreUrl = offer.Element("url")?.Value ?? string.Empty
                     });
                 }
                 else
                 {
                     details.PriceValue = priceUah;
                     details.LastUpdated = priceListDate;
-                    details.ProductStoreUrl = offer.Element("url").Value;
-                    await _repository.UpdateAsync(details);
+                    details.ProductStoreUrl = offer.Element("url")?.Value ?? string.Empty;
+                    _ = await _repository.UpdateAsync(details);
                 }
+
+                // Write data to PriceHistory
+                _ = await _priceHistoryRepository.CreateAsync(new PriceHistoryDBModel()
+                {
+                    ProductId = product.Id,
+                    SellerId = seller.UserId,
+                    CreatedAt = priceListDate,
+                    PriceDate = priceListDate,
+                    PriceValue = priceUah
+                });
             }
 
             return OperationResultModel<string>.Success();

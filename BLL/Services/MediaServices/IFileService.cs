@@ -7,5 +7,6 @@ namespace BLL.Services.MediaServices
     {
         Task<OperationResultModel<string>> SaveImageAsync(IFormFile file);
         Task<OperationResultModel<string>> DeleteImageAsync(string relativePath);
+        Task<IFormFile> CreateFormFileFromUrlAsync(string imageUrl);
     }
 }
