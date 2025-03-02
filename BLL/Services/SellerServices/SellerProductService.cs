@@ -9,6 +9,7 @@ using BLL.Services.MediaServices;
 using Domain.Models.Request.Products;
 using Microsoft.Extensions.Logging;
 using Domain.Models.Exceptions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BLL.Services.SellerServices
 {
@@ -147,15 +148,20 @@ namespace BLL.Services.SellerServices
                     }
                 }
 
-
                 // Price conversion to UAH
                 var currencyId = offer.Element("currencyId")?.Value ?? string.Empty;
-                var price = decimal.Parse(offer.Element("price")?.Value ?? "0");
+                var priceStr = offer.Element("price")?.Value;
+                if (priceStr.IsNullOrEmpty()) continue;
+                var price = decimal.Parse(priceStr ?? "0");
+                if (price == 0) continue;
                 var priceUah = currencyId == "UAH" ? price : price * currencies[currencyId];
+
+                var productStoreUrl = offer.Element("url")?.Value;
+                if (productStoreUrl.IsNullOrEmpty()) continue;
 
                 // Write data to SellerProductDetails
                 var details = (await _repository.GetFromConditionAsync(
-                    d => d.ProductId == product.Id && d.SellerId == seller.UserId))
+                    d => d.ProductId == product.Id && d.SellerId == seller.Id))
                     .FirstOrDefault();
 
                 if (details == null)
@@ -163,17 +169,17 @@ namespace BLL.Services.SellerServices
                     _ = await _repository.CreateAsync(new SellerProductDetailsDBModel
                     {
                         ProductId = product.Id,
-                        SellerId = seller.UserId,
+                        SellerId = seller.Id,
                         PriceValue = priceUah,
                         LastUpdated = priceListDate,
-                        ProductStoreUrl = offer.Element("url")?.Value ?? string.Empty
+                        ProductStoreUrl = productStoreUrl!
                     });
                 }
                 else
                 {
                     details.PriceValue = priceUah;
                     details.LastUpdated = priceListDate;
-                    details.ProductStoreUrl = offer.Element("url")?.Value ?? string.Empty;
+                    details.ProductStoreUrl = productStoreUrl!;
                     _ = await _repository.UpdateAsync(details);
                 }
 
@@ -181,7 +187,7 @@ namespace BLL.Services.SellerServices
                 _ = await _priceHistoryRepository.CreateAsync(new PriceHistoryDBModel()
                 {
                     ProductId = product.Id,
-                    SellerId = seller.UserId,
+                    SellerId = seller.Id,
                     CreatedAt = DateTime.Now,
                     PriceDate = priceListDate,
                     PriceValue = priceUah

@@ -20,7 +20,7 @@ namespace DLL.Context
         public DbSet<ReviewDBModel> Reviews { get; set; }
         public DbSet<InstructionDBModel> Instructions { get; set; }
         public DbSet<RelatedCategoryDBModel> RelatedCategories { get; set; }
-        public DbSet<SellerProductDetailsDBModel> Prices { get; set; }
+        public DbSet<SellerProductDetailsDBModel> SellerProductDetails { get; set; }
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
@@ -226,11 +226,11 @@ namespace DLL.Context
                     .HasMaxLength(2083);
 
                 entity.HasOne(pr => pr.Product)
-                    .WithMany(p => p.Prices)
+                    .WithMany(p => p.SellerProductDetails)
                     .HasForeignKey(pr => pr.ProductId);
 
                 entity.HasOne(pr => pr.Seller)
-                    .WithMany(s => s.Prices)
+                    .WithMany(s => s.SellerProductDetails)
                     .HasForeignKey(pr => pr.SellerId);
             });
 
@@ -248,11 +248,11 @@ namespace DLL.Context
                     .HasColumnType("DATETIME2(0)");
 
                 entity.HasOne(pr => pr.Product)
-                    .WithMany(p => p.PricesHistory)
+                    .WithMany(p => p.PricesHistories)
                     .HasForeignKey(pr => pr.ProductId);
 
                 entity.HasOne(pr => pr.Seller)
-                    .WithMany()
+                    .WithMany(s=>s.PriceHistories)
                     .HasForeignKey(pr => pr.SellerId);
             });
 
@@ -377,7 +377,7 @@ namespace DLL.Context
                     .WithMany(u => u.Sellers)
                     .HasForeignKey(s => s.UserId);
 
-                entity.HasMany(s => s.Prices)
+                entity.HasMany(s => s.SellerProductDetails)
                     .WithOne(p => p.Seller)
                     .HasForeignKey(p => p.SellerId);
 

@@ -36,10 +36,14 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             }
 
             using var stream = file.OpenReadStream();
-            await _sellerProductService.ProcessXmlAsync(stream);
+            var result = await _sellerProductService.ProcessXmlAsync(stream);
 
-            
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
+            if (result.IsSuccess)
+            {
+                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
+            }
+
+            return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status200OK, result.ErrorMessage);
         }
 
 
