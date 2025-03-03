@@ -37,5 +37,7 @@ namespace Domain.Models.DBModels
         public ICollection<PriceHistoryDBModel> PricesHistories { get; set; }
         public ICollection<ProductClicksDBModel> ProductClicks { get; set; }
         public ICollection<ProductReferenceClickDBModel> ProductSellerReferenceClicks { get; set; }
+        public ICollection<ProductGroupDBModel> ProductGroups { get; set; }
+
     }
 }
