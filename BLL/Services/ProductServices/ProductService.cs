@@ -12,10 +12,10 @@ namespace BLL.Services.ProductServices
 {
     public class ProductService : IProductService
     {
-        private readonly IRepository<ProductDBModel> _repository;
+        private readonly IRepository<ProductDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public ProductService(IRepository<ProductDBModel> repository, IMapper mapper)
+        public ProductService(IRepository<ProductDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

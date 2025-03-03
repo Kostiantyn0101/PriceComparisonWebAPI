@@ -10,10 +10,10 @@ namespace BLL.Services.ProductServices
 {
     public class InstructionService : IInstructionService
     {
-        private readonly IRepository<InstructionDBModel> _repository;
+        private readonly IRepository<InstructionDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public InstructionService(IRepository<InstructionDBModel> repository, IMapper mapper)
+        public InstructionService(IRepository<InstructionDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

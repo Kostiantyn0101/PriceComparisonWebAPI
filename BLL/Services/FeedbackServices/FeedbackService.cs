@@ -10,9 +10,9 @@ namespace BLL.Services.FeedbackAndReviewServices
 {
     public class FeedbackService : IFeedbackService
     {
-        private readonly IRepository<FeedbackDBModel> _repository;
+        private readonly IRepository<FeedbackDBModel, int> _repository;
         private readonly IMapper _mapper;
-        public FeedbackService(IRepository<FeedbackDBModel> repository, IMapper mapper)
+        public FeedbackService(IRepository<FeedbackDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

@@ -2,8 +2,20 @@
 
 namespace Domain.Models.DBModels
 {
-    public class SellerProductDetailsDBModel
+    public class SellerProductDetailsDBModel : IEntity<CompositeKey<int, int>>
     {
+        public CompositeKey<int, int> Id
+        {
+            get => new CompositeKey<int, int> { Key1 = this.ProductId, Key2 = this.SellerId };
+            set
+            {
+                if (value != null)
+                {
+                    ProductId = value.Key1;
+                    SellerId = value.Key2;
+                }
+            }
+        }
         public int ProductId { get; set; }
         public ProductDBModel Product { get; set; }
 

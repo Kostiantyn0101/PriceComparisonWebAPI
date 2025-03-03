@@ -2,8 +2,9 @@
 
 namespace Domain.Models.DBModels
 {
-    public class AuctionClickRateDBModel : EntityDBModel
+    public class AuctionClickRateDBModel : IEntity<int>
     {
+        public int Id { get; set; }
         public int CategoryId { get; set; }
         public CategoryDBModel Category { get; set; }
 

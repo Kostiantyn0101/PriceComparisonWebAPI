@@ -15,14 +15,14 @@ namespace BLL.Services.ProductServices
     {
         private readonly PopularProductsSettings _settings;
         private readonly FileStorageConfiguration _storageSettings;
-        private readonly IRepository<ProductClicksDBModel> _productClickRepository;
+        private readonly IRepository<ProductClicksDBModel, int> _productClickRepository;
         private readonly ILogger<PopularProductSercice> _logger;
-        private readonly IRepository<ProductDBModel> _producRepository;
+        private readonly IRepository<ProductDBModel, int> _producRepository;
 
 
         public PopularProductSercice(
-            IRepository<ProductClicksDBModel> productClickRepository,
-            IRepository<ProductDBModel> producRepository,
+            IRepository<ProductClicksDBModel, int> productClickRepository,
+            IRepository<ProductDBModel, int> producRepository,
             ILogger<PopularProductSercice> logger,
             IOptions<PopularProductsSettings> options,
             IOptions<FileStorageConfiguration> storageOptions)

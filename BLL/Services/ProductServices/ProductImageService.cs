@@ -12,11 +12,11 @@ namespace BLL.Services.ProductServices
 {
     public class ProductImageService : IProductImageService
     {
-        private readonly IRepository<ProductImageDBModel> _repository;
+        private readonly IRepository<ProductImageDBModel, int> _repository;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
 
-        public ProductImageService(IRepository<ProductImageDBModel> repository, IFileService fileService, IMapper mapper)
+        public ProductImageService(IRepository<ProductImageDBModel, int> repository, IFileService fileService, IMapper mapper)
         {
             _repository = repository;
             _fileService = fileService;

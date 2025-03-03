@@ -11,10 +11,10 @@ namespace BLL.Services.ProductServices
 {
     public class CharacteristicGroupService : ICharacteristicGroupService
     {
-        private readonly IRepository<CharacteristicGroupDBModel> _repository;
+        private readonly IRepository<CharacteristicGroupDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public CharacteristicGroupService(IRepository<CharacteristicGroupDBModel> repository, IMapper mapper)
+        public CharacteristicGroupService(IRepository<CharacteristicGroupDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

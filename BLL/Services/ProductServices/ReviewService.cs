@@ -10,10 +10,10 @@ namespace BLL.Services.ProductServices
 {
     public class ReviewService : IReviewService
     {
-        private readonly IRepository<ReviewDBModel> _repository;
+        private readonly IRepository<ReviewDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public ReviewService(IRepository<ReviewDBModel> repository, IMapper mapper)
+        public ReviewService(IRepository<ReviewDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;

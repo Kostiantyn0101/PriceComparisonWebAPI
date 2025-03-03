@@ -1,21 +1,23 @@
 ﻿using System.Linq.Expressions;
 using DLL.Repository;
 using Domain.Models.DBModels;
+using Domain.Models.Primitives;
 using Domain.Models.Response;
 
 namespace BLL.Services.PriceServices
 {
     public class PriceService : IPriceService
     {
-        private readonly ISellerProductDetailsRepository _repository;
+        private readonly ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> _repository;
 
-        public PriceService(ISellerProductDetailsRepository repository)
+        public PriceService(ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> repository)
         {
             _repository = repository;
         }
 
-        public async Task<OperationDetailsResponseModel> CreateAsync(SellerProductDetailsDBModel model)
+        public async Task<OperationResultModel<SellerProductDetailsDBModel>> CreateAsync(SellerProductDetailsDBModel model)
         {
+
             return await _repository.CreateAsync(model);
         }
 
@@ -26,7 +28,8 @@ namespace BLL.Services.PriceServices
 
         public async Task<OperationDetailsResponseModel> DeleteAsync(int productId, int sellerId)
         {
-            return await _repository.DeleteAsync(productId, sellerId);
+            var compositeKey = new CompositeKey<int, int> { Key1 = productId, Key2 = sellerId };
+            return await _repository.DeleteAsync(compositeKey);
         }
 
         public IQueryable<SellerProductDetailsDBModel> GetQuery()
