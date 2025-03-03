@@ -12,16 +12,16 @@ using Microsoft.Extensions.Options;
 
 namespace BLL.Services.ProductServices
 {
-    public class ProductSellerReferenceClickService : IProductSellerReferenceClickService
+    public class ProductReferenceClickService : IProductReferenceClickService
     {
-        private readonly IRepository<ProductSellerReferenceClickDBModel> _repository;
+        private readonly IRepository<ProductReferenceClickDBModel> _repository;
         private readonly IRepository<AuctionClickRateDBModel> _auctionClickRateRepository;
         private readonly IRepository<SellerDBModel> _sellerRepository;
         private readonly IRepository<ProductDBModel> _productRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
         private readonly IMapper _mapper;
 
-        public ProductSellerReferenceClickService(IRepository<ProductSellerReferenceClickDBModel> repository,
+        public ProductReferenceClickService(IRepository<ProductReferenceClickDBModel> repository,
             IRepository<AuctionClickRateDBModel> auctionClickRaterepository,
             IRepository<SellerDBModel> sellerRepository,
             IRepository<ProductDBModel> productRepository,
@@ -38,7 +38,7 @@ namespace BLL.Services.ProductServices
 
         public async Task<OperationResultModel<bool>> ProcessReferenceClick(ProductSellerReferenceClickCreateRequestModel request)
         {
-            var model = _mapper.Map<ProductSellerReferenceClickDBModel>(request);
+            var model = _mapper.Map<ProductReferenceClickDBModel>(request);
             model.ClickedAt = DateTime.Now;
             var categoryId = (await _productRepository.GetFromConditionAsync(p => p.Id == model.ProductId)).FirstOrDefault()?.CategoryId ?? 0;
 
@@ -61,24 +61,24 @@ namespace BLL.Services.ProductServices
             {
                 // if there were no clicks yet write off current click rate from account balance.
                 await WriteOffClickFromTheBalanseAsync(model, currentClickRate);
+                model.ClickRate = currentClickRate;
             }
             else if (currentClickRate > defaultClickRate)
             {
                 // otherwithe check whether the current click rate is bigger than clicked earlier... 
-                var maxExistingClickRate = await _repository.GetQuery()
-                    .Where(psrc => psrc.SellerId == model.SellerId && psrc.UserIp.Equals(model.UserIp) && psrc.ClickedAt >= today && psrc.ClickedAt < tomorrow)
-                    .Select(psrc => psrc.Seller.AuctionClickRates
-                        .Where(acr => acr.CategoryId == psrc.Product.CategoryId)
-                        .Select(acr => (decimal?)acr.ClickRate)
-                        .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
-                    )
-                    .FirstOrDefaultAsync();
-
-                // ...if so, write off the difference from the balance
+                var maxExistingClickRateRecord = existingClicks.MaxBy(x => x.ClickRate);
+                var maxExistingClickRate = maxExistingClickRateRecord?.ClickRate ?? 0;
+           
                 if (currentClickRate > maxExistingClickRate)
                 {
-                    await WriteOffClickFromTheBalanseAsync(model, currentClickRate - maxExistingClickRate);
+                    await WriteOffClickFromTheBalanseAsync(model, currentClickRate - maxExistingClickRate);     // write off difference from the balance
+                    
+                    maxExistingClickRateRecord!.ClickRate = 0;                                              // clear old click rate
+                    _ = await _repository.UpdateAsync(maxExistingClickRateRecord);
+
+                    model.ClickRate = currentClickRate;                                                     // write new click rate    
                 }
+                
             }
 
             var repoResult = await _repository.CreateAsync(model);
@@ -87,7 +87,7 @@ namespace BLL.Services.ProductServices
                 : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
-        private async Task WriteOffClickFromTheBalanseAsync(ProductSellerReferenceClickDBModel model, decimal clickRate)
+        private async Task WriteOffClickFromTheBalanseAsync(ProductReferenceClickDBModel model, decimal clickRate)
         {
             var seller = (await _sellerRepository.GetFromConditionAsync(s => s.Id == model.SellerId)).FirstOrDefault();
 
@@ -123,20 +123,31 @@ namespace BLL.Services.ProductServices
                 : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
         }
 
-        public IQueryable<ProductSellerReferenceClickDBModel> GetQuery()
+        public IQueryable<ProductReferenceClickDBModel> GetQuery()
         {
             return _repository.GetQuery();
         }
 
-        public async Task<IEnumerable<ProductSellerReferenceClickResponseModel>> GetFromConditionAsync(Expression<Func<ProductSellerReferenceClickDBModel, bool>> condition)
+        public async Task<IEnumerable<ProductSellerReferenceClickResponseModel>> GetFromConditionAsync(Expression<Func<ProductReferenceClickDBModel, bool>> condition)
         {
             var dbModels = await _repository.GetFromConditionAsync(condition);
             return _mapper.Map<IEnumerable<ProductSellerReferenceClickResponseModel>>(dbModels);
         }
 
-        public async Task<IEnumerable<ProductSellerReferenceClickDBModel>> ProcessQueryAsync(IQueryable<ProductSellerReferenceClickDBModel> query)
+        public async Task<IEnumerable<ProductReferenceClickDBModel>> ProcessQueryAsync(IQueryable<ProductReferenceClickDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
         }
     }
 }
+
+//var maxExistingClickRate2 = await _repository.GetQuery()
+//    .Where(psrc => psrc.SellerId == model.SellerId && psrc.UserIp.Equals(model.UserIp) && psrc.ClickedAt >= today && psrc.ClickedAt < tomorrow)
+//    .Select(psrc => psrc.Seller.AuctionClickRates
+//        .Where(acr => acr.CategoryId == psrc.Product.CategoryId)
+//        .Select(acr => (decimal?)acr.ClickRate)
+//        .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
+//    )
+//    .FirstOrDefaultAsync();
+
+// ...if so, write off the difference from the balance

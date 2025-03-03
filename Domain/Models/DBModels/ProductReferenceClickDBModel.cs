@@ -2,7 +2,7 @@
 
 namespace Domain.Models.DBModels
 {
-    public class ProductSellerReferenceClickDBModel : EntityDBModel
+    public class ProductReferenceClickDBModel : EntityDBModel
     {
         public int ProductId { get; set; }
         public ProductDBModel Product { get; set; }
@@ -12,5 +12,6 @@ namespace Domain.Models.DBModels
 
         public string UserIp { get; set; }
         public DateTime ClickedAt { get; set; }
+        public decimal ClickRate { get; set; }
     }
 }

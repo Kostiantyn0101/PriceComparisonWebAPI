@@ -13,13 +13,13 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
-    public class ProductSellerReferenceClickController : ControllerBase
+    public class ProductReferenceClickController : ControllerBase
     {
         private readonly ILogger<AuctionClickRateController> _logger;
-        private readonly IProductSellerReferenceClickService _productSellerReferenceClickService;
+        private readonly IProductReferenceClickService _productSellerReferenceClickService;
 
-        public ProductSellerReferenceClickController(ILogger<AuctionClickRateController> logger,
-            IProductSellerReferenceClickService productSellerReferenceClickService)
+        public ProductReferenceClickController(ILogger<AuctionClickRateController> logger,
+            IProductReferenceClickService productSellerReferenceClickService)
         {
             _logger = logger;
             _productSellerReferenceClickService = productSellerReferenceClickService;

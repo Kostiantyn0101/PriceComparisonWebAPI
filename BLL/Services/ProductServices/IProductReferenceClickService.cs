@@ -6,13 +6,13 @@ using Domain.Models.Response.Products;
 
 namespace BLL.Services.ProductServices
 {
-    public interface IProductSellerReferenceClickService
+    public interface IProductReferenceClickService
     {
         Task<OperationResultModel<bool>> ProcessReferenceClick(ProductSellerReferenceClickCreateRequestModel request);
         Task<OperationResultModel<bool>> UpdateAsync(ProductSellerReferenceClickUpdateRequestModel request);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
-        IQueryable<ProductSellerReferenceClickDBModel> GetQuery();
-        Task<IEnumerable<ProductSellerReferenceClickResponseModel>> GetFromConditionAsync(Expression<Func<ProductSellerReferenceClickDBModel, bool>> condition);
-        Task<IEnumerable<ProductSellerReferenceClickDBModel>> ProcessQueryAsync(IQueryable<ProductSellerReferenceClickDBModel> query);
+        IQueryable<ProductReferenceClickDBModel> GetQuery();
+        Task<IEnumerable<ProductSellerReferenceClickResponseModel>> GetFromConditionAsync(Expression<Func<ProductReferenceClickDBModel, bool>> condition);
+        Task<IEnumerable<ProductReferenceClickDBModel>> ProcessQueryAsync(IQueryable<ProductReferenceClickDBModel> query);
     }
 }
