@@ -13,9 +13,9 @@ namespace PriceComparisonWebAPI.Controllers.Seller
     public class SellerProductController : ControllerBase
     {
         private readonly ILogger<SellerProductController> _logger;
-        private readonly ISellerProductService _sellerProductService;
+        private readonly ISellerProductDetailsService _sellerProductService;
 
-        public SellerProductController(ILogger<SellerProductController> logger, ISellerProductService sellerProductService)
+        public SellerProductController(ILogger<SellerProductController> logger, ISellerProductDetailsService sellerProductService)
         {
             _logger = logger;
             _sellerProductService = sellerProductService;
