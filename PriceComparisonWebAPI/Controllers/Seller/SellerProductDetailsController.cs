@@ -10,15 +10,15 @@ namespace PriceComparisonWebAPI.Controllers.Seller
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
-    public class SellerProductController : ControllerBase
+    public class SellerProductDetailsController : ControllerBase
     {
-        private readonly ILogger<SellerProductController> _logger;
-        private readonly ISellerProductDetailsService _sellerProductService;
+        private readonly ILogger<SellerProductDetailsController> _logger;
+        private readonly ISellerProductDetailsService _sellerProductDetailsService;
 
-        public SellerProductController(ILogger<SellerProductController> logger, ISellerProductDetailsService sellerProductService)
+        public SellerProductDetailsController(ILogger<SellerProductDetailsController> logger, ISellerProductDetailsService sellerProductDetailsService)
         {
             _logger = logger;
-            _sellerProductService = sellerProductService;
+            _sellerProductDetailsService = sellerProductDetailsService;
         }
 
         [HttpPost("upload-file")]
@@ -28,7 +28,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UploadXmlFile()
         {
-            var file = this.Request.Form.Files[0];
+            var file = Request.Form.Files[0];
             if (file == null || file.Length == 0)
             {
                 _logger.LogError(AppErrors.General.NotFound);
@@ -36,10 +36,33 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             }
 
             using var stream = file.OpenReadStream();
-            await _sellerProductService.ProcessXmlAsync(stream);
+            var result = await _sellerProductDetailsService.ProcessXmlAsync(stream);
 
-            
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
+            if (result.IsSuccess)
+            {
+                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
+            }
+
+            return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status200OK, result.ErrorMessage);
+        }
+
+        [HttpGet("{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetSellerProductDetails(int productId)
+        {
+            var result = await _sellerProductDetailsService.GetSellerProductDetailsAsync(productId);
+
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
 

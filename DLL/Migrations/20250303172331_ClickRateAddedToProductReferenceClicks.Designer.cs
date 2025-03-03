@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250303172331_ClickRateAddedToProductReferenceClicks")]
+    partial class ClickRateAddedToProductReferenceClicks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -484,29 +487,6 @@ namespace DLL.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("Domain.Models.DBModels.ProductGroupDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ProductGroupId")
-                        .IsRequired()
-                        .HasMaxLength(36)
-                        .HasColumnType("nvarchar(36)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductGroups");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductImageDBModel", b =>
@@ -1012,17 +992,6 @@ namespace DLL.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ProductGroupDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
-                        .WithMany("ProductGroups")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.ProductImageDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
@@ -1227,8 +1196,6 @@ namespace DLL.Migrations
                     b.Navigation("ProductCharacteristics");
 
                     b.Navigation("ProductClicks");
-
-                    b.Navigation("ProductGroups");
 
                     b.Navigation("ProductImages");
 

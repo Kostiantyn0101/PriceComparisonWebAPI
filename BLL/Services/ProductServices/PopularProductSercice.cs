@@ -92,7 +92,7 @@ namespace BLL.Services.ProductServices
                             .OrderBy(pi => pi.Id)
                             .Select(pi => pi.ImageUrl)
                             .FirstOrDefault(),
-                    MinPrice = x.Product.Prices.Min(p => p.PriceValue)
+                    MinPrice = x.Product.SellerProductDetails.Min(p => p.PriceValue)
                 });
 
             var topProducts = await topProductsQuery.ToListAsync();
@@ -139,8 +139,8 @@ namespace BLL.Services.ProductServices
                                 .OrderBy(pi => pi.Id)
                                 .Select(pi => pi.ImageUrl)
                                 .FirstOrDefault(),
-                        MinPrice = p.Product.Prices.Any()
-                            ? p.Product.Prices.Min(pr => pr.PriceValue)
+                        MinPrice = p.Product.SellerProductDetails.Any()
+                            ? p.Product.SellerProductDetails.Min(pr => pr.PriceValue)
                             : 0
                     })
                     .ToList()

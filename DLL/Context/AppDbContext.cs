@@ -20,20 +20,33 @@ namespace DLL.Context
         public DbSet<ReviewDBModel> Reviews { get; set; }
         public DbSet<InstructionDBModel> Instructions { get; set; }
         public DbSet<RelatedCategoryDBModel> RelatedCategories { get; set; }
-        public DbSet<SellerProductDetailsDBModel> Prices { get; set; }
+        public DbSet<SellerProductDetailsDBModel> SellerProductDetails { get; set; }
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
-        public DbSet<ProductSellerReferenceClickDBModel> ClickTrackings { get; set; }
+        public DbSet<ProductReferenceClickDBModel> ProductReferenceClicks { get; set; }
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
         public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
+        public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // ProductGroupDBModel
+            modelBuilder.Entity<ProductGroupDBModel>(entity =>
+            {
+                entity.HasOne(pg => pg.Product)
+                    .WithMany(p => p.ProductGroups)
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(e => e.ProductGroupId)
+                    .HasMaxLength(36);  // = GUID
+            });
 
             // AuctionClickRateDBModel
             modelBuilder.Entity<AuctionClickRateDBModel>(entity =>
@@ -48,7 +61,7 @@ namespace DLL.Context
                     .HasForeignKey(e => e.SellerId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.Property(e=>e.ClickRate)
+                entity.Property(e => e.ClickRate)
                     .HasColumnType("decimal(18,2)");
             });
 
@@ -56,7 +69,7 @@ namespace DLL.Context
             modelBuilder.Entity<CategoryCharacteristicGroupDBModel>(entity =>
             {
                 entity.Property(cc => cc.GroupDisplayOrder)
-                   .HasDefaultValue(1)                                           
+                   .HasDefaultValue(1)
                    .HasAnnotation("CheckConstraint", "GroupDisplayOrder >= 1"); // Min value = 1
 
                 entity.HasOne(cc => cc.Category)
@@ -228,11 +241,11 @@ namespace DLL.Context
                     .HasMaxLength(2083);
 
                 entity.HasOne(pr => pr.Product)
-                    .WithMany(p => p.Prices)
+                    .WithMany(p => p.SellerProductDetails)
                     .HasForeignKey(pr => pr.ProductId);
 
                 entity.HasOne(pr => pr.Seller)
-                    .WithMany(s => s.Prices)
+                    .WithMany(s => s.SellerProductDetails)
                     .HasForeignKey(pr => pr.SellerId);
             });
 
@@ -244,14 +257,17 @@ namespace DLL.Context
                     .HasColumnType("decimal(18,2)");
 
                 entity.Property(pr => pr.CreatedAt)
-                    .IsRequired();
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.Property(pr => pr.PriceDate)
+                    .HasColumnType("DATETIME2(0)");
 
                 entity.HasOne(pr => pr.Product)
-                    .WithMany(p => p.PricesHistory)
+                    .WithMany(p => p.PricesHistories)
                     .HasForeignKey(pr => pr.ProductId);
 
                 entity.HasOne(pr => pr.Seller)
-                    .WithMany()
+                    .WithMany(s => s.PriceHistories)
                     .HasForeignKey(pr => pr.SellerId);
             });
 
@@ -370,13 +386,13 @@ namespace DLL.Context
                     .HasMaxLength(2083);
 
                 entity.Property(s => s.AccountBalance)
-                    .HasPrecision(18,2);
+                    .HasPrecision(18, 2);
 
                 entity.HasOne(s => s.User)
                     .WithMany(u => u.Sellers)
                     .HasForeignKey(s => s.UserId);
 
-                entity.HasMany(s => s.Prices)
+                entity.HasMany(s => s.SellerProductDetails)
                     .WithOne(p => p.Seller)
                     .HasForeignKey(p => p.SellerId);
 
@@ -397,13 +413,13 @@ namespace DLL.Context
                     .HasForeignKey(f => f.UserId);
             });
 
-            // ProductSellerReferenceClickDBModel. ClickTracking
-            modelBuilder.Entity<ProductSellerReferenceClickDBModel>(entity =>
+            // ProductReferenceClickDBModel. ClickTracking
+            modelBuilder.Entity<ProductReferenceClickDBModel>(entity =>
             {
-                entity.ToTable("ProductSellerReferenceClicks");
+                entity.ToTable("ProductReferenceClicks");
 
                 entity.HasOne(e => e.Product)
-                      .WithMany(p=>p.ProductSellerReferenceClicks)
+                      .WithMany(p => p.ProductSellerReferenceClicks)
                       .HasForeignKey(e => e.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
 
@@ -414,6 +430,9 @@ namespace DLL.Context
 
                 entity.Property(e => e.UserIp)
                       .HasMaxLength(50);
+
+                entity.Property(e => e.ClickRate)
+                      .HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.ClickedAt);
             });

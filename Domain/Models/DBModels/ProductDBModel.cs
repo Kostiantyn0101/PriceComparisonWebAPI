@@ -34,9 +34,11 @@ namespace Domain.Models.DBModels
         public ICollection<ReviewDBModel> Reviews { get; set; }
         public ICollection<InstructionDBModel> Instructions { get; set; }
         public ICollection<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
-        public ICollection<SellerProductDetailsDBModel> Prices { get; set; }
-        public ICollection<PriceHistoryDBModel> PricesHistory { get; set; }
+        public ICollection<SellerProductDetailsDBModel> SellerProductDetails { get; set; }
+        public ICollection<PriceHistoryDBModel> PricesHistories { get; set; }
         public ICollection<ProductClicksDBModel> ProductClicks { get; set; }
-        public ICollection<ProductSellerReferenceClickDBModel> ProductSellerReferenceClicks { get; set; }
+        public ICollection<ProductReferenceClickDBModel> ProductSellerReferenceClicks { get; set; }
+        public ICollection<ProductGroupDBModel> ProductGroups { get; set; }
+
     }
 }

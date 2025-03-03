@@ -13,5 +13,6 @@ namespace Domain.Models.DBModels
 
         public string UserIp { get; set; }
         public DateTime ClickedAt { get; set; }
+        public decimal ClickRate { get; set; }
     }
 }

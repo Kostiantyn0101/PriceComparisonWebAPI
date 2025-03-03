@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250302110056_PriceHistoryDBModelChanged")]
+    partial class PriceHistoryDBModelChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -486,29 +489,6 @@ namespace DLL.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ProductGroupDBModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ProductGroupId")
-                        .IsRequired()
-                        .HasMaxLength(36)
-                        .HasColumnType("nvarchar(36)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductGroups");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.ProductImageDBModel", b =>
                 {
                     b.Property<int>("Id")
@@ -535,16 +515,13 @@ namespace DLL.Migrations
                     b.ToTable("ProductImages");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ProductReferenceClickDBModel", b =>
+            modelBuilder.Entity("Domain.Models.DBModels.ProductSellerReferenceClickDBModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("ClickRate")
-                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<DateTime>("ClickedAt")
                         .HasColumnType("datetime2");
@@ -566,7 +543,7 @@ namespace DLL.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("ProductReferenceClicks", (string)null);
+                    b.ToTable("ProductSellerReferenceClicks", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductVideoDBModel", b =>
@@ -955,7 +932,7 @@ namespace DLL.Migrations
             modelBuilder.Entity("Domain.Models.DBModels.PriceHistoryDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
-                        .WithMany("PricesHistories")
+                        .WithMany("PricesHistory")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1012,17 +989,6 @@ namespace DLL.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ProductGroupDBModel", b =>
-                {
-                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
-                        .WithMany("ProductGroups")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.ProductImageDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
@@ -1034,7 +1000,7 @@ namespace DLL.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ProductReferenceClickDBModel", b =>
+            modelBuilder.Entity("Domain.Models.DBModels.ProductSellerReferenceClickDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
                         .WithMany("ProductSellerReferenceClicks")
@@ -1108,13 +1074,13 @@ namespace DLL.Migrations
             modelBuilder.Entity("Domain.Models.DBModels.SellerProductDetailsDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
-                        .WithMany("SellerProductDetails")
+                        .WithMany("Prices")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Models.DBModels.SellerDBModel", "Seller")
-                        .WithMany("SellerProductDetails")
+                        .WithMany("Prices")
                         .HasForeignKey("SellerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1222,13 +1188,13 @@ namespace DLL.Migrations
 
                     b.Navigation("Instructions");
 
-                    b.Navigation("PricesHistories");
+                    b.Navigation("Prices");
+
+                    b.Navigation("PricesHistory");
 
                     b.Navigation("ProductCharacteristics");
 
                     b.Navigation("ProductClicks");
-
-                    b.Navigation("ProductGroups");
 
                     b.Navigation("ProductImages");
 
@@ -1237,8 +1203,6 @@ namespace DLL.Migrations
                     b.Navigation("ProductVideos");
 
                     b.Navigation("Reviews");
-
-                    b.Navigation("SellerProductDetails");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.SellerDBModel", b =>
@@ -1247,9 +1211,9 @@ namespace DLL.Migrations
 
                     b.Navigation("PriceHistories");
 
-                    b.Navigation("ProductSellerReferenceClicks");
+                    b.Navigation("Prices");
 
-                    b.Navigation("SellerProductDetails");
+                    b.Navigation("ProductSellerReferenceClicks");
                 });
 #pragma warning restore 612, 618
         }

@@ -112,7 +112,7 @@ namespace BLL.Services.ProductServices
                 {
                     ProductCharacteristic = pc,
                     Characteristic = pc.Characteristic,
-                    ProductCategoryId = pc.Product.CategoryId, // Предполагаем, что Product имеет связь с Category
+                    ProductCategoryId = pc.Product.CategoryId, 
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
