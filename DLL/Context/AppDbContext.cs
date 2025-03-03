@@ -30,10 +30,23 @@ namespace DLL.Context
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
         public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
+        public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // ProductGroupDBModel
+            modelBuilder.Entity<ProductGroupDBModel>(entity =>
+            {
+                entity.HasOne(pg => pg.Product)
+                    .WithMany(p => p.ProductGroups)
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(e => e.ProductGroupId)
+                    .HasMaxLength(36);  // = GUID
+            });
 
             // AuctionClickRateDBModel
             modelBuilder.Entity<AuctionClickRateDBModel>(entity =>
@@ -48,7 +61,7 @@ namespace DLL.Context
                     .HasForeignKey(e => e.SellerId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.Property(e=>e.ClickRate)
+                entity.Property(e => e.ClickRate)
                     .HasColumnType("decimal(18,2)");
             });
 
@@ -56,7 +69,7 @@ namespace DLL.Context
             modelBuilder.Entity<CategoryCharacteristicGroupDBModel>(entity =>
             {
                 entity.Property(cc => cc.GroupDisplayOrder)
-                   .HasDefaultValue(1)                                           
+                   .HasDefaultValue(1)
                    .HasAnnotation("CheckConstraint", "GroupDisplayOrder >= 1"); // Min value = 1
 
                 entity.HasOne(cc => cc.Category)
@@ -252,7 +265,7 @@ namespace DLL.Context
                     .HasForeignKey(pr => pr.ProductId);
 
                 entity.HasOne(pr => pr.Seller)
-                    .WithMany(s=>s.PriceHistories)
+                    .WithMany(s => s.PriceHistories)
                     .HasForeignKey(pr => pr.SellerId);
             });
 
@@ -371,7 +384,7 @@ namespace DLL.Context
                     .HasMaxLength(2083);
 
                 entity.Property(s => s.AccountBalance)
-                    .HasPrecision(18,2);
+                    .HasPrecision(18, 2);
 
                 entity.HasOne(s => s.User)
                     .WithMany(u => u.Sellers)
@@ -404,7 +417,7 @@ namespace DLL.Context
                 entity.ToTable("ProductReferenceClicks");
 
                 entity.HasOne(e => e.Product)
-                      .WithMany(p=>p.ProductSellerReferenceClicks)
+                      .WithMany(p => p.ProductSellerReferenceClicks)
                       .HasForeignKey(e => e.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
 
