@@ -61,24 +61,24 @@ namespace BLL.Services.ProductServices
             {
                 // if there were no clicks yet write off current click rate from account balance.
                 await WriteOffClickFromTheBalanseAsync(model, currentClickRate);
+                model.ClickRate = currentClickRate;
             }
             else if (currentClickRate > defaultClickRate)
             {
                 // otherwithe check whether the current click rate is bigger than clicked earlier... 
-                var maxExistingClickRate = await _repository.GetQuery()
-                    .Where(psrc => psrc.SellerId == model.SellerId && psrc.UserIp.Equals(model.UserIp) && psrc.ClickedAt >= today && psrc.ClickedAt < tomorrow)
-                    .Select(psrc => psrc.Seller.AuctionClickRates
-                        .Where(acr => acr.CategoryId == psrc.Product.CategoryId)
-                        .Select(acr => (decimal?)acr.ClickRate)
-                        .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
-                    )
-                    .FirstOrDefaultAsync();
-
-                // ...if so, write off the difference from the balance
+                var maxExistingClickRateRecord = existingClicks.MaxBy(x => x.ClickRate);
+                var maxExistingClickRate = maxExistingClickRateRecord?.ClickRate ?? 0;
+           
                 if (currentClickRate > maxExistingClickRate)
                 {
-                    await WriteOffClickFromTheBalanseAsync(model, currentClickRate - maxExistingClickRate);
+                    await WriteOffClickFromTheBalanseAsync(model, currentClickRate - maxExistingClickRate);     // write off difference from the balance
+                    
+                    maxExistingClickRateRecord!.ClickRate = 0;                                              // clear old click rate
+                    _ = await _repository.UpdateAsync(maxExistingClickRateRecord);
+
+                    model.ClickRate = currentClickRate;                                                     // write new click rate    
                 }
+                
             }
 
             var repoResult = await _repository.CreateAsync(model);
@@ -140,3 +140,14 @@ namespace BLL.Services.ProductServices
         }
     }
 }
+
+//var maxExistingClickRate2 = await _repository.GetQuery()
+//    .Where(psrc => psrc.SellerId == model.SellerId && psrc.UserIp.Equals(model.UserIp) && psrc.ClickedAt >= today && psrc.ClickedAt < tomorrow)
+//    .Select(psrc => psrc.Seller.AuctionClickRates
+//        .Where(acr => acr.CategoryId == psrc.Product.CategoryId)
+//        .Select(acr => (decimal?)acr.ClickRate)
+//        .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
+//    )
+//    .FirstOrDefaultAsync();
+
+// ...if so, write off the difference from the balance
