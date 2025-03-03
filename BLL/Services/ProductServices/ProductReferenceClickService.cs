@@ -14,17 +14,17 @@ namespace BLL.Services.ProductServices
 {
     public class ProductReferenceClickService : IProductReferenceClickService
     {
-        private readonly IRepository<ProductReferenceClickDBModel> _repository;
-        private readonly IRepository<AuctionClickRateDBModel> _auctionClickRateRepository;
-        private readonly IRepository<SellerDBModel> _sellerRepository;
-        private readonly IRepository<ProductDBModel> _productRepository;
+        private readonly IRepository<ProductReferenceClickDBModel, int> _repository;
+        private readonly IRepository<AuctionClickRateDBModel, int> _auctionClickRateRepository;
+        private readonly IRepository<SellerDBModel, int> _sellerRepository;
+        private readonly IRepository<ProductDBModel, int> _productRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
         private readonly IMapper _mapper;
 
-        public ProductReferenceClickService(IRepository<ProductReferenceClickDBModel> repository,
-            IRepository<AuctionClickRateDBModel> auctionClickRaterepository,
-            IRepository<SellerDBModel> sellerRepository,
-            IRepository<ProductDBModel> productRepository,
+        public ProductReferenceClickService(IRepository<ProductReferenceClickDBModel, int> repository,
+            IRepository<AuctionClickRateDBModel, int> auctionClickRaterepository,
+            IRepository<SellerDBModel, int> sellerRepository,
+            IRepository<ProductDBModel, int> productRepository,
             IOptions<SellerAccountConfiguration> options,
             IMapper mapper)
         {

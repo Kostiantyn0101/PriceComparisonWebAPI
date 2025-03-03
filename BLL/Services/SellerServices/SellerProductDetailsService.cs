@@ -19,10 +19,10 @@ namespace BLL.Services.SellerServices
     public class SellerProductDetailsService : ISellerProductDetailsService
     {
         private readonly ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> _repository;
-        private readonly IRepository<ProductDBModel> _productRepository;
-        private readonly IRepository<SellerDBModel> _sellerRepository;
-        private readonly IRepository<CategoryDBModel> _categoryRepository;
-        private readonly IRepository<PriceHistoryDBModel> _priceHistoryRepository;
+        private readonly IRepository<ProductDBModel, int> _productRepository;
+        private readonly IRepository<SellerDBModel, int> _sellerRepository;
+        private readonly IRepository<CategoryDBModel, int> _categoryRepository;
+        private readonly IRepository<PriceHistoryDBModel, int> _priceHistoryRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
         private readonly IProductImageService _productImageService;
         private readonly IFileService _fileService;
@@ -30,11 +30,11 @@ namespace BLL.Services.SellerServices
 
         private const string defaultCategoryName = "NEW PRODUCT UNKNOWN CATEGORY";
 
-        public SellerProductDetailsService(ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> repository,,
-            IRepository<ProductDBModel> productRepository,
-            IRepository<SellerDBModel> sellerRepository,
-            IRepository<CategoryDBModel> categoryRepository,
-            IRepository<PriceHistoryDBModel> priceHistoryRepository,
+        public SellerProductDetailsService(ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> repository,
+            IRepository<ProductDBModel, int> productRepository,
+            IRepository<SellerDBModel, int> sellerRepository,
+            IRepository<CategoryDBModel, int> categoryRepository,
+            IRepository<PriceHistoryDBModel, int> priceHistoryRepository,
             IProductImageService productImageService,
             IFileService fileService,
             IOptions<SellerAccountConfiguration> options,

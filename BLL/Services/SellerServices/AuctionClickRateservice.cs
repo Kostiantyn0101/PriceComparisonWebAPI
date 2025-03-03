@@ -10,10 +10,10 @@ namespace BLL.Services.SellerServices
 {
     public class AuctionClickRateService : IAuctionClickRateService
     {
-        private readonly IRepository<AuctionClickRateDBModel> _repository;
+        private readonly IRepository<AuctionClickRateDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public AuctionClickRateService(IRepository<AuctionClickRateDBModel> repository, IMapper mapper)
+        public AuctionClickRateService(IRepository<AuctionClickRateDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
