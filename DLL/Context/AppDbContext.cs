@@ -24,7 +24,7 @@ namespace DLL.Context
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
-        public DbSet<ProductSellerReferenceClickDBModel> ClickTrackings { get; set; }
+        public DbSet<ProductReferenceClickDBModel> ProductReferenceClicks { get; set; }
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
@@ -398,10 +398,10 @@ namespace DLL.Context
                     .HasForeignKey(f => f.UserId);
             });
 
-            // ProductSellerReferenceClickDBModel. ClickTracking
-            modelBuilder.Entity<ProductSellerReferenceClickDBModel>(entity =>
+            // ProductReferenceClickDBModel. ClickTracking
+            modelBuilder.Entity<ProductReferenceClickDBModel>(entity =>
             {
-                entity.ToTable("ProductSellerReferenceClicks");
+                entity.ToTable("ProductReferenceClicks");
 
                 entity.HasOne(e => e.Product)
                       .WithMany(p=>p.ProductSellerReferenceClicks)
@@ -415,6 +415,9 @@ namespace DLL.Context
 
                 entity.Property(e => e.UserIp)
                       .HasMaxLength(50);
+
+                entity.Property(e => e.ClickRate)
+                      .HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.ClickedAt);
             });

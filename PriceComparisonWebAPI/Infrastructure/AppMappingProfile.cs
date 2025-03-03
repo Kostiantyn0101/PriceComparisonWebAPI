@@ -102,9 +102,9 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ReviewCreateRequestModel, ReviewDBModel>();
             CreateMap<ReviewUpdateRequestModel, ReviewDBModel>();
             
-            CreateMap<ProductSellerReferenceClickCreateRequestModel, ProductSellerReferenceClickDBModel>();
-            CreateMap<ProductSellerReferenceClickUpdateRequestModel, ProductSellerReferenceClickDBModel>();
-            CreateMap<ProductSellerReferenceClickDBModel, ProductSellerReferenceClickResponseModel>();
+            CreateMap<ProductSellerReferenceClickCreateRequestModel, ProductReferenceClickDBModel>();
+            CreateMap<ProductSellerReferenceClickUpdateRequestModel, ProductReferenceClickDBModel>();
+            CreateMap<ProductReferenceClickDBModel, ProductSellerReferenceClickResponseModel>();
 
             // SELLER
             CreateMap<SellerDBModel, SellerResponseModel>();
