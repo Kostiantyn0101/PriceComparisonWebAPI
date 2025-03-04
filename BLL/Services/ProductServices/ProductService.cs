@@ -1,12 +1,11 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
-using Azure.Core;
+﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
@@ -21,38 +20,38 @@ namespace BLL.Services.ProductServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(ProductRequestModel model)
+        public async Task<OperationResultModel<ProductDBModel>> CreateAsync(ProductRequestModel model)
         {
             var mapped = _mapper.Map<ProductDBModel>(model);
             var result = await _repository.CreateAsync(mapped);
             return result.IsSuccess
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
+                ? result
+                : OperationResultModel<ProductDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(ProductRequestModel model)
+        public async Task<OperationResultModel<ProductDBModel>> UpdateAsync(ProductRequestModel model)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == model.Id);
             var existing = existingRecords.FirstOrDefault();
             if (existing == null)
             {
-                return OperationResultModel<bool>.Failure("Product not found.");
+                return OperationResultModel<ProductDBModel>.Failure("Product not found.");
             }
 
             _mapper.Map(model, existing);
 
             var result = await _repository.UpdateAsync(existing);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<ProductDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var result = await _repository.DeleteAsync(id);
-            return !result.IsError
+            return result.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<PaginatedResponse<ProductResponseModel>>> GetPaginatedProductsAsync(

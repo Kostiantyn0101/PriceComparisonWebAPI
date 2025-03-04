@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using DLL.Repository;
+﻿using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
 using Domain.Models.Extensions;
@@ -148,10 +147,10 @@ namespace BLL.Services.ProductServices
             });
 
             var topCategoriesWithProducts = await topCategoriesWithProductsQuery.ToListAsync();
-            
+
             // Add server url to product image path
             topCategoriesWithProducts.ForEach(c => c.Products?.ToList().ForEach(p => p.ApplyServerUrl(_storageSettings.ServerURL)));
-            
+
             return topCategoriesWithProducts;
         }
     }

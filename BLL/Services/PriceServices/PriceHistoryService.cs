@@ -19,12 +19,12 @@ namespace BLL.Services.PriceServices
             return await _repository.CreateAsync(model);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(PriceHistoryDBModel entity)
+        public async Task<OperationResultModel<PriceHistoryDBModel>> UpdateAsync(PriceHistoryDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
 
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             return await _repository.DeleteAsync(id);
         }

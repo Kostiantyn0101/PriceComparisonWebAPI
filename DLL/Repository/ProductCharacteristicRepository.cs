@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 
 namespace DLL.Repository.Abstractions
 {
+    //deprecated
     public class ProductCharacteristicRepository : IProductCharacteristicRepository
     {
         private readonly AppDbContext _context;

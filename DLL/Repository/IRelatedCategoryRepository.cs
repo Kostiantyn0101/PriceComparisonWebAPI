@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 
 namespace DLL.Repository
 {
+    //deprecated
     public interface IRelatedCategoryRepository
     {
         Task<OperationDetailsResponseModel> CreateAsync(RelatedCategoryDBModel entity);

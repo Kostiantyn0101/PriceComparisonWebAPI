@@ -19,38 +19,38 @@ namespace BLL.Services.SellerServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(AuctionClickRateCreateRequestModel request)
+        public async Task<OperationResultModel<AuctionClickRateDBModel>> CreateAsync(AuctionClickRateCreateRequestModel request)
         {
             var model = _mapper.Map<AuctionClickRateDBModel>(request);
             var repoResult = await _repository.CreateAsync(model);
             return repoResult.IsSuccess
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
+                ? repoResult
+                : OperationResultModel<AuctionClickRateDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(AuctionClickRateUpdateRequestModel request)
+        public async Task<OperationResultModel<AuctionClickRateDBModel>> UpdateAsync(AuctionClickRateUpdateRequestModel request)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
             var existing = existingRecords.FirstOrDefault();
             if (existing == null)
             {
-                return OperationResultModel<bool>.Failure("AuctionClickRate record not found.");
+                return OperationResultModel<AuctionClickRateDBModel>.Failure("AuctionClickRate record not found.");
             }
 
             _mapper.Map(request, existing);
 
             var repoResult = await _repository.UpdateAsync(existing);
-            return !repoResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+            return repoResult.IsSuccess
+                ? repoResult
+                : OperationResultModel<AuctionClickRateDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var repoResult = await _repository.DeleteAsync(id);
-            return !repoResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+            return repoResult.IsSuccess
+                ? repoResult
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public IQueryable<AuctionClickRateDBModel> GetQuery()

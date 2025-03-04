@@ -8,8 +8,8 @@ namespace BLL.Services.SellerServices
 {
     public interface ISellerService
     {
-        Task<OperationResultModel<bool>> CreateAsync(SellerCreateRequestModel request);
-        Task<OperationResultModel<bool>> UpdateAsync(SellerUpdateRequestModel request);
+        Task<OperationResultModel<SellerDBModel>> CreateAsync(SellerCreateRequestModel request);
+        Task<OperationResultModel<SellerDBModel>> UpdateAsync(SellerUpdateRequestModel request);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<SellerDBModel> GetQuery();
         Task<IEnumerable<SellerResponseModel>> GetFromConditionAsync(Expression<Func<SellerDBModel, bool>> condition);

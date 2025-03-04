@@ -1,18 +1,15 @@
-﻿using Domain.Models.DBModels;
-using Microsoft.Extensions.Options;
-using System.Xml.Linq;
+﻿using BLL.Services.MediaServices;
+using BLL.Services.ProductServices;
 using DLL.Repository;
 using Domain.Models.Configuration;
+using Domain.Models.DBModels;
 using Domain.Models.Response;
-using OpenAI.Moderations;
-using BLL.Services.ProductServices;
-using BLL.Services.MediaServices;
-using Domain.Models.Request.Products;
-using Microsoft.Extensions.Logging;
-using Domain.Models.Exceptions;
-using Microsoft.IdentityModel.Tokens;
 using Domain.Models.Response.Seller;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Xml.Linq;
 
 namespace BLL.Services.SellerServices
 {

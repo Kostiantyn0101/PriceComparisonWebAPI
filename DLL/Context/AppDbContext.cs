@@ -163,6 +163,8 @@ namespace DLL.Context
             // CategoryCharacteristicDBModel
             modelBuilder.Entity<CategoryCharacteristicDBModel>(entity =>
             {
+                entity.Ignore(p => p.Id);
+
                 entity.HasKey(cc => new { cc.CategoryId, cc.CharacteristicId });
 
                 entity.HasOne(cc => cc.Category)
@@ -304,6 +306,8 @@ namespace DLL.Context
             // ProductCharacteristicDBModel
             modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
             {
+                entity.Ignore(p => p.Id);
+
                 entity.HasKey(pc => new { pc.ProductId, pc.CharacteristicId });
 
                 entity.HasOne(pc => pc.Product)
@@ -345,6 +349,8 @@ namespace DLL.Context
             // RelatedCategoryDBModel
             modelBuilder.Entity<RelatedCategoryDBModel>(entity =>
             {
+                entity.Ignore(p => p.Id);
+
                 entity.HasKey(rc => new { rc.CategoryId, rc.RelatedCategoryId });
 
                 entity.HasOne(rc => rc.Category)

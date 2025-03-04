@@ -7,8 +7,8 @@ namespace BLL.Services.PriceServices
     public interface IPriceService
     {
         Task<OperationResultModel<SellerProductDetailsDBModel>> CreateAsync(SellerProductDetailsDBModel model);
-        Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entity);
-        Task<OperationDetailsResponseModel> DeleteAsync(int productId, int sellerId);
+        Task<OperationResultModel<SellerProductDetailsDBModel>> UpdateAsync(SellerProductDetailsDBModel entity);
+        Task<OperationResultModel<bool>> DeleteAsync(int productId, int sellerId);
         IQueryable<SellerProductDetailsDBModel> GetQuery();
         Task<IEnumerable<SellerProductDetailsDBModel>> GetFromConditionAsync(Expression<Func<SellerProductDetailsDBModel, bool>> condition);
         Task<IEnumerable<SellerProductDetailsDBModel>> ProcessQueryAsync(IQueryable<SellerProductDetailsDBModel> query);

@@ -1,10 +1,10 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Categories;
-using Domain.Models.Response.Categories;
 using Domain.Models.Response;
+using Domain.Models.Response.Categories;
+using System.Linq.Expressions;
 
 namespace BLL.Services.CategoryServices
 {
@@ -19,38 +19,38 @@ namespace BLL.Services.CategoryServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(CategoryCharacteristicGroupCreateRequestModel request)
+        public async Task<OperationResultModel<CategoryCharacteristicGroupDBModel>> CreateAsync(CategoryCharacteristicGroupCreateRequestModel request)
         {
             var model = _mapper.Map<CategoryCharacteristicGroupDBModel>(request);
             var repoResult = await _repository.CreateAsync(model);
             return repoResult.IsSuccess
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
+                ? repoResult
+                : OperationResultModel<CategoryCharacteristicGroupDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(CategoryCharacteristicGroupRequestModel request)
+        public async Task<OperationResultModel<CategoryCharacteristicGroupDBModel>> UpdateAsync(CategoryCharacteristicGroupRequestModel request)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
             var existing = existingRecords.FirstOrDefault();
             if (existing == null)
             {
-                return OperationResultModel<bool>.Failure("CategoryCharacteristicGroup not found.");
+                return OperationResultModel<CategoryCharacteristicGroupDBModel>.Failure("CategoryCharacteristicGroup not found.");
             }
 
             _mapper.Map(request, existing);
 
             var result = await _repository.UpdateAsync(existing);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<CategoryCharacteristicGroupDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var repoResult = await _repository.DeleteAsync(id);
-            return !repoResult.IsError
+            return repoResult.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public IQueryable<CategoryCharacteristicGroupDBModel> GetQuery()
@@ -69,5 +69,4 @@ namespace BLL.Services.CategoryServices
             return await _repository.ProcessQueryAsync(query);
         }
     }
-
 }

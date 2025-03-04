@@ -21,12 +21,12 @@ namespace BLL.Services.PriceServices
             return await _repository.CreateAsync(model);
         }
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(SellerProductDetailsDBModel entity)
+        public async Task<OperationResultModel<SellerProductDetailsDBModel>> UpdateAsync(SellerProductDetailsDBModel entity)
         {
             return await _repository.UpdateAsync(entity);
         }
 
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int productId, int sellerId)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int productId, int sellerId)
         {
             var compositeKey = new CompositeKey<int, int> { Key1 = productId, Key2 = sellerId };
             return await _repository.DeleteAsync(compositeKey);

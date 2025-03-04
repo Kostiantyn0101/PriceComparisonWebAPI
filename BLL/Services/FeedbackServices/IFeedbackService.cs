@@ -8,8 +8,8 @@ namespace BLL.Services.FeedbackAndReviewServices
 {
     public interface IFeedbackService
     {
-        Task<OperationResultModel<bool>> CreateAsync(FeedbackCreateRequestModel request);
-        Task<OperationResultModel<bool>> UpdateAsync(FeedbackUpdateRequestModel request);
+        Task<OperationResultModel<FeedbackDBModel>> CreateAsync(FeedbackCreateRequestModel request);
+        Task<OperationResultModel<FeedbackDBModel>> UpdateAsync(FeedbackUpdateRequestModel request);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         Task<IEnumerable<FeedbackResponseModel>> GetFromConditionAsync(Expression<Func<FeedbackDBModel, bool>> condition);
 

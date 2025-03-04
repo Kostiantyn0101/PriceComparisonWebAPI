@@ -13,9 +13,9 @@ namespace BLL.Services.SellerServices
 {
     public interface IAuctionClickRateService
     {
-        Task<OperationResultModel<bool>> CreateAsync(AuctionClickRateCreateRequestModel request);
+        Task<OperationResultModel<AuctionClickRateDBModel>> CreateAsync(AuctionClickRateCreateRequestModel request);
 
-        Task<OperationResultModel<bool>> UpdateAsync(AuctionClickRateUpdateRequestModel request);
+        Task<OperationResultModel<AuctionClickRateDBModel>> UpdateAsync(AuctionClickRateUpdateRequestModel request);
 
         Task<OperationResultModel<bool>> DeleteAsync(int id);
 
