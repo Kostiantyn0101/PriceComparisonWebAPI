@@ -1,9 +1,11 @@
-﻿namespace Domain.Models.Request.Seller
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Domain.Models.Request.Seller
 {
     public class SellerCreateRequestModel
     {
         public string StoreName { get; set; }
-        public string? LogoImageUrl { get; set; }
+        public IFormFile? LogoImage { get; set; }
         public string WebsiteUrl { get; set; }
         public bool IsActive { get; set; }
         public int UserId { get; set; }

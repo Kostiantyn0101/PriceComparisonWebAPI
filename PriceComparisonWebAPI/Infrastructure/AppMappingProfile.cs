@@ -113,7 +113,8 @@ namespace PriceComparisonWebAPI.Infrastructure
 
 
             // SELLER
-            CreateMap<SellerDBModel, SellerResponseModel>();
+            CreateMap<SellerDBModel, SellerResponseModel>()
+                .ForMember(dest => dest.LogoImageUrl, opt => opt.MapFrom<SellerLogoImageUrlResolver>());
             CreateMap<SellerCreateRequestModel, SellerDBModel>();
             CreateMap<SellerUpdateRequestModel, SellerDBModel>();
             
