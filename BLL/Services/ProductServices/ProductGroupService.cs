@@ -22,10 +22,23 @@ namespace BLL.Services.ProductServices
         public async Task<OperationResultModel<ProductGroupDBModel>> CreateAsync(ProductGroupCreateRequestModel request)
         {
             var model = _mapper.Map<ProductGroupDBModel>(request);
-            var repoResult = await _repository.CreateAsync(model);
-            return repoResult.IsSuccess
-                ? repoResult
-                : OperationResultModel<ProductGroupDBModel>.Failure(repoResult.ErrorMessage, repoResult.Exception);
+
+            var existingGroup = (await _repository.GetFromConditionAsync(pg => pg.ProductId == request.ExistingProductId)).FirstOrDefault();
+
+            if (existingGroup == null)
+            {
+                existingGroup = new ProductGroupDBModel() { ProductId = request.ExistingProductId, ProductGroupId = Guid.NewGuid().ToString() };
+                var existingProductResult = await _repository.CreateAsync(existingGroup);
+
+                if (!existingProductResult.IsSuccess)
+                {
+                    return existingProductResult;
+                }
+            }
+
+            model.ProductGroupId = existingGroup.ProductGroupId;
+            var newProductResult = await _repository.CreateAsync(model);
+            return newProductResult;
         }
 
         public async Task<OperationResultModel<ProductGroupDBModel>> UpdateAsync(ProductGroupUpdateRequestModel request)

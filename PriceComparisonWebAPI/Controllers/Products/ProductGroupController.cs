@@ -23,20 +23,20 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _productGroupService = productGroupService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<JsonResult> GetProductGroupById(int id)
-        {
-            var result = await _productGroupService.GetFromConditionAsync(pg => pg.Id == id);
-            if (result == null || !result.Any())
-            {
-                _logger.LogError(AppErrors.General.NotFound);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
-            }
-            return new JsonResult(result.First())
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
-        }
+        //[HttpGet("{id}")]
+        //public async Task<JsonResult> GetProductGroupById(int id)
+        //{
+        //    var result = await _productGroupService.GetFromConditionAsync(pg => pg.Id == id);
+        //    if (result == null || !result.Any())
+        //    {
+        //        _logger.LogError(AppErrors.General.NotFound);
+        //        return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+        //    }
+        //    return new JsonResult(result.First())
+        //    {
+        //        StatusCode = StatusCodes.Status200OK
+        //    };
+        //}
 
         [HttpGet("getByProductId/{productId}")]
         public async Task<JsonResult> GetProductGroupByProductId(int productId)
