@@ -7,10 +7,10 @@
     {
         public ProductGroupCreateRequestValidator()
         {
-            RuleFor(x => x.ProductId)
-                .GreaterThan(0).WithMessage("ProductId must be greater than 0.");
-            RuleFor(x => x.ProductGroupId)
-                .NotEmpty().WithMessage("ProductGroupId is required.");
+            RuleFor(x => x.NewProductId)
+                .GreaterThan(0).WithMessage("NewProductId must be greater than 0.");
+            RuleFor(x => x.ExistingProductId)
+                .GreaterThan(0).WithMessage("ExistingProductId must be greater than 0.");
         }
     }
 

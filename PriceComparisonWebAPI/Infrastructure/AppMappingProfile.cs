@@ -106,7 +106,8 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ProductSellerReferenceClickUpdateRequestModel, ProductReferenceClickDBModel>();
             CreateMap<ProductReferenceClickDBModel, ProductSellerReferenceClickResponseModel>();
 
-            CreateMap<ProductGroupCreateRequestModel, ProductGroupDBModel>();
+            CreateMap<ProductGroupCreateRequestModel, ProductGroupDBModel>()
+                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.NewProductId));
             CreateMap<ProductGroupUpdateRequestModel, ProductGroupDBModel>();
             CreateMap<ProductGroupDBModel, ProductGroupResponseModel>();
 
