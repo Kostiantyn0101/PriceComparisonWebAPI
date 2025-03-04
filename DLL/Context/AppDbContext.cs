@@ -46,6 +46,9 @@ namespace DLL.Context
 
                 entity.Property(e => e.ProductGroupId)
                     .HasMaxLength(36);  // = GUID
+
+                entity.HasIndex(pg => new { pg.ProductId, pg.ProductGroupId })
+                    .IsUnique();
             });
 
             // AuctionClickRateDBModel
