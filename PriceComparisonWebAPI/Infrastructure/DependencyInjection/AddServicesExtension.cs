@@ -7,15 +7,14 @@ using BLL.Services.FeedbackAndReviewServices;
 using BLL.Services.MediaServices;
 using BLL.Services.PriceServices;
 using BLL.Services.ProductServices;
-using BLL.Services.ProductServices;
 using BLL.Services.SellerServices;
 
 namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
 {
     public static class AddServicesExtension
     {
-        public static void AddServices(this WebApplicationBuilder builder) {
-            
+        public static void AddServices(this WebApplicationBuilder builder)
+        {
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<ICategoryCharacteristicGroupService, CategoryCharacteristicGroupService>();
             builder.Services.AddScoped<ICategoryCharacteristicService, CategoryCharacteristicService>();

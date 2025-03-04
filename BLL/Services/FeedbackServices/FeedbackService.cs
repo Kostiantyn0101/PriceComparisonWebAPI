@@ -18,41 +18,41 @@ namespace BLL.Services.FeedbackAndReviewServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(FeedbackCreateRequestModel request)
+        public async Task<OperationResultModel<FeedbackDBModel>> CreateAsync(FeedbackCreateRequestModel request)
         {
             var model = _mapper.Map<FeedbackDBModel>(request);
 
             model.CreatedAt = DateTime.UtcNow;
             var result = await _repository.CreateAsync(model);
             return result.IsSuccess
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
+                ? result
+                : OperationResultModel<FeedbackDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(FeedbackUpdateRequestModel request)
+        public async Task<OperationResultModel<FeedbackDBModel>> UpdateAsync(FeedbackUpdateRequestModel request)
         {
             var existingFeedbacks = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
             var existingFeedback = existingFeedbacks.FirstOrDefault();
             if (existingFeedback == null)
             {
-                return OperationResultModel<bool>.Failure("Feedback not found", null);
+                return OperationResultModel<FeedbackDBModel>.Failure("Feedback not found");
             }
 
             existingFeedback.FeedbackText = request.FeedbackText;
             existingFeedback.Rating = request.Rating;
 
             var result = await _repository.UpdateAsync(existingFeedback);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<FeedbackDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var result = await _repository.DeleteAsync(id);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<IEnumerable<FeedbackResponseModel>> GetFromConditionAsync(Expression<Func<FeedbackDBModel, bool>> condition)

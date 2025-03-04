@@ -1,10 +1,10 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
@@ -19,38 +19,38 @@ namespace BLL.Services.ProductServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(InstructionCreateRequestModel request)
+        public async Task<OperationResultModel<InstructionDBModel>> CreateAsync(InstructionCreateRequestModel request)
         {
             var model = _mapper.Map<InstructionDBModel>(request);
             var result = await _repository.CreateAsync(model);
             return result.IsSuccess
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
+                ? result
+                : OperationResultModel<InstructionDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(InstructionUpdateRequestModel request)
+        public async Task<OperationResultModel<InstructionDBModel>> UpdateAsync(InstructionUpdateRequestModel request)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
             var existing = existingRecords.FirstOrDefault();
             if (existing == null)
             {
-                return OperationResultModel<bool>.Failure("Instruction not found.");
+                return OperationResultModel<InstructionDBModel>.Failure("Instruction not found.");
             }
 
             _mapper.Map(request, existing);
 
             var result = await _repository.UpdateAsync(existing);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<InstructionDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var result = await _repository.DeleteAsync(id);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<bool>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public IQueryable<InstructionDBModel> GetQuery()

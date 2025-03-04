@@ -1,11 +1,10 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
-using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
@@ -20,38 +19,38 @@ namespace BLL.Services.ProductServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(CharacteristicGroupCreateRequestModel request)
+        public async Task<OperationResultModel<CharacteristicGroupDBModel>> CreateAsync(CharacteristicGroupCreateRequestModel request)
         {
             var model = _mapper.Map<CharacteristicGroupDBModel>(request);
             var repoResult = await _repository.CreateAsync(model);
             return repoResult.IsSuccess
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
+                ? repoResult
+                : OperationResultModel<CharacteristicGroupDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(CharacteristicGroupRequestModel request)
+        public async Task<OperationResultModel<CharacteristicGroupDBModel>> UpdateAsync(CharacteristicGroupRequestModel request)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
             var existing = existingRecords.FirstOrDefault();
             if (existing == null)
             {
-                return OperationResultModel<bool>.Failure("Characteristic not found.");
+                return OperationResultModel<CharacteristicGroupDBModel>.Failure("Characteristic not found.");
             }
 
             _mapper.Map(request, existing);
 
             var result = await _repository.UpdateAsync(existing);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<CharacteristicGroupDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var repoResult = await _repository.DeleteAsync(id);
-            return !repoResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+            return repoResult.IsSuccess
+                ? repoResult
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public IQueryable<CharacteristicGroupDBModel> GetQuery()

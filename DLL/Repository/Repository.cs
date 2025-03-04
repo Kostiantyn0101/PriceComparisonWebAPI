@@ -30,7 +30,7 @@ namespace DLL.Repository.Abstractions
                 return OperationResultModel<TEntity>.Failure("Create error", ex);
             }
         }
-        public virtual async Task<OperationDetailsResponseModel> DeleteAsync(TKey id)
+        public virtual async Task<OperationResultModel<bool>> DeleteAsync(TKey id)
         {
             try
             {
@@ -40,35 +40,30 @@ namespace DLL.Repository.Abstractions
 
                 if (toDelete == null)
                 {
-                    return new OperationDetailsResponseModel
-                    {
-                        IsError = true,
-                        Message = "Entity not found",
-                        Exception = new Exception("Entity not found")
-                    };
+                    return OperationResultModel<bool>.Failure("Entity not found", new Exception("Entity not found"));
                 }
 
                 Entities.Remove(toDelete);
                 await _context.SaveChangesAsync();
-                return new OperationDetailsResponseModel() { IsError = false, Message = "Delete success", Exception = null };
+                return OperationResultModel<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return new OperationDetailsResponseModel() { IsError = true, Message = "Delete error", Exception = ex };
+                return OperationResultModel<bool>.Failure("Delete error", ex);
             }
         }
 
-        public virtual async Task<OperationDetailsResponseModel> UpdateAsync(TEntity entity)
+        public virtual async Task<OperationResultModel<TEntity>> UpdateAsync(TEntity entity)
         {
             try
             {
                 _context.Entry(entity).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                return new OperationDetailsResponseModel() { IsError = false, Message = "Update success", Exception = null };
+                return OperationResultModel<TEntity>.Success(entity);
             }
             catch (Exception ex)
             {
-                return new OperationDetailsResponseModel() { IsError = true, Message = "Update error", Exception = ex };
+                return OperationResultModel<TEntity>.Failure("Update error", ex);
             }
         }
 

@@ -60,12 +60,12 @@ namespace BLL.Services.CategoryService
         }
 
 
-        public async Task<OperationDetailsResponseModel> UpdateAsync(CategoryUpdateRequestModel entity)
+        public async Task<OperationResultModel<CategoryDBModel>> UpdateAsync(CategoryUpdateRequestModel entity)
         {
             var dbModel = (await _repository.GetFromConditionAsync(x => x.Id == entity.Id)).FirstOrDefault();
             if (dbModel == null)
             {
-                return new OperationDetailsResponseModel { IsError = true, Message = "Entity not found" };
+                return OperationResultModel<CategoryDBModel>.Failure("Entity not found");
             }
 
             dbModel = _mapper.Map(entity, dbModel);
@@ -89,7 +89,7 @@ namespace BLL.Services.CategoryService
                 }
                 else
                 {
-                    return new OperationDetailsResponseModel { IsError = true, Message = "Image save error" };
+                    return OperationResultModel<CategoryDBModel>.Failure("Image save error");
                 }
             }
 
@@ -111,7 +111,7 @@ namespace BLL.Services.CategoryService
                 }
                 else
                 {
-                    return new OperationDetailsResponseModel { IsError = true, Message = "Image save error" };
+                    return OperationResultModel<CategoryDBModel>.Failure("Image save error");
                 }
             }
 
@@ -119,7 +119,7 @@ namespace BLL.Services.CategoryService
         }
 
 
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int id)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var dbModel = (await _repository.GetFromConditionAsync(x => x.Id == id)).FirstOrDefault();
 

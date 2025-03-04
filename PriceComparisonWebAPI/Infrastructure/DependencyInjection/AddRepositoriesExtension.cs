@@ -11,9 +11,9 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             builder.Services.AddScoped(typeof(ICompositeKeyRepository<,,>), typeof(CompositeKeyRepository<,,>));
 
             //for refactor
-            builder.Services.AddScoped<ICategoryCharacteristicRepository, CategoryCharacteristicRepository>();
-            builder.Services.AddScoped<IProductCharacteristicRepository, ProductCharacteristicRepository>();
-            builder.Services.AddScoped<IRelatedCategoryRepository, RelatedCategoryRepository>();
+            //builder.Services.AddScoped<ICategoryCharacteristicRepository, CategoryCharacteristicRepository>();
+            //builder.Services.AddScoped<IProductCharacteristicRepository, ProductCharacteristicRepository>();
+            //builder.Services.AddScoped<IRelatedCategoryRepository, RelatedCategoryRepository>();
             //builder.Services.AddScoped<ISellerProductDetailsRepository, SellerProductDetailsRepository>();
         }
     }

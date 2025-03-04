@@ -13,7 +13,7 @@ namespace DLL.Repository
         public CompositeKeyRepository(AppDbContext context) : base(context)
         {
         }
-        public override async Task<OperationDetailsResponseModel> DeleteAsync(CompositeKey<TKey1, TKey2> id)
+        public override async Task<OperationResultModel<bool>> DeleteAsync(CompositeKey<TKey1, TKey2> id)
         {
             try
             {
@@ -24,21 +24,17 @@ namespace DLL.Repository
 
                 if (entity == null)
                 {
-                    return new OperationDetailsResponseModel
-                    {
-                        IsError = true,
-                        Message = "Entity not found",
-                        Exception = new Exception("Entity not found")
-                    };
+                    return OperationResultModel<bool>.Failure("Entity not found", new Exception("Entity not found"));
+
                 }
 
                 _context.Set<TEntity>().Remove(entity);
                 await _context.SaveChangesAsync();
-                return new OperationDetailsResponseModel { IsError = false, Message = "Delete success", Exception = null };
+                return OperationResultModel<bool>.Success(true);
             }
             catch (Exception ex)
             {
-                return new OperationDetailsResponseModel { IsError = true, Message = "Delete error", Exception = ex };
+                return OperationResultModel<bool>.Failure("Delete error", ex);
             }
         }
     }

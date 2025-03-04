@@ -8,8 +8,8 @@ namespace BLL.Services.ProductServices
 {
     public interface IProductService
     {
-        Task<OperationResultModel<bool>> CreateAsync(ProductRequestModel model);
-        Task<OperationResultModel<bool>> UpdateAsync(ProductRequestModel entity);
+        Task<OperationResultModel<ProductDBModel>> CreateAsync(ProductRequestModel model);
+        Task<OperationResultModel<ProductDBModel>> UpdateAsync(ProductRequestModel entity);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         Task<OperationResultModel<PaginatedResponse<ProductResponseModel>>> GetPaginatedProductsAsync(
             Expression<Func<ProductDBModel, bool>> condition, int page, int pageSize);

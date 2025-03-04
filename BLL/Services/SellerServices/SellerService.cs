@@ -19,39 +19,39 @@ namespace BLL.Services.SellerServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(SellerCreateRequestModel request)
+        public async Task<OperationResultModel<SellerDBModel>> CreateAsync(SellerCreateRequestModel request)
         {
             var model = _mapper.Map<SellerDBModel>(request);
             model.ApiKey = Guid.NewGuid().ToString();
             var repoResult = await _repository.CreateAsync(model);
             return repoResult.IsSuccess
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
+                ? repoResult
+                : OperationResultModel<SellerDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(SellerUpdateRequestModel request)
+        public async Task<OperationResultModel<SellerDBModel>> UpdateAsync(SellerUpdateRequestModel request)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == request.Id);
             var existing = existingRecords.FirstOrDefault();
             if (existing == null)
             {
-                return OperationResultModel<bool>.Failure("Seller not found.");
+                return OperationResultModel<SellerDBModel>.Failure("Seller not found.");
             }
 
             _mapper.Map(request, existing);
 
             var repoResult = await _repository.UpdateAsync(existing);
-            return !repoResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+            return repoResult.IsSuccess
+                ? repoResult
+                : OperationResultModel<SellerDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var repoResult = await _repository.DeleteAsync(id);
-            return !repoResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+            return repoResult.IsSuccess
+                ? repoResult
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public IQueryable<SellerDBModel> GetQuery()

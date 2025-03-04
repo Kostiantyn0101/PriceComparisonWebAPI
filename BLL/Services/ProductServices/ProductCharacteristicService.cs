@@ -1,20 +1,21 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
+using Domain.Models.Primitives;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
     public class ProductCharacteristicService : IProductCharacteristicService
     {
-        private readonly IProductCharacteristicRepository _repository;
+        private readonly ICompositeKeyRepository<ProductCharacteristicDBModel, int, int> _repository;
         private readonly IMapper _mapper;
 
-        public ProductCharacteristicService(IProductCharacteristicRepository repository, IMapper mapper)
+        public ProductCharacteristicService(ICompositeKeyRepository<ProductCharacteristicDBModel, int, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
@@ -37,7 +38,7 @@ namespace BLL.Services.ProductServices
                     var updateResult = await UpdateAsync(record);
                     if (!updateResult.IsSuccess)
                     {
-                        return OperationResultModel<bool>.Failure(updateResult.ErrorMessage, updateResult.Exception);
+                        return OperationResultModel<bool>.Failure(updateResult.ErrorMessage!, updateResult.Exception);
                     }
                 }
                 else
@@ -47,7 +48,7 @@ namespace BLL.Services.ProductServices
                     var createResult = await CreateAsync(newRecord);
                     if (!createResult.IsSuccess)
                     {
-                        return OperationResultModel<bool>.Failure(createResult.ErrorMessage, createResult.Exception);
+                        return OperationResultModel<bool>.Failure(createResult.ErrorMessage!, createResult.Exception);
                     }
 
                 }
@@ -56,26 +57,26 @@ namespace BLL.Services.ProductServices
         }
 
 
-        public async Task<OperationResultModel<bool>> CreateAsync(ProductCharacteristicDBModel model)
+        public async Task<OperationResultModel<ProductCharacteristicDBModel>> CreateAsync(ProductCharacteristicDBModel model)
         {
             var result = await _repository.CreateAsync(model);
-
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<ProductCharacteristicDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(ProductCharacteristicDBModel entity)
+        public async Task<OperationResultModel<ProductCharacteristicDBModel>> UpdateAsync(ProductCharacteristicDBModel entity)
         {
             var result = await _repository.UpdateAsync(entity);
-            return !result.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(result.Message, result.Exception);
+            return result.IsSuccess
+                ? result
+                : OperationResultModel<ProductCharacteristicDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationDetailsResponseModel> DeleteAsync(int productId, int characteristicId)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int productId, int characteristicId)
         {
-            return await _repository.DeleteAsync(productId, characteristicId);
+            var compositeKey = new CompositeKey<int, int> { Key1 = productId, Key2 = characteristicId };
+            return await _repository.DeleteAsync(compositeKey);
         }
 
         public IQueryable<ProductCharacteristicDBModel> GetQuery()
@@ -112,7 +113,7 @@ namespace BLL.Services.ProductServices
                 {
                     ProductCharacteristic = pc,
                     Characteristic = pc.Characteristic,
-                    ProductCategoryId = pc.Product.CategoryId, 
+                    ProductCategoryId = pc.Product.CategoryId,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new

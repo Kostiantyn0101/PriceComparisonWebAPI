@@ -1,8 +1,4 @@
-﻿using System.Linq.Expressions;
-using Domain.Models.DBModels;
-using Domain.Models.Request.Products;
-using Domain.Models.Response;
-using Domain.Models.Response.Categories;
+﻿using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
 
 namespace BLL.Services.ProductServices

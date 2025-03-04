@@ -1,23 +1,23 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using DLL.Repository;
-using DLL.Repository.Abstractions;
 using Domain.Models.DBModels;
+using Domain.Models.Primitives;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BLL.Services.CategoryCharacteristicService
 {
     public class CategoryCharacteristicService : ICategoryCharacteristicService
     {
-        private readonly ICategoryCharacteristicRepository _categoryCharacteristicRepository;
+        private readonly ICompositeKeyRepository<CategoryCharacteristicDBModel, int, int> _categoryCharacteristicRepository;
         private readonly IRepository<CharacteristicDBModel, int> _characteristicRepository;
         private readonly IMapper _mapper;
 
         public CategoryCharacteristicService(
-            ICategoryCharacteristicRepository categoryCharacteristicRepository,
+            ICompositeKeyRepository<CategoryCharacteristicDBModel, int, int> categoryCharacteristicRepository,
             IRepository<CharacteristicDBModel, int> characteristicRepository,
             IMapper mapper)
         {
@@ -42,9 +42,9 @@ namespace BLL.Services.CategoryCharacteristicService
             }
 
             var repoResult = await _categoryCharacteristicRepository.CreateAsync(model);
-            return !repoResult.IsError
+            return repoResult.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public async Task<OperationResultModel<bool>> CreateMultipleAsync(CategoryCharacteristicRequestModel request)
@@ -66,7 +66,7 @@ namespace BLL.Services.CategoryCharacteristicService
                 }
                 else
                 {
-                    errors.Add(result.ErrorMessage);
+                    errors.Add(result.ErrorMessage!);
                 }
             }
 
@@ -97,10 +97,11 @@ namespace BLL.Services.CategoryCharacteristicService
                 return OperationResultModel<bool>.Failure($"CategoryCharacteristic with CategoryId {request.NewCategoryId} and CharacteristicId {request.NewCharacteristicId} already exists.");
             }
 
-            var deleteResult = await _categoryCharacteristicRepository.DeleteAsync(request.OldCategoryId, request.OldCharacteristicId);
-            if (deleteResult.IsError)
+            var compositeKey = new CompositeKey<int, int> { Key1 = request.OldCategoryId, Key2 = request.OldCharacteristicId };
+            var deleteResult = await _categoryCharacteristicRepository.DeleteAsync(compositeKey);
+            if (!deleteResult.IsSuccess)
             {
-                return OperationResultModel<bool>.Failure(deleteResult.Message, deleteResult.Exception);
+                return OperationResultModel<bool>.Failure(deleteResult.ErrorMessage!, deleteResult.Exception);
             }
 
             var newRecord = new CategoryCharacteristicDBModel
@@ -110,18 +111,19 @@ namespace BLL.Services.CategoryCharacteristicService
             };
 
             var createResult = await _categoryCharacteristicRepository.CreateAsync(newRecord);
-            return !createResult.IsError
+            return createResult.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(createResult.Message, createResult.Exception);
+                : OperationResultModel<bool>.Failure(createResult.ErrorMessage!, createResult.Exception);
 
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int categoryId, int characteristicId)
         {
-            var repoResult = await _categoryCharacteristicRepository.DeleteAsync(categoryId, characteristicId);
-            return !repoResult.IsError
+            var compositeKey = new CompositeKey<int, int> { Key1 = categoryId, Key2 = characteristicId };
+            var repoResult = await _categoryCharacteristicRepository.DeleteAsync(compositeKey);
+            return repoResult.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteMultipleAsync(CategoryCharacteristicRequestModel request)
@@ -131,14 +133,15 @@ namespace BLL.Services.CategoryCharacteristicService
 
             foreach (var id in request.CharacteristicIds)
             {
-                var repoResult = await _categoryCharacteristicRepository.DeleteAsync(request.CategoryId, id);
-                if (!repoResult.IsError)
+                var compositeKey = new CompositeKey<int, int> { Key1 = request.CategoryId, Key2 = id };
+                var repoResult = await _categoryCharacteristicRepository.DeleteAsync(compositeKey);
+                if (repoResult.IsSuccess)
                 {
                     successCount++;
                 }
                 else
                 {
-                    errors.Add(repoResult.Message);
+                    errors.Add(repoResult.ErrorMessage!);
                 }
             }
 

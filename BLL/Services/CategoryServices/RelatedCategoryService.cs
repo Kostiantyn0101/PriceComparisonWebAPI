@@ -1,48 +1,49 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
+using Domain.Models.Primitives;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
-using Domain.Models.Response.Products;
+using System.Linq.Expressions;
 
 namespace BLL.Services.CategoryService
 {
     public class RelatedCategoryService : IRelatedCategoryService
     {
-        private readonly IRelatedCategoryRepository _repository;
+        private readonly ICompositeKeyRepository<RelatedCategoryDBModel, int, int> _repository;
+
         private readonly IMapper _mapper;
 
-        public RelatedCategoryService(IRelatedCategoryRepository repository, IMapper mapper)
+        public RelatedCategoryService(ICompositeKeyRepository<RelatedCategoryDBModel, int, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<bool>> CreateAsync(RelatedCategoryRequestModel request)
+        public async Task<OperationResultModel<RelatedCategoryDBModel>> CreateAsync(RelatedCategoryRequestModel request)
         {
             var model = _mapper.Map<RelatedCategoryDBModel>(request);
             var repoResult = await _repository.CreateAsync(model);
-            return !repoResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+            return repoResult.IsSuccess
+                ? repoResult
+                : OperationResultModel<RelatedCategoryDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> UpdateAsync(RelatedCategoryUpdateRequestModel request)
+        public async Task<OperationResultModel<RelatedCategoryDBModel>> UpdateAsync(RelatedCategoryUpdateRequestModel request)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x =>
                 x.CategoryId == request.OldCategoryId && x.RelatedCategoryId == request.OldRelatedCategoryId);
             var existing = existingRecords.FirstOrDefault();
             if (existing == null)
             {
-                return OperationResultModel<bool>.Failure("Entity not found.");
+                return OperationResultModel<RelatedCategoryDBModel>.Failure("Entity not found.");
             }
 
-            var deleteResult = await _repository.DeleteAsync(request.OldCategoryId, request.OldRelatedCategoryId);
-            if (deleteResult.IsError)
+            var deleteResult = await DeleteAsync(request.OldCategoryId, request.OldRelatedCategoryId);
+            if (!deleteResult.IsSuccess)
             {
-                return OperationResultModel<bool>.Failure(deleteResult.Message, deleteResult.Exception);
+                return OperationResultModel<RelatedCategoryDBModel>.Failure(deleteResult.ErrorMessage!, deleteResult.Exception);
             }
             var newEntity = new RelatedCategoryDBModel
             {
@@ -51,18 +52,18 @@ namespace BLL.Services.CategoryService
             };
 
             var createResult = await _repository.CreateAsync(newEntity);
-            return !createResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(createResult.Message, createResult.Exception);
-
+            return createResult.IsSuccess
+                ? createResult
+                : OperationResultModel<RelatedCategoryDBModel>.Failure(createResult.ErrorMessage!, createResult.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int categoryId, int relatedCategoryId)
         {
-            var repoResult = await _repository.DeleteAsync(categoryId, relatedCategoryId);
-            return !repoResult.IsError
-                ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+            var compositeKey = new CompositeKey<int, int> { Key1 = categoryId, Key2 = relatedCategoryId };
+            var repoResult = await _repository.DeleteAsync(compositeKey);
+            return repoResult.IsSuccess
+                ? repoResult
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public IQueryable<RelatedCategoryDBModel> GetQuery()

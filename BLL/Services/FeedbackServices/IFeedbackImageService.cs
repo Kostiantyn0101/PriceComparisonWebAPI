@@ -9,10 +9,11 @@ namespace BLL.Services.FeedbackAndReviewServices
     public interface IFeedbackImageService
     {
         Task<OperationResultModel<bool>> CreateAsync(FeedbackImageCreateRequestModel request);
+        Task<OperationResultModel<FeedbackImageDBModel>> UpdateAsync(FeedbackImageDBModel entity);
         Task<OperationResultModel<bool>> DeleteAsync(FeedbackImageDeleteRequestModel request);
-        Task<OperationDetailsResponseModel> UpdateAsync(FeedbackImageDBModel entity);
-        IQueryable<FeedbackImageDBModel> GetQuery();
         Task<IEnumerable<FeedbackImageResponseModel>> GetFromConditionAsync(Expression<Func<FeedbackImageDBModel, bool>> condition);
+
+        IQueryable<FeedbackImageDBModel> GetQuery();
         Task<IEnumerable<FeedbackImageDBModel>> ProcessQueryAsync(IQueryable<FeedbackImageDBModel> query);
     }
 }

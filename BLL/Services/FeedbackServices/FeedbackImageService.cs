@@ -81,13 +81,13 @@ namespace BLL.Services.FeedbackAndReviewServices
                 {
                     var deleteFileResult = await _fileService.DeleteImageAsync(feedbackImage.ImageUrl);
                     var repoResult = await _repository.DeleteAsync(id);
-                    if (!repoResult.IsError)
+                    if (repoResult.IsSuccess)
                     {
                         successCount++;
                     }
                     else
                     {
-                        errors.Add(repoResult.Message);
+                        errors.Add(repoResult.ErrorMessage!);
                     }
                 }
                 else
@@ -102,8 +102,9 @@ namespace BLL.Services.FeedbackAndReviewServices
             }
             return OperationResultModel<bool>.Success(true);
         }
-        public async Task<OperationDetailsResponseModel> UpdateAsync(FeedbackImageDBModel entity)
+        public async Task<OperationResultModel<FeedbackImageDBModel>> UpdateAsync(FeedbackImageDBModel entity)
         {
+            //need logic
             return await _repository.UpdateAsync(entity);
         }
 

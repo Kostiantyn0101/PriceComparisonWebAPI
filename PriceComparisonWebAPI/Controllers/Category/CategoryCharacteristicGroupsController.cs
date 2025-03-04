@@ -3,7 +3,6 @@ using Domain.Models.Exceptions;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.Category

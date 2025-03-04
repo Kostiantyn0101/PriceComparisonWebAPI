@@ -1,12 +1,11 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
+﻿using AutoMapper;
 using BLL.Services.MediaServices;
 using DLL.Repository;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
-using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
@@ -47,7 +46,7 @@ namespace BLL.Services.ProductServices
                 var saveResult = await _fileService.SaveImageAsync(image);
                 if (!saveResult.IsSuccess)
                 {
-                    return OperationResultModel<bool>.Failure(saveResult.ErrorMessage, saveResult.Exception);
+                    return OperationResultModel<bool>.Failure(saveResult.ErrorMessage!, saveResult.Exception);
                 }
 
                 var productImage = new ProductImageDBModel
@@ -81,9 +80,9 @@ namespace BLL.Services.ProductServices
                 }
 
                 var deleteRecordResult = await _repository.DeleteAsync(id);
-                if (deleteRecordResult.IsError)
+                if (!deleteRecordResult.IsSuccess)
                 {
-                    return OperationResultModel<bool>.Failure(deleteRecordResult.Message, deleteRecordResult.Exception);
+                    return OperationResultModel<bool>.Failure(deleteRecordResult.ErrorMessage!, deleteRecordResult.Exception);
                 }
             }
             return OperationResultModel<bool>.Success(true);
@@ -106,9 +105,9 @@ namespace BLL.Services.ProductServices
                 {
                     img.IsPrimary = shouldBePrimary;
                     var updateResult = await _repository.UpdateAsync(img);
-                    if (updateResult.IsError)
+                    if (!updateResult.IsSuccess)
                     {
-                        return OperationResultModel<bool>.Failure(updateResult.Message, updateResult.Exception);
+                        return OperationResultModel<bool>.Failure(updateResult.ErrorMessage!, updateResult.Exception);
                     }
                 }
             }

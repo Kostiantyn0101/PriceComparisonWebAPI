@@ -1,15 +1,15 @@
-﻿using System.Linq.Expressions;
-using Domain.Models.DBModels;
+﻿using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
     public interface ICharacteristicGroupService
     {
-        Task<OperationResultModel<bool>> CreateAsync(CharacteristicGroupCreateRequestModel request);
-        Task<OperationResultModel<bool>> UpdateAsync(CharacteristicGroupRequestModel request);
+        Task<OperationResultModel<CharacteristicGroupDBModel>> CreateAsync(CharacteristicGroupCreateRequestModel request);
+        Task<OperationResultModel<CharacteristicGroupDBModel>> UpdateAsync(CharacteristicGroupRequestModel request);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<CharacteristicGroupDBModel> GetQuery();
         Task<IEnumerable<CharacteristicGroupResponseModel>> GetFromConditionAsync(Expression<Func<CharacteristicGroupDBModel, bool>> condition);

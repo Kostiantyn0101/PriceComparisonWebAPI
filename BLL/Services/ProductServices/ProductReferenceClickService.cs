@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-using AutoMapper;
-using BLL.Services.SellerServices;
+﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
@@ -9,6 +7,7 @@ using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
@@ -68,17 +67,17 @@ namespace BLL.Services.ProductServices
                 // otherwithe check whether the current click rate is bigger than clicked earlier... 
                 var maxExistingClickRateRecord = existingClicks.MaxBy(x => x.ClickRate);
                 var maxExistingClickRate = maxExistingClickRateRecord?.ClickRate ?? 0;
-           
+
                 if (currentClickRate > maxExistingClickRate)
                 {
                     await WriteOffClickFromTheBalanseAsync(model, currentClickRate - maxExistingClickRate);     // write off difference from the balance
-                    
+
                     maxExistingClickRateRecord!.ClickRate = 0;                                              // clear old click rate
                     _ = await _repository.UpdateAsync(maxExistingClickRateRecord);
 
                     model.ClickRate = currentClickRate;                                                     // write new click rate    
                 }
-                
+
             }
 
             var repoResult = await _repository.CreateAsync(model);
@@ -110,17 +109,17 @@ namespace BLL.Services.ProductServices
             _mapper.Map(request, existing);
 
             var repoResult = await _repository.UpdateAsync(existing);
-            return !repoResult.IsError
+            return repoResult.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
             var repoResult = await _repository.DeleteAsync(id);
-            return !repoResult.IsError
+            return repoResult.IsSuccess
                 ? OperationResultModel<bool>.Success(true)
-                : OperationResultModel<bool>.Failure(repoResult.Message, repoResult.Exception);
+                : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public IQueryable<ProductReferenceClickDBModel> GetQuery()

@@ -1,8 +1,8 @@
-﻿using System.Linq.Expressions;
-using Domain.Models.DBModels;
+﻿using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
+using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
 {
@@ -13,9 +13,9 @@ namespace BLL.Services.ProductServices
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetDetailedCharacteristics(int productId);
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortCharacteristics(int productId);
 
-        Task<OperationResultModel<bool>> CreateAsync(ProductCharacteristicDBModel model);
-        Task<OperationResultModel<bool>> UpdateAsync(ProductCharacteristicDBModel entity);
-        Task<OperationDetailsResponseModel> DeleteAsync(int productId, int characteristicId);
+        Task<OperationResultModel<ProductCharacteristicDBModel>> CreateAsync(ProductCharacteristicDBModel model);
+        Task<OperationResultModel<ProductCharacteristicDBModel>> UpdateAsync(ProductCharacteristicDBModel entity);
+        Task<OperationResultModel<bool>> DeleteAsync(int productId, int characteristicId);
         IQueryable<ProductCharacteristicDBModel> GetQuery();
         Task<IEnumerable<ProductCharacteristicResponseModel>> GetFromConditionAsync(Expression<Func<ProductCharacteristicDBModel, bool>> condition);
         Task<IEnumerable<ProductCharacteristicDBModel>> ProcessQueryAsync(IQueryable<ProductCharacteristicDBModel> query);

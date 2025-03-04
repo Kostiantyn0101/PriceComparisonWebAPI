@@ -5,7 +5,6 @@ using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
 using Domain.Models.SuccessCodes;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -79,10 +78,10 @@ namespace PriceComparisonWebAPI.Controllers.Category
         {
             var result = await _categoryService.UpdateAsync(categoryRequest);
 
-            if (result.IsError)
+            if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.UpdateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.Message);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage!);
             }
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
@@ -95,10 +94,10 @@ namespace PriceComparisonWebAPI.Controllers.Category
         {
             var result = await _categoryService.DeleteAsync(id);
 
-            if (result.IsError)
+            if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.Message);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage!);
             }
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
