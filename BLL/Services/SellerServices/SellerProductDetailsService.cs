@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq.Expressions;
 using System.Xml.Linq;
 
 namespace BLL.Services.SellerServices
@@ -218,6 +219,43 @@ namespace BLL.Services.SellerServices
                 .ToListAsync();
 
             return result;
+        }
+
+        public async Task<OperationResultModel<PaginatedResponse<SellerProductDetailsResponseModel>>> GetPaginatedSellerProductDetailsAsync(
+            Expression<Func<SellerProductDetailsDBModel, bool>> condition, int page, int pageSize)
+        {
+            var query = _repository.GetQuery()
+                .Where(condition)
+                .Where(spd => spd.Seller.IsActive && spd.Seller.AccountBalance > 0)
+                .Select(spd => new SellerProductDetailsResponseModel
+                {
+                    StoreName = spd.Seller.StoreName,
+                    LogoImageUrl = spd.Seller.LogoImageUrl,
+                    PriceValue = spd.PriceValue,
+                    ProductStoreUrl = spd.ProductStoreUrl,
+                    StoreUrlClickRate = spd.Seller.AuctionClickRates
+                        .Where(acr => acr.CategoryId == spd.Product.CategoryId)
+                        .Select(acr => (decimal?)acr.ClickRate)
+                        .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
+                });
+
+            var totalItems = await query.CountAsync();
+
+            var data = await query
+                .OrderByDescending(x => x.StoreUrlClickRate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var response = new PaginatedResponse<SellerProductDetailsResponseModel>
+            {
+                Data = data,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            return OperationResultModel<PaginatedResponse<SellerProductDetailsResponseModel>>.Success(response);
         }
 
     }
