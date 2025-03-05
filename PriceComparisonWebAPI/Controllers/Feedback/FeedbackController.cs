@@ -1,9 +1,11 @@
 ﻿using BLL.Services.FeedbackAndReviewServices;
+using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Feedback;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
@@ -78,5 +80,26 @@ namespace PriceComparisonWebAPI.Controllers.Products
             }
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
+
+        [HttpGet("paginated/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetFeedbacksByProductIdPaginated(int productId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            Expression<Func<FeedbackDBModel, bool>> condition = f => f.ProductId == productId;
+            var result = await _feedbackService.GetPaginatedFeedbacksAsync(condition, page, pageSize);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return new JsonResult(result.Data)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
     }
 }

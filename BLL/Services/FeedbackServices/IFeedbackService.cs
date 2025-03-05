@@ -12,6 +12,7 @@ namespace BLL.Services.FeedbackAndReviewServices
         Task<OperationResultModel<FeedbackDBModel>> UpdateAsync(FeedbackUpdateRequestModel request);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         Task<IEnumerable<FeedbackResponseModel>> GetFromConditionAsync(Expression<Func<FeedbackDBModel, bool>> condition);
+        Task<OperationResultModel<PaginatedResponse<FeedbackResponseModel>>> GetPaginatedFeedbacksAsync(Expression<Func<FeedbackDBModel, bool>> condition, int page, int pageSize);
 
         IQueryable<FeedbackDBModel> GetQuery();
         Task<IEnumerable<FeedbackDBModel>> ProcessQueryAsync(IQueryable<FeedbackDBModel> query);

@@ -5,6 +5,7 @@ using Domain.Models.DBModels;
 using Domain.Models.Request.Feedback;
 using Domain.Models.Response;
 using Domain.Models.Response.Feedback;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services.FeedbackAndReviewServices
 {
@@ -69,6 +70,32 @@ namespace BLL.Services.FeedbackAndReviewServices
         public async Task<IEnumerable<FeedbackDBModel>> ProcessQueryAsync(IQueryable<FeedbackDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
+        }
+
+        public async Task<OperationResultModel<PaginatedResponse<FeedbackResponseModel>>> GetPaginatedFeedbacksAsync(
+                        Expression<Func<FeedbackDBModel, bool>> condition, int page, int pageSize)
+        {
+            var query = _repository.GetQuery().Where(condition);
+
+            var totalItems = await query.CountAsync();
+
+            var feedbacks = await query
+                .OrderByDescending(f => f.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var mappedFeedbacks = _mapper.Map<IEnumerable<FeedbackResponseModel>>(feedbacks);
+
+            var response = new PaginatedResponse<FeedbackResponseModel>
+            {
+                Data = mappedFeedbacks,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            return OperationResultModel<PaginatedResponse<FeedbackResponseModel>>.Success(response);
         }
     }
 }
