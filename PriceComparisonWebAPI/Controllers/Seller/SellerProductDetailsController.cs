@@ -1,5 +1,7 @@
-﻿using System.Xml.Linq;
+﻿using System.Linq.Expressions;
+using System.Xml.Linq;
 using BLL.Services.SellerServices;
+using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
@@ -60,6 +62,24 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             }
 
             return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("paginated/{productId}")]
+        public async Task<JsonResult> GetSellerProductDetailsPaginated(int productId, [FromQuery] int page = 1, [FromQuery] int pageSize = 3)
+        {
+            Expression<Func<SellerProductDetailsDBModel, bool>> condition = p => p.ProductId == productId;
+
+            var result = await _sellerProductDetailsService.GetPaginatedSellerProductDetailsAsync(condition, page, pageSize);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return new JsonResult(result.Data)
             {
                 StatusCode = StatusCodes.Status200OK
             };

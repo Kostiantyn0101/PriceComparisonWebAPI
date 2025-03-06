@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq.Expressions;
 using System.Xml.Linq;
 
 namespace BLL.Services.SellerServices
@@ -200,8 +201,39 @@ namespace BLL.Services.SellerServices
 
         public async Task<IEnumerable<SellerProductDetailsResponseModel>> GetSellerProductDetailsAsync(int productId)
         {
-            var result = await _repository.GetQuery()
-                .Where(spd => spd.ProductId == productId)
+            var query = BuildSellerProductDetailsQuery(spd => spd.ProductId == productId);
+            return await query.OrderByDescending(x => x.StoreUrlClickRate).ToListAsync();
+        }
+
+        public async Task<OperationResultModel<PaginatedResponse<SellerProductDetailsResponseModel>>> GetPaginatedSellerProductDetailsAsync(
+            Expression<Func<SellerProductDetailsDBModel, bool>> condition, int page, int pageSize)
+        {
+            var query = BuildSellerProductDetailsQuery(condition);
+
+            var totalItems = await query.CountAsync();
+
+            var data = await query
+                .OrderByDescending(x => x.StoreUrlClickRate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var response = new PaginatedResponse<SellerProductDetailsResponseModel>
+            {
+                Data = data,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            return OperationResultModel<PaginatedResponse<SellerProductDetailsResponseModel>>.Success(response);
+        }
+
+
+        private IQueryable<SellerProductDetailsResponseModel> BuildSellerProductDetailsQuery(Expression<Func<SellerProductDetailsDBModel, bool>> condition)
+        {
+            return _repository.GetQuery()
+                .Where(condition)
                 .Where(spd => spd.Seller.IsActive && spd.Seller.AccountBalance > 0)
                 .Select(spd => new SellerProductDetailsResponseModel
                 {
@@ -213,11 +245,7 @@ namespace BLL.Services.SellerServices
                         .Where(acr => acr.CategoryId == spd.Product.CategoryId)
                         .Select(acr => (decimal?)acr.ClickRate)
                         .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
-                })
-                .OrderByDescending(x => x.StoreUrlClickRate)
-                .ToListAsync();
-
-            return result;
+                });
         }
 
     }

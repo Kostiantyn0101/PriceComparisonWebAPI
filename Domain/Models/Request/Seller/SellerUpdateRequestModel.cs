@@ -1,11 +1,14 @@
-﻿namespace Domain.Models.Request.Seller
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Domain.Models.Request.Seller
 {
     public class SellerUpdateRequestModel
     {
         public int Id { get; set; }
         public string ApiKey { get; set; }
         public string StoreName { get; set; }
-        public string? LogoImageUrl { get; set; }
+        public IFormFile? NewLogoImage { get; set; }
+        public bool DeleteCurrentLogoImage { get; set; }
         public string WebsiteUrl { get; set; }
         public bool IsActive { get; set; }
         public int UserId { get; set; }
