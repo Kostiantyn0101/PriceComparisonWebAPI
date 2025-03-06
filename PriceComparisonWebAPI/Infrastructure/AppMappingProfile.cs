@@ -90,7 +90,13 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<InstructionUpdateRequestModel, InstructionDBModel>()
                     .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<FeedbackDBModel, FeedbackResponseModel>();
+
+            CreateMap<FeedbackDBModel, FeedbackResponseModel>()
+                .ForMember(dest => dest.UserName,
+                           opt => opt.MapFrom(src => src.User.NormalizedUserName))
+                .ForMember(dest => dest.FeedbackImageUrls,
+                           opt => opt.MapFrom<FeedbackImageUrlsResolver>());
+
             CreateMap<FeedbackCreateRequestModel, FeedbackDBModel>();
             CreateMap<FeedbackUpdateRequestModel, FeedbackDBModel>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())

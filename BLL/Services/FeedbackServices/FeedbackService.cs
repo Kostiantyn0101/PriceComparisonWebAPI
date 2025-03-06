@@ -75,7 +75,10 @@ namespace BLL.Services.FeedbackAndReviewServices
         public async Task<OperationResultModel<PaginatedResponse<FeedbackResponseModel>>> GetPaginatedFeedbacksAsync(
                         Expression<Func<FeedbackDBModel, bool>> condition, int page, int pageSize)
         {
-            var query = _repository.GetQuery().Where(condition);
+            var query = _repository.GetQuery()
+                .Include(f => f.User)
+                .Include(f => f.FeedbackImages)
+                .Where(condition);
 
             var totalItems = await query.CountAsync();
 
