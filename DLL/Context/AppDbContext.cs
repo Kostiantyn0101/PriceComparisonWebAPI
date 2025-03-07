@@ -31,10 +31,67 @@ namespace DLL.Context
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
         public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
         public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
+        public DbSet<FilterDBModel> Filters { get; set; }
+        public DbSet<FilterCriterionDBModel> FilterCriteria { get; set; }
+        public DbSet<ProductFilterDBModel> ProductFilters { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // FilterDBModel
+            modelBuilder.Entity<FilterDBModel>(entity =>
+            {
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.ShortTitle)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(1000);
+            });
+
+            //FilterCriterionDBModel
+            modelBuilder.Entity<FilterCriterionDBModel>(entity =>
+            {
+                entity.HasOne(e => e.Filter)
+                    .WithMany(f => f.Criteria)
+                    .HasForeignKey(e => e.FilterId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Characteristic)
+                    .WithMany(c => c.FilterCriteria)
+                    .HasForeignKey(e => e.CharacteristicId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(e => e.Operator)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.Value)
+                    .HasColumnType("decimal(18,2)");
+            });
+
+            // ProductFilterDBModel
+            modelBuilder.Entity<ProductFilterDBModel>(entity =>
+            {
+                entity.Ignore(p => p.Id);
+
+                entity.HasKey(pf => new { pf.ProductId, pf.FilterId });
+
+                entity.HasOne(e => e.Product)
+                    .WithMany(p => p.ProductFilters)
+                    .HasForeignKey(e => e.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Filter)
+                    .WithMany(f => f.ProductFilters)
+                    .HasForeignKey(e => e.FilterId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // ProductGroupDBModel
             modelBuilder.Entity<ProductGroupDBModel>(entity =>
