@@ -5,6 +5,7 @@ using Domain.Models.Primitives;
 using Domain.Models.Request.Filters;
 using Domain.Models.Response;
 using Domain.Models.Response.Filters;
+using Domain.Models.Response.Products;
 using System.Linq.Expressions;
 
 namespace BLL.Services.FilterServices
@@ -12,11 +13,19 @@ namespace BLL.Services.FilterServices
     public class ProductFilterService : IProductFilterService
     {
         private readonly ICompositeKeyRepository<ProductFilterDBModel, int, int> _repository;
+        private readonly IRepository<FilterDBModel, int> _filterRepository;
+        private readonly IRepository<ProductDBModel, int> _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductFilterService(ICompositeKeyRepository<ProductFilterDBModel, int, int> repository, IMapper mapper)
+        public ProductFilterService(
+            ICompositeKeyRepository<ProductFilterDBModel, int, int> repository,
+            IRepository<FilterDBModel, int> filterRepository,
+            IRepository<ProductDBModel, int> productRepository,
+            IMapper mapper)
         {
             _repository = repository;
+            _filterRepository = filterRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
 
@@ -31,7 +40,6 @@ namespace BLL.Services.FilterServices
 
         public async Task<OperationResultModel<ProductFilterDBModel>> UpdateAsync(ProductFilterUpdateRequestModel request)
         {
-            // Формуємо старий ключ
             var oldKey = new CompositeKey<int, int> { Key1 = request.OldProductId, Key2 = request.OldFilterId };
             var existingRecords = await _repository.GetFromConditionAsync(x =>
                 x.ProductId == request.OldProductId && x.FilterId == request.OldFilterId);
@@ -41,14 +49,12 @@ namespace BLL.Services.FilterServices
                 return OperationResultModel<ProductFilterDBModel>.Failure("Product filter not found.");
             }
 
-            // Видаляємо старий запис
             var deleteResult = await _repository.DeleteAsync(oldKey);
             if (!deleteResult.IsSuccess)
             {
                 return OperationResultModel<ProductFilterDBModel>.Failure("Failed to delete the old product filter.", deleteResult.Exception);
             }
 
-            // Створюємо новий запис із новими ключами
             var newModel = new ProductFilterDBModel
             {
                 ProductId = request.NewProductId,
@@ -81,6 +87,22 @@ namespace BLL.Services.FilterServices
         public async Task<IEnumerable<ProductFilterDBModel>> ProcessQueryAsync(IQueryable<ProductFilterDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
+        }
+
+        public async Task<IEnumerable<FilterResponseModel>> GetFiltersByProductIdAsync(int productId)
+        {
+            var pfRecords = await GetFromConditionAsync(x => x.ProductId == productId);
+            var filterIds = pfRecords.Select(x => x.FilterId).Distinct().ToList();
+            var filterRecords = await _filterRepository.GetFromConditionAsync(x => filterIds.Contains(x.Id));
+            return _mapper.Map<IEnumerable<FilterResponseModel>>(filterRecords);
+        }
+
+        public async Task<IEnumerable<ProductResponseModel>> GetProductsByFilterIdAsync(int filterId)
+        {
+            var pfRecords = await GetFromConditionAsync(x => x.FilterId == filterId);
+            var productIds = pfRecords.Select(x => x.ProductId).Distinct().ToList();
+            var productRecords = await _productRepository.GetFromConditionAsync(x => productIds.Contains(x.Id));
+            return _mapper.Map<IEnumerable<ProductResponseModel>>(productRecords);
         }
     }
 }
