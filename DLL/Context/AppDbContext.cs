@@ -45,10 +45,10 @@ namespace DLL.Context
             {
                 entity.Property(e => e.Title)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.ShortTitle)
-                    .HasMaxLength(100);
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.Description)
                     .HasMaxLength(1000);
