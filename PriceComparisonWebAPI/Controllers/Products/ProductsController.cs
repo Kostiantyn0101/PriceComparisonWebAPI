@@ -1,16 +1,11 @@
-using AutoMapper;
-using BLL.Services.ProductServices;
 using BLL.Services.ProductServices;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
-using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace PriceComparisonWebAPI.Controllers.Products

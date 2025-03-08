@@ -4,6 +4,7 @@ using BLL.Services.CategoryCharacteristicService;
 using BLL.Services.CategoryService;
 using BLL.Services.CategoryServices;
 using BLL.Services.FeedbackAndReviewServices;
+using BLL.Services.FilterServices;
 using BLL.Services.MediaServices;
 using BLL.Services.PriceServices;
 using BLL.Services.ProductServices;
@@ -40,6 +41,11 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             builder.Services.AddScoped<IReviewService, ReviewService>();
             builder.Services.AddScoped<IPriceService, PriceService>();
             builder.Services.AddScoped<IFileService, FileService>();
+
+            //Filter Services
+            builder.Services.AddScoped<IFilterCriterionService, FilterCriterionService>();
+            builder.Services.AddScoped<IProductFilterService, ProductFilterService>();
+            builder.Services.AddScoped<IFilterService, FilterService>();
         }
     }
 }
