@@ -55,7 +55,7 @@ namespace PriceComparisonWebAPI.Controllers.Categories
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateSeller([FromBody] SellerCreateRequestModel request)
+        public async Task<JsonResult> CreateSeller([FromForm] SellerCreateRequestModel request)
         {
             var result = await _sellerService.CreateAsync(request);
             if (!result.IsSuccess)
