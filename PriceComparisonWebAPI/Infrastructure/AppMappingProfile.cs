@@ -2,10 +2,12 @@
 using Domain.Models.DBModels;
 using Domain.Models.Request.Categories;
 using Domain.Models.Request.Feedback;
+using Domain.Models.Request.Filters;
 using Domain.Models.Request.Products;
 using Domain.Models.Request.Seller;
 using Domain.Models.Response.Categories;
 using Domain.Models.Response.Feedback;
+using Domain.Models.Response.Filters;
 using Domain.Models.Response.Gpt.Product;
 using Domain.Models.Response.Products;
 using Domain.Models.Response.Seller;
@@ -90,7 +92,13 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<InstructionUpdateRequestModel, InstructionDBModel>()
                     .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<FeedbackDBModel, FeedbackResponseModel>();
+
+            CreateMap<FeedbackDBModel, FeedbackResponseModel>()
+                .ForMember(dest => dest.UserName,
+                           opt => opt.MapFrom(src => src.User.NormalizedUserName))
+                .ForMember(dest => dest.FeedbackImageUrls,
+                           opt => opt.MapFrom<FeedbackImageUrlsResolver>());
+
             CreateMap<FeedbackCreateRequestModel, FeedbackDBModel>();
             CreateMap<FeedbackUpdateRequestModel, FeedbackDBModel>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
@@ -113,13 +121,34 @@ namespace PriceComparisonWebAPI.Infrastructure
 
 
             // SELLER
-            CreateMap<SellerDBModel, SellerResponseModel>();
+            CreateMap<SellerDBModel, SellerResponseModel>()
+                .ForMember(dest => dest.LogoImageUrl, opt => opt.MapFrom<SellerLogoImageUrlResolver>());
             CreateMap<SellerCreateRequestModel, SellerDBModel>();
             CreateMap<SellerUpdateRequestModel, SellerDBModel>();
             
             CreateMap<AuctionClickRateCreateRequestModel, AuctionClickRateDBModel>();
             CreateMap<AuctionClickRateUpdateRequestModel, AuctionClickRateDBModel>();
             CreateMap<AuctionClickRateDBModel, AuctionClickRateResponseModel>();
+
+            // FILTER
+            CreateMap<FilterDBModel, FilterResponseModel>();
+            CreateMap<FilterCreateRequestModel, FilterDBModel>();
+            CreateMap<FilterUpdateRequestModel, FilterDBModel>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // FILTER CRITERION
+            CreateMap<FilterCriterionDBModel, FilterCriterionResponseModel>();
+            CreateMap<FilterCriterionCreateRequestModel, FilterCriterionDBModel>();
+            CreateMap<FilterCriterionUpdateRequestModel, FilterCriterionDBModel>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // PRODUCT FILTER
+            CreateMap<ProductFilterDBModel, ProductFilterResponseModel>();
+            CreateMap<ProductFilterCreateRequestModel, ProductFilterDBModel>();
+            CreateMap<ProductFilterUpdateRequestModel, ProductFilterDBModel>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
         }
     }
 }
