@@ -13,6 +13,7 @@ using System.Linq.Expressions;
 using System.Xml.Linq;
 
 namespace BLL.Services.SellerServices
+
 {
     public class SellerProductDetailsService : ISellerProductDetailsService
     {
