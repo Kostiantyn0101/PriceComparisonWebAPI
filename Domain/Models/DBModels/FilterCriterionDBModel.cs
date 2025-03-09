@@ -11,7 +11,9 @@ namespace Domain.Models.DBModels
         public int CharacteristicId { get; set; }
         public CharacteristicDBModel Characteristic { get; set; }
 
-        public string Operator { get; set; }
-        public decimal Value { get; set; }
+        public string Operator { get; set; } // "==", ">=", "<=", ">", "<", "!="
+        public string Value { get; set; }
+
+        //public ICollection<CategoryFilterCriterionDBModel> CategoryFilterCriteria { get; set; }
     }
 }
