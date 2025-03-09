@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250308212917_ChangeFiltersChain")]
+    partial class ChangeFiltersChain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,6 +209,26 @@ namespace DLL.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.CategoryFilterCriterionDBModel", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FilterCriterionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("FilterDBModelId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CategoryId", "FilterCriterionId");
+
+                    b.HasIndex("FilterCriterionId");
+
+                    b.HasIndex("FilterDBModelId");
+
+                    b.ToTable("CategoryFilterCriteria");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.CharacteristicDBModel", b =>
                 {
                     b.Property<int>("Id")
@@ -343,9 +366,8 @@ namespace DLL.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal>("Value")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -961,6 +983,29 @@ namespace DLL.Migrations
                     b.Navigation("ParentCategory");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.CategoryFilterCriterionDBModel", b =>
+                {
+                    b.HasOne("Domain.Models.DBModels.CategoryDBModel", "Category")
+                        .WithMany("CategoryFilterCriteria")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.DBModels.FilterCriterionDBModel", "FilterCriterion")
+                        .WithMany("CategoryFilterCriteria")
+                        .HasForeignKey("FilterCriterionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.DBModels.FilterDBModel", null)
+                        .WithMany("ProductFilters")
+                        .HasForeignKey("FilterDBModelId");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("FilterCriterion");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.CharacteristicDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.CharacteristicGroupDBModel", "CharacteristicGroup")
@@ -1270,6 +1315,8 @@ namespace DLL.Migrations
 
                     b.Navigation("CategoryCharacteristics");
 
+                    b.Navigation("CategoryFilterCriteria");
+
                     b.Navigation("Products");
 
                     b.Navigation("RelatedCategories");
@@ -1298,9 +1345,16 @@ namespace DLL.Migrations
                     b.Navigation("FeedbackImages");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.FilterCriterionDBModel", b =>
+                {
+                    b.Navigation("CategoryFilterCriteria");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.FilterDBModel", b =>
                 {
                     b.Navigation("Criteria");
+
+                    b.Navigation("ProductFilters");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductDBModel", b =>

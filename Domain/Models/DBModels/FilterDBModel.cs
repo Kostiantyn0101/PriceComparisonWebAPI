@@ -9,6 +9,5 @@ namespace Domain.Models.DBModels
         public string ShortTitle { get; set; }
         public string Description { get; set; }
         public ICollection<FilterCriterionDBModel> Criteria { get; set; }
-        public ICollection<ProductFilterDBModel> ProductFilters { get; set; }
     }
 }

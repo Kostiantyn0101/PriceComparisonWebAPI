@@ -33,8 +33,6 @@ namespace DLL.Context
         public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
         public DbSet<FilterDBModel> Filters { get; set; }
         public DbSet<FilterCriterionDBModel> FilterCriteria { get; set; }
-        public DbSet<ProductFilterDBModel> ProductFilters { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,27 +68,6 @@ namespace DLL.Context
                 entity.Property(e => e.Operator)
                     .IsRequired()
                     .HasMaxLength(10);
-
-                entity.Property(e => e.Value)
-                    .HasColumnType("decimal(18,2)");
-            });
-
-            // ProductFilterDBModel
-            modelBuilder.Entity<ProductFilterDBModel>(entity =>
-            {
-                entity.Ignore(p => p.Id);
-
-                entity.HasKey(pf => new { pf.ProductId, pf.FilterId });
-
-                entity.HasOne(e => e.Product)
-                    .WithMany(p => p.ProductFilters)
-                    .HasForeignKey(e => e.ProductId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(e => e.Filter)
-                    .WithMany(f => f.ProductFilters)
-                    .HasForeignKey(e => e.FilterId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // ProductGroupDBModel

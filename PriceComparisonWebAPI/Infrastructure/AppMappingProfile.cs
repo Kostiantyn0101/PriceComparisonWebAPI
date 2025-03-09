@@ -109,7 +109,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ReviewDBModel, ReviewResponseModel>();
             CreateMap<ReviewCreateRequestModel, ReviewDBModel>();
             CreateMap<ReviewUpdateRequestModel, ReviewDBModel>();
-            
+
             CreateMap<ProductSellerReferenceClickCreateRequestModel, ProductReferenceClickDBModel>();
             CreateMap<ProductSellerReferenceClickUpdateRequestModel, ProductReferenceClickDBModel>();
             CreateMap<ProductReferenceClickDBModel, ProductSellerReferenceClickResponseModel>();
@@ -125,7 +125,7 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForMember(dest => dest.LogoImageUrl, opt => opt.MapFrom<SellerLogoImageUrlResolver>());
             CreateMap<SellerCreateRequestModel, SellerDBModel>();
             CreateMap<SellerUpdateRequestModel, SellerDBModel>();
-            
+
             CreateMap<AuctionClickRateCreateRequestModel, AuctionClickRateDBModel>();
             CreateMap<AuctionClickRateUpdateRequestModel, AuctionClickRateDBModel>();
             CreateMap<AuctionClickRateDBModel, AuctionClickRateResponseModel>();
@@ -137,18 +137,16 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // FILTER CRITERION
-            CreateMap<FilterCriterionDBModel, FilterCriterionResponseModel>();
+            CreateMap<FilterCriterionDBModel, FilterCriterionResponseModel>()
+                .ForMember(dest => dest.FilterId, opt => opt.MapFrom(src => src.FilterId))
+                .ForMember(dest => dest.CharacteristicId, opt => opt.MapFrom(src => src.CharacteristicId))
+                .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => src.Operator))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+
+
             CreateMap<FilterCriterionCreateRequestModel, FilterCriterionDBModel>();
             CreateMap<FilterCriterionUpdateRequestModel, FilterCriterionDBModel>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            // PRODUCT FILTER
-            CreateMap<ProductFilterDBModel, ProductFilterResponseModel>();
-            CreateMap<ProductFilterCreateRequestModel, ProductFilterDBModel>();
-            CreateMap<ProductFilterUpdateRequestModel, ProductFilterDBModel>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-
         }
     }
 }
