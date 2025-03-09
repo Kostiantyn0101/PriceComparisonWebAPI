@@ -32,8 +32,6 @@ namespace DLL.Context
         public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
         public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
         public DbSet<FilterDBModel> Filters { get; set; }
-        public DbSet<FilterCriterionDBModel> FilterCriteria { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -50,18 +48,9 @@ namespace DLL.Context
 
                 entity.Property(e => e.Description)
                     .HasMaxLength(1000);
-            });
-
-            //FilterCriterionDBModel
-            modelBuilder.Entity<FilterCriterionDBModel>(entity =>
-            {
-                entity.HasOne(e => e.Filter)
-                    .WithMany(f => f.Criteria)
-                    .HasForeignKey(e => e.FilterId)
-                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(e => e.Characteristic)
-                    .WithMany(c => c.FilterCriteria)
+                    .WithMany(c => c.Filter)
                     .HasForeignKey(e => e.CharacteristicId)
                     .OnDelete(DeleteBehavior.Restrict);
 

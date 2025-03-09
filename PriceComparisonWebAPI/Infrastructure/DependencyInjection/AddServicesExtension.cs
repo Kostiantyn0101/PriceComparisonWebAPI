@@ -44,7 +44,6 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
 
             //Filter Services
             builder.Services.AddScoped<IFilterService, FilterService>();
-            builder.Services.AddScoped<IFilterCriterionService, FilterCriterionService>();
             builder.Services.AddScoped<IProductFilterByCharacteristicService, ProductFilterByCharacteristicService>();
         }
     }

@@ -21,6 +21,15 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Filters
             RuleFor(x => x.Description)
                 .MaximumLength(1000).WithMessage("Description must be less than 1000 characters.")
                 .When(x => !string.IsNullOrEmpty(x.Description));
+
+            RuleFor(x => x.CharacteristicId)
+                .GreaterThan(0).WithMessage("CharacteristicId must be greater than 0.");
+
+            RuleFor(x => x.Operator)
+                .NotEmpty().WithMessage("Operator is required.");
+
+            RuleFor(x => x.Value)
+                .NotEmpty().WithMessage("Value is required.");
         }
     }
 }
