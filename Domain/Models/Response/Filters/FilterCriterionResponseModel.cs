@@ -6,6 +6,6 @@
         public int FilterId { get; set; }
         public int CharacteristicId { get; set; }
         public string Operator { get; set; }
-        public decimal Value { get; set; }
+        public string Value { get; set; }
     }
 }
