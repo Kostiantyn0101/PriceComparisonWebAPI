@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using DLL.Repository;
 using Domain.Models.DBModels;
-using Domain.Models.Primitives;
+using Domain.Models.Response;
 using Domain.Models.Response.Filters;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
@@ -14,97 +14,107 @@ namespace BLL.Services.FilterServices
     {
         private readonly IRepository<ProductDBModel, int> _productRepository;
         private readonly IRepository<FilterDBModel, int> _filterRepository;
-        private readonly IRepository<FilterCriterionDBModel, int> _filterCriterionRepository;
-        private readonly IRepository<CategoryCharacteristicDBModel, CompositeKey<int, int>> _categoryCharacteristicRepository;
-        private readonly IRepository<ProductCharacteristicDBModel, CompositeKey<int, int>> _productCharacteristicRepository;
         private readonly IMapper _mapper;
 
         public ProductFilterByCharacteristicService(
             IRepository<ProductDBModel, int> productRepository,
             IRepository<FilterDBModel, int> filterRepository,
-            IRepository<FilterCriterionDBModel, int> filterCriterionRepository,
-            IRepository<CategoryCharacteristicDBModel, CompositeKey<int, int>> categoryCharacteristicRepository,
-            IRepository<ProductCharacteristicDBModel, CompositeKey<int, int>> productCharacteristicRepository,
             IMapper mapper)
         {
             _productRepository = productRepository;
             _filterRepository = filterRepository;
-            _filterCriterionRepository = filterCriterionRepository;
-            _categoryCharacteristicRepository = categoryCharacteristicRepository;
-            _productCharacteristicRepository = productCharacteristicRepository;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<FilterResponseModel>> GetFiltersByProductIdAsync(int productId)
+        public async Task<OperationResultModel<IEnumerable<FilterResponseModel>>> GetFiltersByProductIdAsync(int productId)
         {
-            var product = (await _productRepository.GetFromConditionAsync(p => p.Id == productId)).FirstOrDefault();
+            var productQuery = _productRepository.GetQuery()
+                .Include(p => p.ProductCharacteristics).ThenInclude(pc => pc.Characteristic);
+            var product = (await _productRepository.ProcessQueryAsync(productQuery))
+                          .FirstOrDefault(p => p.Id == productId);
             if (product == null || product.CategoryId == null)
-                return Enumerable.Empty<FilterResponseModel>();
+            {
+                return OperationResultModel<IEnumerable<FilterResponseModel>>.Failure("Product not found or has no category", null);
+            }    
 
             int categoryId = product.CategoryId;
 
-            var categoryCharacteristics = await _categoryCharacteristicRepository
-                .GetFromConditionAsync(cc => cc.CategoryId == categoryId);
-            var characteristicIds = categoryCharacteristics.Select(cc => cc.CharacteristicId).Distinct().ToList();
-            if (!characteristicIds.Any())
-                return Enumerable.Empty<FilterResponseModel>();
+            var filters = await _filterRepository.GetFromConditionAsync(f =>
+                                f.CategoryId == categoryId && f.DisplayOnProduct);
+            if (!filters.Any())
+            {
+                return OperationResultModel<IEnumerable<FilterResponseModel>>.Failure("No filters found for the category", null);
+            }
 
-            var filterCriteria = await _filterCriterionRepository
-                .GetFromConditionAsync(fc => characteristicIds.Contains(fc.CharacteristicId));
-            if (!filterCriteria.Any())
-                return Enumerable.Empty<FilterResponseModel>();
+            var matchedFilters = filters.Where(filter =>
+            {
+                var pc = product.ProductCharacteristics
+                    .FirstOrDefault(x => x.CharacteristicId == filter.CharacteristicId);
+                return pc != null && DoesProductCharacteristicMatch(pc, filter);
+            }).ToList();
 
-            var filterIds = filterCriteria.Select(fc => fc.FilterId).Distinct().ToList();
+            var mappedFilters = _mapper.Map<IEnumerable<FilterResponseModel>>(matchedFilters);
+            return OperationResultModel<IEnumerable<FilterResponseModel>>.Success(mappedFilters);
+        }
+
+        public async Task<OperationResultModel<IEnumerable<FilterResponseModel>>> GetFiltersByCategoryIdAsync(int categoryId)
+        {
+            var filters = await _filterRepository.GetFromConditionAsync(f =>
+                f.CategoryId == categoryId && f.DisplayOnProduct);
+            if (!filters.Any())
+            {
+                return OperationResultModel<IEnumerable<FilterResponseModel>>.Failure("No filters found for the specified category", null);
+            }
+            var mappedFilters = _mapper.Map<IEnumerable<FilterResponseModel>>(filters);
+            return OperationResultModel<IEnumerable<FilterResponseModel>>.Success(mappedFilters);
+        }
+
+        public async Task<OperationResultModel<IEnumerable<ProductResponseModel>>> GetProductsByFilterIdsAsync(int[] filterIds)
+        {
             var filters = await _filterRepository.GetFromConditionAsync(f => filterIds.Contains(f.Id));
+            if (!filters.Any())
+                return OperationResultModel<IEnumerable<ProductResponseModel>>.Failure("No filters found", null);
 
-            return _mapper.Map<IEnumerable<FilterResponseModel>>(filters);
+            var matchedProducts = await GetMatchedProducts(filters);
+            return OperationResultModel<IEnumerable<ProductResponseModel>>.Success(_mapper.Map<IEnumerable<ProductResponseModel>>(matchedProducts));
+        }
+
+        public async Task<OperationResultModel<IEnumerable<ProductResponseModel>>> GetProductsByFilterIdAsync(int filterId)
+        {
+            var filter = (await _filterRepository.GetFromConditionAsync(f => f.Id == filterId)).FirstOrDefault();
+            if (filter == null)
+                return OperationResultModel<IEnumerable<ProductResponseModel>>.Failure("Filter not found", null);
+
+            var matchedProducts = await GetMatchedProducts(new List<FilterDBModel> { filter });
+            return OperationResultModel<IEnumerable<ProductResponseModel>>.Success(_mapper.Map<IEnumerable<ProductResponseModel>>(matchedProducts));
         }
 
 
-
-        public async Task<IEnumerable<ProductResponseModel>> GetProductsByFilterIdAsync(int filterId)
+        private async Task<IEnumerable<ProductDBModel>> GetMatchedProducts(IEnumerable<FilterDBModel> filters)
         {
-            var filterCriteria = await GetFilterCriteriaWithCharacteristicAsync(filterId);
-            if (!filterCriteria.Any())
-                return Enumerable.Empty<ProductResponseModel>();
-
-            var characteristicIds = filterCriteria.Select(fc => fc.CharacteristicId).Distinct().ToList();
-
-            var categoryChars = await _categoryCharacteristicRepository
-                .GetFromConditionAsync(cc => characteristicIds.Contains(cc.CharacteristicId));
-            var categoryIds = categoryChars.Select(cc => cc.CategoryId).Distinct().ToList();
+            var categoryIds = filters.Select(f => f.CategoryId).Distinct().ToList();
             if (!categoryIds.Any())
-                return Enumerable.Empty<ProductResponseModel>();
+                return Enumerable.Empty<ProductDBModel>();
 
             var products = await GetProductsInCategoriesAsync(categoryIds);
             if (!products.Any())
-                return Enumerable.Empty<ProductResponseModel>();
+                return Enumerable.Empty<ProductDBModel>();
 
-            var matchedProducts = new List<ProductDBModel>(products);
-
-            foreach (var criterion in filterCriteria)
+            var matchedProducts = products.Where(product =>
             {
-                matchedProducts = matchedProducts.Where(product =>
+                foreach (var filter in filters)
                 {
-                    var pc = product.ProductCharacteristics
-                        .FirstOrDefault(x => x.CharacteristicId == criterion.CharacteristicId);
+                    var pc = product.ProductCharacteristics?.FirstOrDefault(x => x.CharacteristicId == filter.CharacteristicId);
+                    if (pc == null || !DoesProductCharacteristicMatch(pc, filter))
+                        return false;
+                }
+                return true;
+            }).ToList();
 
-                    return pc != null && DoesProductCharacteristicMatch(pc, criterion);
-                }).ToList();
-            }
-
-            return _mapper.Map<IEnumerable<ProductResponseModel>>(matchedProducts);
+            return matchedProducts;
         }
 
-        private async Task<IEnumerable<FilterCriterionDBModel>> GetFilterCriteriaWithCharacteristicAsync(int filterId)
-        {
-            var query = _filterCriterionRepository.GetQuery()
-                .Include(fc => fc.Characteristic)
-                .Where(fc => fc.FilterId == filterId);
-            return await _filterCriterionRepository.ProcessQueryAsync(query);
-        }
-
-        public async Task<IEnumerable<ProductDBModel>> GetProductsInCategoriesAsync(List<int> categoryIds)
+        private async Task<IEnumerable<ProductDBModel>> GetProductsInCategoriesAsync(List<int> categoryIds)
         {
             var query = _productRepository.GetQuery()
                 .Include(p => p.ProductCharacteristics)
@@ -113,7 +123,7 @@ namespace BLL.Services.FilterServices
             return await _productRepository.ProcessQueryAsync(query);
         }
 
-        private bool DoesProductCharacteristicMatch(ProductCharacteristicDBModel pc, FilterCriterionDBModel criterion)
+        private bool DoesProductCharacteristicMatch(ProductCharacteristicDBModel pc, FilterDBModel criterion)
         {
             string dataType = criterion.Characteristic.DataType?.ToLowerInvariant() ?? "string";
             switch (dataType)
@@ -208,8 +218,8 @@ namespace BLL.Services.FilterServices
             {
                 return _operator switch
                 {
-                    "==" => productValue == filterValue,
-                    "!=" => productValue != filterValue,
+                    "==" => productValue.Contains(filterValue),
+                    "!=" => !productValue.Contains(filterValue),
                     "contains" => productValue.Contains(filterValue),
                     _ => false,
                 };

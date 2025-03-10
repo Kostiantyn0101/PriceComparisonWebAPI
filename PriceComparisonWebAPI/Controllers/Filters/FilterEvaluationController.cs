@@ -1,10 +1,14 @@
-﻿using BLL.Services.FilterServices; 
+﻿using BLL.Services.FilterServices;
+using Domain.Models.Exceptions;
+using Domain.Models.Response;
 using Microsoft.AspNetCore.Mvc;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace PriceComparisonWebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
     public class FilterEvaluationController : ControllerBase
     {
         private readonly ILogger<FilterEvaluationController> _logger;
@@ -18,27 +22,69 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
         [HttpGet("filtersByProduct/{productId}")]
-        public async Task<IActionResult> GetFiltersByProduct(int productId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetFiltersByProduct(int productId)
         {
             var filters = await _productFilterByCharacteristicService.GetFiltersByProductIdAsync(productId);
-            if (filters == null || !filters.Any())
+            if (!filters.IsSuccess)
             {
                 _logger.LogError("No filters found for product id {ProductId}", productId);
-                return NotFound("No filters found for the specified product.");
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
-            return Ok(filters);
+            return new JsonResult(filters)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         [HttpGet("productsByFilter/{filterId}")]
-        public async Task<IActionResult> GetProductsByFilter(int filterId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetProductsByFilter(int filterId)
         {
             var products = await _productFilterByCharacteristicService.GetProductsByFilterIdAsync(filterId);
-            if (products == null || !products.Any())
+            if (!products.IsSuccess)
             {
                 _logger.LogError("No products found for filter id {FilterId}", filterId);
-                return NotFound("No products found for the specified filter.");
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
-            return Ok(products);
+            return new JsonResult(products)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("productsByFilters")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetProductsByFilters([FromQuery] int[] filterIds)
+        {
+            var products = await _productFilterByCharacteristicService.GetProductsByFilterIdsAsync(filterIds);
+            if (!products.IsSuccess)
+            {
+                _logger.LogError("No products found for filters: {filterIds}", filterIds);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(products)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("filtersByCategory/{categoryId}")]
+        public async Task<JsonResult> GetFiltersByCategory(int categoryId)
+        {
+            var filters = await _productFilterByCharacteristicService.GetFiltersByCategoryIdAsync(categoryId);
+            if (!filters.IsSuccess)
+            {
+                _logger.LogError("No filters found for category id {CategoryId}", categoryId);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(filters)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
         }
     }
 }

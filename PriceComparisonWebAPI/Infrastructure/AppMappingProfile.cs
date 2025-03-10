@@ -135,18 +135,6 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<FilterCreateRequestModel, FilterDBModel>();
             CreateMap<FilterUpdateRequestModel, FilterDBModel>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            // FILTER CRITERION
-            CreateMap<FilterCriterionDBModel, FilterCriterionResponseModel>()
-                .ForMember(dest => dest.FilterId, opt => opt.MapFrom(src => src.FilterId))
-                .ForMember(dest => dest.CharacteristicId, opt => opt.MapFrom(src => src.CharacteristicId))
-                .ForMember(dest => dest.Operator, opt => opt.MapFrom(src => src.Operator))
-                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
-
-
-            CreateMap<FilterCriterionCreateRequestModel, FilterCriterionDBModel>();
-            CreateMap<FilterCriterionUpdateRequestModel, FilterCriterionDBModel>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

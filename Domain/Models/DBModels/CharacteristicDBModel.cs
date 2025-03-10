@@ -17,6 +17,6 @@ namespace Domain.Models.DBModels
 
         public ICollection<CategoryCharacteristicDBModel> CategoryCharacteristics { get; set; }
         public ICollection<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
-        public ICollection<FilterCriterionDBModel> FilterCriteria { get; set; }
+        public ICollection<FilterDBModel> Filter { get; set; }
     }
 }
