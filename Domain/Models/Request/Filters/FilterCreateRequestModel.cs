@@ -8,5 +8,7 @@
         public int CharacteristicId { get; set; }
         public string Operator { get; set; }
         public string Value { get; set; }
+        public int CategoryId { get; set; }
+        public bool DisplayOnProduct { get; set; }
     }
 }
