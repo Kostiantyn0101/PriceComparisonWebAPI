@@ -9,6 +9,6 @@ namespace Domain.Models.DBModels
         public string HexCode { get; set; }
         public string? GradientCode { get; set; }
 
-        //public ICollection<FeedbackImageDBModel> FeedbackImages { get; set; }
+        public ICollection<ProductDBModel> Products { get; set; }
     }
 }

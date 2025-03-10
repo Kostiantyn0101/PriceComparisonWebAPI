@@ -30,7 +30,6 @@ namespace Domain.Models.DBModels
         public CategoryDBModel Category { get; set; }
 
         public ICollection<ProductVideoDBModel> ProductVideos { get; set; }
-        public ICollection<FeedbackDBModel> Feedbacks { get; set; }
         public ICollection<ReviewDBModel> Reviews { get; set; }
         public ICollection<InstructionDBModel> Instructions { get; set; }
         public ICollection<ProductDBModel> Products { get; set; }

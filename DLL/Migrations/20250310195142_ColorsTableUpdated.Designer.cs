@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310195142_ColorsTableUpdated")]
+    partial class ColorsTableUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -565,7 +568,7 @@ namespace DLL.Migrations
                     b.Property<DateTime>("AddedToDatabase")
                         .HasColumnType("DATETIME2(0)");
 
-                    b.Property<int>("BaseProductId")
+                    b.Property<int?>("BaseProductId")
                         .HasColumnType("int");
 
                     b.Property<string>("Brand")
@@ -1161,8 +1164,7 @@ namespace DLL.Migrations
                     b.HasOne("Domain.Models.DBModels.BaseProductDBModel", "BaseProduct")
                         .WithMany("Products")
                         .HasForeignKey("BaseProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Models.DBModels.CategoryDBModel", "Category")
                         .WithMany("Products")

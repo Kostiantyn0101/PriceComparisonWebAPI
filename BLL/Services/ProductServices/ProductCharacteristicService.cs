@@ -12,10 +12,10 @@ namespace BLL.Services.ProductServices
 {
     public class ProductCharacteristicService : IProductCharacteristicService
     {
-        private readonly ICompositeKeyRepository<ProductCharacteristicDBModel, int, int> _repository;
+        private readonly IRepository<ProductCharacteristicDBModel, int> _repository;
         private readonly IMapper _mapper;
 
-        public ProductCharacteristicService(ICompositeKeyRepository<ProductCharacteristicDBModel, int, int> repository, IMapper mapper)
+        public ProductCharacteristicService(IRepository<ProductCharacteristicDBModel, int> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
@@ -73,10 +73,9 @@ namespace BLL.Services.ProductServices
                 : OperationResultModel<ProductCharacteristicDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> DeleteAsync(int productId, int characteristicId)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
-            var compositeKey = new CompositeKey<int, int> { Key1 = productId, Key2 = characteristicId };
-            return await _repository.DeleteAsync(compositeKey);
+            return await _repository.DeleteAsync(id);
         }
 
         public IQueryable<ProductCharacteristicDBModel> GetQuery()
@@ -141,7 +140,7 @@ namespace BLL.Services.ProductServices
                    GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
                    ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
                    {
-                       ProductId = x.ProductCharacteristic.ProductId,
+                       ProductId = x.ProductCharacteristic.ProductId ?? 0, // TO DO - add base product id
                        CharacteristicId = x.ProductCharacteristic.CharacteristicId,
                        CharacteristicTitle = x.Characteristic.Title,
                        CharacteristicUnit = x.Characteristic.Unit,
@@ -193,7 +192,7 @@ namespace BLL.Services.ProductServices
                    GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
                    ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
                    {
-                       ProductId = x.ProductCharacteristic.ProductId,
+                       ProductId = x.ProductCharacteristic.ProductId ?? 0, // TO DO - add base product id
                        CharacteristicId = x.ProductCharacteristic.CharacteristicId,
                        CharacteristicTitle = x.Characteristic.Title,
                        CharacteristicUnit = x.Characteristic.Unit,

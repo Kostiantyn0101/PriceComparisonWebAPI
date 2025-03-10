@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310181845_BaseProductsTableCreatedAndProductCharacteristicsTableIndexChanged")]
+    partial class BaseProductsTableCreatedAndProductCharacteristicsTableIndexChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -325,9 +328,14 @@ namespace DLL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProductDBModelId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Colors");
+                    b.HasIndex("ProductDBModelId");
+
+                    b.ToTable("ColorDBModel");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>
@@ -565,7 +573,7 @@ namespace DLL.Migrations
                     b.Property<DateTime>("AddedToDatabase")
                         .HasColumnType("DATETIME2(0)");
 
-                    b.Property<int>("BaseProductId")
+                    b.Property<int?>("BaseProductId")
                         .HasColumnType("int");
 
                     b.Property<string>("Brand")
@@ -619,8 +627,6 @@ namespace DLL.Migrations
                     b.HasIndex("BaseProductId");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("ColorId");
 
                     b.ToTable("Products");
                 });
@@ -1048,6 +1054,13 @@ namespace DLL.Migrations
                     b.Navigation("CharacteristicGroup");
                 });
 
+            modelBuilder.Entity("Domain.Models.DBModels.ColorDBModel", b =>
+                {
+                    b.HasOne("Domain.Models.DBModels.ProductDBModel", null)
+                        .WithMany("Color")
+                        .HasForeignKey("ProductDBModelId");
+                });
+
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>
                 {
                     b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
@@ -1161,8 +1174,7 @@ namespace DLL.Migrations
                     b.HasOne("Domain.Models.DBModels.BaseProductDBModel", "BaseProduct")
                         .WithMany("Products")
                         .HasForeignKey("BaseProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Models.DBModels.CategoryDBModel", "Category")
                         .WithMany("Products")
@@ -1170,17 +1182,9 @@ namespace DLL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Models.DBModels.ColorDBModel", "Color")
-                        .WithMany("Products")
-                        .HasForeignKey("ColorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("BaseProduct");
 
                     b.Navigation("Category");
-
-                    b.Navigation("Color");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductImageDBModel", b =>
@@ -1402,11 +1406,6 @@ namespace DLL.Migrations
                     b.Navigation("Characteristics");
                 });
 
-            modelBuilder.Entity("Domain.Models.DBModels.ColorDBModel", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>
                 {
                     b.Navigation("FeedbackImages");
@@ -1414,6 +1413,8 @@ namespace DLL.Migrations
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductDBModel", b =>
                 {
+                    b.Navigation("Color");
+
                     b.Navigation("Feedbacks");
 
                     b.Navigation("Instructions");
