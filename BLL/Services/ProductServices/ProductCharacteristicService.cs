@@ -13,11 +13,15 @@ namespace BLL.Services.ProductServices
     public class ProductCharacteristicService : IProductCharacteristicService
     {
         private readonly IRepository<ProductCharacteristicDBModel, int> _repository;
+        private readonly IRepository<ProductDBModel, int> _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductCharacteristicService(IRepository<ProductCharacteristicDBModel, int> repository, IMapper mapper)
+        public ProductCharacteristicService(IRepository<ProductCharacteristicDBModel, int> repository,
+            IRepository<ProductDBModel, int> productRepository,
+            IMapper mapper)
         {
             _repository = repository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
 
@@ -106,13 +110,17 @@ namespace BLL.Services.ProductServices
 
         public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetDetailedCharacteristics(int productId)
         {
+            var baseProductId = await _productRepository.GetQuery()
+                .Select(p => p.BaseProductId)
+                .FirstOrDefaultAsync();
+
             var query = _repository.GetQuery()
-                .Where(pc => pc.ProductId == productId)
+                .Where(pc => pc.ProductId == productId || pc.BaseProductId == baseProductId)
                 .Select(pc => new
                 {
                     ProductCharacteristic = pc,
                     pc.Characteristic,
-                    ProductCategoryId = pc.Product.BaseProduct.CategoryId,
+                    ProductCategoryId = pc.Product != null ? pc.Product.BaseProduct.CategoryId : pc.BaseProduct.CategoryId,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
@@ -164,7 +172,7 @@ namespace BLL.Services.ProductServices
                 {
                     ProductCharacteristic = pc,
                     pc.Characteristic,
-                    ProductCategoryId = pc.Product.BaseProduct.CategoryId, 
+                    ProductCategoryId = pc.Product.BaseProduct.CategoryId,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
