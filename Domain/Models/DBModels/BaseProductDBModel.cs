@@ -34,5 +34,6 @@ namespace Domain.Models.DBModels
         public ICollection<ReviewDBModel> Reviews { get; set; }
         public ICollection<InstructionDBModel> Instructions { get; set; }
         public ICollection<ProductDBModel> Products { get; set; }
+        public ICollection<FeedbackDBModel> Feedbacks { get; set; }
     }
 }

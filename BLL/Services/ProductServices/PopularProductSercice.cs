@@ -51,7 +51,7 @@ namespace BLL.Services.ProductServices
 
             var topCategoriesQuery = _productClickRepository.GetQuery()
                 .Where(pc => pc.ClickDate >= lookupTime)
-                .GroupBy(pc => pc.Product.Category)
+                .GroupBy(pc => pc.Product.BaseProduct.Category)
                 .OrderByDescending(g => g.Count())
                 .Take(_settings.PopularCategoriesCount)
                 .Select(g => new PopularCategoryResponseModel
@@ -71,7 +71,7 @@ namespace BLL.Services.ProductServices
             var topProductsQuery = _productClickRepository.GetQuery()
                 .Where(pc =>
                     pc.ClickDate >= lookupTime &&
-                    pc.Product.Category.Id == categoryId)
+                    pc.Product.BaseProduct.Category.Id == categoryId)
                 .GroupBy(pc => pc.Product)
                 .Select(g => new
                 {
@@ -83,7 +83,7 @@ namespace BLL.Services.ProductServices
                 .Select(x => new PopularProductResponseModel
                 {
                     Id = x.Product.Id,
-                    Title = x.Product.Title,
+                    Title = x.Product.BaseProduct.Title,
                     ImageUrl = x.Product.ProductImages
                         .Where(pi => pi.IsPrimary)
                         .Select(pi => pi.ImageUrl)
@@ -104,7 +104,7 @@ namespace BLL.Services.ProductServices
 
             var topCategoriesQuery = _productClickRepository.GetQuery()
                 .Where(pc => pc.ClickDate >= lookupTime)
-                .GroupBy(pc => new { pc.Product.Category.Id, pc.Product.Category.Title })
+                .GroupBy(pc => new { pc.Product.BaseProduct.Category.Id, pc.Product.BaseProduct.Category.Title })
                 .Select(g => new
                 {
                     CategoryId = g.Key.Id,
@@ -119,7 +119,7 @@ namespace BLL.Services.ProductServices
                 Id = c.CategoryId,
                 Title = c.CategoryTitle,
                 Products = _producRepository.GetQuery()
-                    .Where(p => p.Category.Id == c.CategoryId)
+                    .Where(p => p.BaseProduct.Category.Id == c.CategoryId)
                     .Select(p => new
                     {
                         Product = p,
@@ -130,7 +130,7 @@ namespace BLL.Services.ProductServices
                     .Select(p => new PopularProductResponseModel
                     {
                         Id = p.Product.Id,
-                        Title = p.Product.Title,
+                        Title = p.Product.BaseProduct.Title,
                         ImageUrl = p.Product.ProductImages
                             .Where(pi => pi.IsPrimary)
                             .Select(pi => pi.ImageUrl)

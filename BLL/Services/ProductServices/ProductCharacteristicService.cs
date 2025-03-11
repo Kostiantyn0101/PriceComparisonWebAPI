@@ -111,8 +111,8 @@ namespace BLL.Services.ProductServices
                 .Select(pc => new
                 {
                     ProductCharacteristic = pc,
-                    Characteristic = pc.Characteristic,
-                    ProductCategoryId = pc.Product.CategoryId,
+                    pc.Characteristic,
+                    ProductCategoryId = pc.Product.BaseProduct.CategoryId,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
@@ -163,8 +163,8 @@ namespace BLL.Services.ProductServices
                 .Select(pc => new
                 {
                     ProductCharacteristic = pc,
-                    Characteristic = pc.Characteristic,
-                    ProductCategoryId = pc.Product.CategoryId, // Предполагаем, что Product имеет связь с Category
+                    pc.Characteristic,
+                    ProductCategoryId = pc.Product.BaseProduct.CategoryId, 
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new

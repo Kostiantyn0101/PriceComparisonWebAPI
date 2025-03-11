@@ -134,7 +134,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         {
             const int pageSize = 10;
 
-            Expression<Func<ProductDBModel, bool>> condition = p => p.CategoryId == categoryId;
+            Expression<Func<ProductDBModel, bool>> condition = p => p.BaseProduct.CategoryId == categoryId;
 
             var result = await _productService.GetPaginatedProductsAsync(condition, page, pageSize);
             if (!result.IsSuccess)

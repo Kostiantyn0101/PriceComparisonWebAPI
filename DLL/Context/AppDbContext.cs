@@ -70,14 +70,10 @@ namespace DLL.Context
             // ProductDBModel
             modelBuilder.Entity<ProductDBModel>(entity =>
             {
-                entity.Property(p => p.Title)
-                    .HasMaxLength(255);
-
-                entity.Property(p => p.NormalizedTitle)
-                    .HasMaxLength(255);
-
-                entity.Property(p => p.Brand)
-                    .HasMaxLength(255);
+                entity.HasOne(p => p.BaseProduct)
+                    .WithMany(c => c.Products)
+                    .HasForeignKey(p => p.BaseProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.Property(p => p.ModelNumber)
                     .HasMaxLength(255);
@@ -94,16 +90,6 @@ namespace DLL.Context
                 entity.HasOne(p => p.Color)
                     .WithMany(c => c.Products)
                     .HasForeignKey(p => p.ColorId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(p => p.Category)
-                    .WithMany(c => c.Products)
-                    .HasForeignKey(p => p.CategoryId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(p => p.BaseProduct)
-                    .WithMany(c => c.Products)
-                    .HasForeignKey(p => p.BaseProductId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -260,23 +246,18 @@ namespace DLL.Context
             // FeedbackDBModel
             modelBuilder.Entity<FeedbackDBModel>(entity =>
             {
-                entity.HasOne(f => f.Product)
+                entity.HasOne(f => f.BaseProduct)
                     .WithMany(p => p.Feedbacks)
-                    .HasForeignKey(f => f.ProductId);
+                    .HasForeignKey(f => f.BaseProductId);
 
                 entity.HasOne(f => f.User)
                     .WithMany(u => u.Feedbacks)
                     .HasForeignKey(f => f.UserId);
 
                 entity.Property(f => f.FeedbackText)
-                    .IsRequired()
                     .HasMaxLength(1000);
 
-                entity.Property(f => f.CreatedAt)
-                    .IsRequired();
-
                 entity.Property(f => f.Rating)
-                    .IsRequired()
                     .HasColumnType("int");
 
                 entity.ToTable(t => t.HasCheckConstraint("CK_Rating_Range", "[Rating] BETWEEN 1 AND 5"));

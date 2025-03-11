@@ -29,15 +29,18 @@ namespace BLL.Services.FilterServices
         public async Task<OperationResultModel<IEnumerable<FilterResponseModel>>> GetFiltersByProductIdAsync(int productId)
         {
             var productQuery = _productRepository.GetQuery()
-                .Include(p => p.ProductCharacteristics).ThenInclude(pc => pc.Characteristic);
+                .Include(p => p.ProductCharacteristics)
+                .ThenInclude(pc => pc.Characteristic)
+                .Include(p => p.BaseProduct);
+
             var product = (await _productRepository.ProcessQueryAsync(productQuery))
                           .FirstOrDefault(p => p.Id == productId);
-            if (product == null || product.CategoryId == null)
+            if (product == null || product.BaseProduct?.CategoryId == null)
             {
                 return OperationResultModel<IEnumerable<FilterResponseModel>>.Failure("Product not found or has no category", null);
-            }    
+            }
 
-            int categoryId = product.CategoryId;
+            int categoryId = product.BaseProduct.CategoryId;
 
             var filters = await _filterRepository.GetFromConditionAsync(f =>
                                 f.CategoryId == categoryId && f.DisplayOnProduct);
@@ -118,8 +121,9 @@ namespace BLL.Services.FilterServices
         {
             var query = _productRepository.GetQuery()
                 .Include(p => p.ProductCharacteristics)
-                    .ThenInclude(pc => pc.Characteristic)
-                .Where(p => categoryIds.Contains(p.CategoryId));
+                .ThenInclude(pc => pc.Characteristic)
+                .Where(p => categoryIds.Contains(p.BaseProduct.CategoryId));
+
             return await _productRepository.ProcessQueryAsync(query);
         }
 

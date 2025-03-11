@@ -39,7 +39,13 @@ namespace BLL.Services.ProductServices
         {
             var model = _mapper.Map<ProductReferenceClickDBModel>(request);
             model.ClickedAt = DateTime.Now;
-            var categoryId = (await _productRepository.GetFromConditionAsync(p => p.Id == model.ProductId)).FirstOrDefault()?.CategoryId ?? 0;
+            
+            var product = await _productRepository.GetQuery()
+                .Include(p=>p.BaseProduct)
+                .Where(p => p.Id == model.ProductId)
+                .FirstOrDefaultAsync();
+
+            var categoryId = product?.BaseProduct.CategoryId ?? 0;
 
             var defaultClickRate = _accountConfiguration.DefaultClickRate;
             var currentClickRate = await _auctionClickRateRepository.GetQuery()

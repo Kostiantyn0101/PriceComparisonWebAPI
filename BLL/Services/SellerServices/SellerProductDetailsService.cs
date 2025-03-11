@@ -97,11 +97,11 @@ namespace BLL.Services.SellerServices
                 var title = offer.Element("name")?.Value ?? string.Empty;
                 var normalizedTitle = title.Trim().ToUpperInvariant();
 
-                var product = (await _productRepository.GetFromConditionAsync(p =>
-                    (!string.IsNullOrWhiteSpace(gtin) && (p.GTIN == gtin || p.UPC == gtin)) ||
-                    (string.IsNullOrWhiteSpace(gtin) && p.NormalizedTitle.Equals(normalizedTitle))
-                )).FirstOrDefault();
-
+                var product = await _productRepository.GetQuery()
+                    .Where(p => (!string.IsNullOrWhiteSpace(gtin) && (p.GTIN == gtin || p.UPC == gtin)) ||
+                                (string.IsNullOrWhiteSpace(gtin) && p.BaseProduct.NormalizedTitle.Equals(normalizedTitle)))
+                    .FirstOrDefaultAsync();
+                
 
                 // Create new product if not found
                 if (product == null)
@@ -115,16 +115,23 @@ namespace BLL.Services.SellerServices
                         category = (await _categoryRepository.GetFromConditionAsync(c => c.Title.Equals(defaultCategoryName))).FirstOrDefault();
                     }
 
-                    product = new ProductDBModel
+                    var newBaseProduct = new BaseProductDBModel
                     {
-                        GTIN = gtin,
                         Title = title,
                         Brand = offer.Element("brand")?.Value ?? string.Empty,
-                        ModelNumber = offer.Element("model")?.Value ?? string.Empty,
                         Description = offer.Element("description")?.Value ?? string.Empty,
                         CategoryId = category?.Id ?? 0,
                         IsUnderModeration = true,
                         AddedToDatabase = DateTime.UtcNow,
+                    };
+
+                    product = new ProductDBModel
+                    {
+                        GTIN = gtin,
+                        ModelNumber = offer.Element("model")?.Value ?? string.Empty,
+                        IsUnderModeration = true,
+                        AddedToDatabase = DateTime.UtcNow,
+                        BaseProduct = newBaseProduct,
                     };
 
                     var createResult = await _productRepository.CreateAsync(product);
@@ -244,7 +251,7 @@ namespace BLL.Services.SellerServices
                     PriceValue = spd.PriceValue,
                     ProductStoreUrl = spd.ProductStoreUrl,
                     StoreUrlClickRate = spd.Seller.AuctionClickRates
-                        .Where(acr => acr.CategoryId == spd.Product.CategoryId)
+                        .Where(acr => acr.CategoryId == spd.Product.BaseProduct.CategoryId)
                         .Select(acr => (decimal?)acr.ClickRate)
                         .FirstOrDefault() ?? _accountConfiguration.DefaultClickRate
                 });
