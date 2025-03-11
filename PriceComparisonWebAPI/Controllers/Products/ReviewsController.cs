@@ -22,10 +22,10 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _logger = logger;
         }
 
-        [HttpGet("{productId}")]
-        public async Task<JsonResult> GetReviewsByProductId(int productId)
+        [HttpGet("{baseProductId}")]
+        public async Task<JsonResult> GetReviewsByBaseProductId(int baseProductId)
         {
-            var result = await _reviewService.GetFromConditionAsync(x => x.ProductId == productId);
+            var result = await _reviewService.GetFromConditionAsync(x => x.BaseProductId == baseProductId);
             if (result == null || !result.Any())
             {
                 _logger.LogError(AppErrors.General.NotFound);

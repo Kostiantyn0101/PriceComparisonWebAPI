@@ -6,9 +6,8 @@ namespace Domain.Models.DBModels
     {
         public int Id { get; set; }
         public string ReviewUrl { get; set; }
-
-        public int ProductId { get; set; }
-        public ProductDBModel Product { get; set; }
-
+        public int BaseProductId { get; set; }
+        
+        public BaseProductDBModel BaseProduct { get; set; }
     }
 }

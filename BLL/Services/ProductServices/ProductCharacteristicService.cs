@@ -12,12 +12,16 @@ namespace BLL.Services.ProductServices
 {
     public class ProductCharacteristicService : IProductCharacteristicService
     {
-        private readonly ICompositeKeyRepository<ProductCharacteristicDBModel, int, int> _repository;
+        private readonly IRepository<ProductCharacteristicDBModel, int> _repository;
+        private readonly IRepository<ProductDBModel, int> _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductCharacteristicService(ICompositeKeyRepository<ProductCharacteristicDBModel, int, int> repository, IMapper mapper)
+        public ProductCharacteristicService(IRepository<ProductCharacteristicDBModel, int> repository,
+            IRepository<ProductDBModel, int> productRepository,
+            IMapper mapper)
         {
             _repository = repository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
 
@@ -73,10 +77,9 @@ namespace BLL.Services.ProductServices
                 : OperationResultModel<ProductCharacteristicDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<bool>> DeleteAsync(int productId, int characteristicId)
+        public async Task<OperationResultModel<bool>> DeleteAsync(int id)
         {
-            var compositeKey = new CompositeKey<int, int> { Key1 = productId, Key2 = characteristicId };
-            return await _repository.DeleteAsync(compositeKey);
+            return await _repository.DeleteAsync(id);
         }
 
         public IQueryable<ProductCharacteristicDBModel> GetQuery()
@@ -107,13 +110,17 @@ namespace BLL.Services.ProductServices
 
         public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetDetailedCharacteristics(int productId)
         {
+            var baseProductId = await _productRepository.GetQuery()
+                .Select(p => p.BaseProductId)
+                .FirstOrDefaultAsync();
+
             var query = _repository.GetQuery()
-                .Where(pc => pc.ProductId == productId)
+                .Where(pc => pc.ProductId == productId || pc.BaseProductId == baseProductId)
                 .Select(pc => new
                 {
                     ProductCharacteristic = pc,
-                    Characteristic = pc.Characteristic,
-                    ProductCategoryId = pc.Product.CategoryId,
+                    pc.Characteristic,
+                    ProductCategoryId = pc.Product != null ? pc.Product.BaseProduct.CategoryId : pc.BaseProduct.CategoryId,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
@@ -141,7 +148,7 @@ namespace BLL.Services.ProductServices
                    GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
                    ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
                    {
-                       ProductId = x.ProductCharacteristic.ProductId,
+                       ProductId = x.ProductCharacteristic.ProductId ?? 0, // TO DO - add base product id
                        CharacteristicId = x.ProductCharacteristic.CharacteristicId,
                        CharacteristicTitle = x.Characteristic.Title,
                        CharacteristicUnit = x.Characteristic.Unit,
@@ -164,8 +171,8 @@ namespace BLL.Services.ProductServices
                 .Select(pc => new
                 {
                     ProductCharacteristic = pc,
-                    Characteristic = pc.Characteristic,
-                    ProductCategoryId = pc.Product.CategoryId, // Предполагаем, что Product имеет связь с Category
+                    pc.Characteristic,
+                    ProductCategoryId = pc.Product.BaseProduct.CategoryId,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
@@ -193,7 +200,7 @@ namespace BLL.Services.ProductServices
                    GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
                    ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
                    {
-                       ProductId = x.ProductCharacteristic.ProductId,
+                       ProductId = x.ProductCharacteristic.ProductId ?? 0, // TO DO - add base product id
                        CharacteristicId = x.ProductCharacteristic.CharacteristicId,
                        CharacteristicTitle = x.Characteristic.Title,
                        CharacteristicUnit = x.Characteristic.Unit,

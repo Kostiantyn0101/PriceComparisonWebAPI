@@ -103,7 +103,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<FeedbackUpdateRequestModel, FeedbackDBModel>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore())
-                .ForMember(dest => dest.Product, opt => opt.Ignore())
+                .ForMember(dest => dest.BaseProduct, opt => opt.Ignore())
                 .ForMember(dest => dest.FeedbackImages, opt => opt.Ignore());
 
             CreateMap<ReviewDBModel, ReviewResponseModel>();

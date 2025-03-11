@@ -6,15 +6,14 @@ namespace Domain.Models.DBModels
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public ApplicationUserDBModel User { get; set; }
-
-        public int ProductId { get; set; }
-        public ProductDBModel Product { get; set; }
-
+        public int BaseProductId { get; set; }
         public string FeedbackText { get; set; }
         public DateTime CreatedAt { get; set; }
         public int Rating { get; set; }
 
+        public ApplicationUserDBModel User { get; set; }
+        public BaseProductDBModel BaseProduct { get; set; }
+        
         public ICollection<FeedbackImageDBModel> FeedbackImages { get; set; }
     }
 }

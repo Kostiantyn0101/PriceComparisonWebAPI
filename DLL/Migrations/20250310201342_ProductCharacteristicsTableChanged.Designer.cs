@@ -4,6 +4,7 @@ using DLL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DLL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250310201342_ProductCharacteristicsTableChanged")]
+    partial class ProductCharacteristicsTableChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -338,9 +341,6 @@ namespace DLL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BaseProductId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -348,6 +348,9 @@ namespace DLL.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -357,7 +360,7 @@ namespace DLL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BaseProductId");
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("UserId");
 
@@ -454,9 +457,14 @@ namespace DLL.Migrations
                         .HasMaxLength(2083)
                         .HasColumnType("nvarchar(2083)");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BaseProductId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Instructions");
                 });
@@ -576,8 +584,19 @@ namespace DLL.Migrations
                     b.Property<int>("BaseProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ColorId")
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GTIN")
                         .HasMaxLength(15)
@@ -593,6 +612,16 @@ namespace DLL.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("NormalizedTitle")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<string>("UPC")
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
@@ -604,6 +633,8 @@ namespace DLL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BaseProductId");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("ColorId");
 
@@ -681,6 +712,9 @@ namespace DLL.Migrations
                     b.Property<int>("BaseProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
                     b.Property<string>("VideoUrl")
                         .IsRequired()
                         .HasMaxLength(2083)
@@ -689,6 +723,8 @@ namespace DLL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BaseProductId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("ProductVideos");
                 });
@@ -719,6 +755,9 @@ namespace DLL.Migrations
                     b.Property<int>("BaseProductId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReviewUrl")
                         .IsRequired()
                         .HasMaxLength(2083)
@@ -727,6 +766,8 @@ namespace DLL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BaseProductId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("Reviews");
                 });
@@ -1025,9 +1066,9 @@ namespace DLL.Migrations
 
             modelBuilder.Entity("Domain.Models.DBModels.FeedbackDBModel", b =>
                 {
-                    b.HasOne("Domain.Models.DBModels.BaseProductDBModel", "BaseProduct")
+                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
                         .WithMany("Feedbacks")
-                        .HasForeignKey("BaseProductId")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1037,7 +1078,7 @@ namespace DLL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BaseProduct");
+                    b.Navigation("Product");
 
                     b.Navigation("User");
                 });
@@ -1071,7 +1112,15 @@ namespace DLL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
+                        .WithMany("Instructions")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("BaseProduct");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.PriceHistoryDBModel", b =>
@@ -1135,12 +1184,21 @@ namespace DLL.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.Models.DBModels.CategoryDBModel", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domain.Models.DBModels.ColorDBModel", "Color")
                         .WithMany("Products")
                         .HasForeignKey("ColorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("BaseProduct");
+
+                    b.Navigation("Category");
 
                     b.Navigation("Color");
                 });
@@ -1183,7 +1241,15 @@ namespace DLL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
+                        .WithMany("ProductVideos")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("BaseProduct");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.RelatedCategoryDBModel", b =>
@@ -1213,7 +1279,15 @@ namespace DLL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Models.DBModels.ProductDBModel", "Product")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("BaseProduct");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Domain.Models.DBModels.SellerDBModel", b =>
@@ -1306,8 +1380,6 @@ namespace DLL.Migrations
 
             modelBuilder.Entity("Domain.Models.DBModels.BaseProductDBModel", b =>
                 {
-                    b.Navigation("Feedbacks");
-
                     b.Navigation("Instructions");
 
                     b.Navigation("ProductCharacteristics");
@@ -1328,6 +1400,8 @@ namespace DLL.Migrations
                     b.Navigation("CategoryCharacteristicGroups");
 
                     b.Navigation("CategoryCharacteristics");
+
+                    b.Navigation("Products");
 
                     b.Navigation("RelatedCategories");
 
@@ -1362,6 +1436,10 @@ namespace DLL.Migrations
 
             modelBuilder.Entity("Domain.Models.DBModels.ProductDBModel", b =>
                 {
+                    b.Navigation("Feedbacks");
+
+                    b.Navigation("Instructions");
+
                     b.Navigation("PricesHistories");
 
                     b.Navigation("ProductCharacteristics");
@@ -1371,6 +1449,10 @@ namespace DLL.Migrations
                     b.Navigation("ProductImages");
 
                     b.Navigation("ProductSellerReferenceClicks");
+
+                    b.Navigation("ProductVideos");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("SellerProductDetails");
                 });

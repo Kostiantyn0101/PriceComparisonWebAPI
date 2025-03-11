@@ -15,7 +15,7 @@ namespace BLL.Services.ProductServices
 
         Task<OperationResultModel<ProductCharacteristicDBModel>> CreateAsync(ProductCharacteristicDBModel model);
         Task<OperationResultModel<ProductCharacteristicDBModel>> UpdateAsync(ProductCharacteristicDBModel entity);
-        Task<OperationResultModel<bool>> DeleteAsync(int productId, int characteristicId);
+        Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<ProductCharacteristicDBModel> GetQuery();
         Task<IEnumerable<ProductCharacteristicResponseModel>> GetFromConditionAsync(Expression<Func<ProductCharacteristicDBModel, bool>> condition);
         Task<IEnumerable<ProductCharacteristicDBModel>> ProcessQueryAsync(IQueryable<ProductCharacteristicDBModel> query);

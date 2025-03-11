@@ -383,6 +383,7 @@ namespace BLL.Services.Auth
             new(ClaimTypes.Name, user.UserName!),
             new(ClaimTypes.Email, user.Email!),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
             var userRoles = await _userManager.GetRolesAsync(user);

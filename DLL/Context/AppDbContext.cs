@@ -1,4 +1,5 @@
 ﻿using Domain.Models.DBModels;
+using Domain.Models.Primitives;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -30,11 +31,67 @@ namespace DLL.Context
         public DbSet<CharacteristicGroupDBModel> CharacteristicGroups { get; set; }
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
         public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
-        public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
         public DbSet<FilterDBModel> Filters { get; set; }
+        public DbSet<BaseProductDBModel> BaseProducts { get; set; }
+        public DbSet<ColorDBModel> Colors { get; set; }
+
+        //BaseProductsTableCreatedAndProductCharacteristicsTableIndexChanged
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // ColorDBModel
+            modelBuilder.Entity<ColorDBModel>(entity =>
+            {
+            });
+
+
+            // BaseProductDBModel
+            modelBuilder.Entity<BaseProductDBModel>(entity =>
+            {
+                entity.Property(p => p.Title)
+                    .HasMaxLength(255);
+
+                entity.Property(p => p.NormalizedTitle)
+                    .HasMaxLength(255);
+
+                entity.Property(p => p.Brand)
+                    .HasMaxLength(255);
+
+                entity.Property(c => c.AddedToDatabase)
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.HasOne(p => p.Category)
+                    .WithMany(c => c.BaseProducts)
+                    .HasForeignKey(p => p.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ProductDBModel
+            modelBuilder.Entity<ProductDBModel>(entity =>
+            {
+                entity.HasOne(p => p.BaseProduct)
+                    .WithMany(c => c.Products)
+                    .HasForeignKey(p => p.BaseProductId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(p => p.ModelNumber)
+                    .HasMaxLength(255);
+
+                entity.Property(p => p.GTIN)
+                    .HasMaxLength(15);
+
+                entity.Property(p => p.UPC)
+                    .HasMaxLength(15);
+
+                entity.Property(c => c.AddedToDatabase)
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.HasOne(p => p.Color)
+                    .WithMany(c => c.Products)
+                    .HasForeignKey(p => p.ColorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
             // FilterDBModel
             modelBuilder.Entity<FilterDBModel>(entity =>
@@ -57,21 +114,6 @@ namespace DLL.Context
                 entity.Property(e => e.Operator)
                     .IsRequired()
                     .HasMaxLength(10);
-            });
-
-            // ProductGroupDBModel
-            modelBuilder.Entity<ProductGroupDBModel>(entity =>
-            {
-                entity.HasOne(pg => pg.Product)
-                    .WithMany(p => p.ProductGroups)
-                    .HasForeignKey(e => e.ProductId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.Property(e => e.ProductGroupId)
-                    .HasMaxLength(36);  // = GUID
-
-                entity.HasIndex(pg => new { pg.ProductId, pg.ProductGroupId })
-                    .IsUnique();
             });
 
             // AuctionClickRateDBModel
@@ -174,7 +216,6 @@ namespace DLL.Context
             modelBuilder.Entity<CategoryDBModel>(entity =>
             {
                 entity.Property(c => c.Title)
-                    .IsRequired()
                     .HasMaxLength(255);
 
                 entity.Property(c => c.ImageUrl)
@@ -205,23 +246,18 @@ namespace DLL.Context
             // FeedbackDBModel
             modelBuilder.Entity<FeedbackDBModel>(entity =>
             {
-                entity.HasOne(f => f.Product)
+                entity.HasOne(f => f.BaseProduct)
                     .WithMany(p => p.Feedbacks)
-                    .HasForeignKey(f => f.ProductId);
+                    .HasForeignKey(f => f.BaseProductId);
 
                 entity.HasOne(f => f.User)
                     .WithMany(u => u.Feedbacks)
                     .HasForeignKey(f => f.UserId);
 
                 entity.Property(f => f.FeedbackText)
-                    .IsRequired()
                     .HasMaxLength(1000);
 
-                entity.Property(f => f.CreatedAt)
-                    .IsRequired();
-
                 entity.Property(f => f.Rating)
-                    .IsRequired()
                     .HasColumnType("int");
 
                 entity.ToTable(t => t.HasCheckConstraint("CK_Rating_Range", "[Rating] BETWEEN 1 AND 5"));
@@ -245,9 +281,9 @@ namespace DLL.Context
                 entity.Property(fi => fi.InstructionUrl)
                     .HasMaxLength(2083);
 
-                entity.HasOne(fi => fi.Product)
+                entity.HasOne(fi => fi.BaseProduct)
                     .WithMany(f => f.Instructions)
-                    .HasForeignKey(fi => fi.ProductId);
+                    .HasForeignKey(fi => fi.BaseProductId);
             });
 
             // SellerProductDetailsDBModel
@@ -299,53 +335,37 @@ namespace DLL.Context
                     .HasForeignKey(pr => pr.SellerId);
             });
 
-            // ProductDBModel
-            modelBuilder.Entity<ProductDBModel>(entity =>
-            {
-                entity.Property(p => p.Title)
-                    .HasMaxLength(255);
 
-                entity.Property(p => p.NormalizedTitle)
-                    .HasMaxLength(255);
-
-                entity.Property(p => p.Brand)
-                    .HasMaxLength(255);
-
-                entity.Property(p => p.ModelNumber)
-                    .HasMaxLength(255);
-
-                entity.Property(p => p.GTIN)
-                    .HasMaxLength(15);
-
-                entity.Property(p => p.UPC)
-                    .HasMaxLength(15);
-
-                entity.Property(c => c.AddedToDatabase)
-                    .HasColumnType("DATETIME2(0)");
-
-                entity.HasOne(p => p.Category)
-                    .WithMany(c => c.Products)
-                    .HasForeignKey(p => p.CategoryId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
 
             // ProductCharacteristicDBModel
             modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
             {
-                entity.Ignore(p => p.Id);
-
-                entity.HasKey(pc => new { pc.ProductId, pc.CharacteristicId });
-
                 entity.HasOne(pc => pc.Product)
                     .WithMany(p => p.ProductCharacteristics)
-                    .HasForeignKey(pc => pc.ProductId);
+                    .HasForeignKey(pc => pc.ProductId)
+                    .IsRequired(false);
 
                 entity.HasOne(pc => pc.Characteristic)
                     .WithMany(ch => ch.ProductCharacteristics)
                     .HasForeignKey(pc => pc.CharacteristicId);
 
+                entity.HasOne(pc => pc.BaseProduct)
+                    .WithMany(p => p.ProductCharacteristics)
+                    .HasForeignKey(pc => pc.BaseProductId)
+                    .IsRequired(false);
+
                 entity.Property(e => e.ValueNumber)
                     .HasColumnType("decimal(18, 2)");
+
+                // Require only one field to be filled and allow to fill only one field
+                //entity.ToTable(tb => tb.HasCheckConstraint(
+                //    "CK_ProductCharacteristic_ProductOrBaseProduct",
+                //    "(ProductId IS NULL AND BaseProductId IS NOT NULL) OR (ProductId IS NOT NULL AND BaseProductId IS NULL)"));
+
+                // Require at least one field to be filled
+                entity.ToTable(tb => tb.HasCheckConstraint(
+                    "CK_ProductCharacteristic_AtLeastOneProduct",
+                    "(ProductId IS NOT NULL) OR (BaseProductId IS NOT NULL)"));
             });
 
             // ProductImageDBModel
@@ -364,12 +384,11 @@ namespace DLL.Context
             modelBuilder.Entity<ProductVideoDBModel>(entity =>
             {
                 entity.Property(p => p.VideoUrl)
-                    .IsRequired()
                     .HasMaxLength(2083);
 
-                entity.HasOne(p => p.Product)
+                entity.HasOne(p => p.BaseProduct)
                     .WithMany(c => c.ProductVideos)
-                    .HasForeignKey(p => p.ProductId);
+                    .HasForeignKey(p => p.BaseProductId);
             });
 
             // RelatedCategoryDBModel
@@ -394,12 +413,11 @@ namespace DLL.Context
             modelBuilder.Entity<ReviewDBModel>(entity =>
             {
                 entity.Property(p => p.ReviewUrl)
-                    .IsRequired()
                     .HasMaxLength(2083);
 
-                entity.HasOne(p => p.Product)
+                entity.HasOne(p => p.BaseProduct)
                     .WithMany(c => c.Reviews)
-                    .HasForeignKey(p => p.ProductId);
+                    .HasForeignKey(p => p.BaseProductId);
             });
 
             // SellerDBModel
