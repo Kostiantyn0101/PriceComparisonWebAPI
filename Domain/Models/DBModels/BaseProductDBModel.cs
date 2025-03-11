@@ -29,6 +29,7 @@ namespace Domain.Models.DBModels
         public int CategoryId { get; set; }
         public CategoryDBModel Category { get; set; }
 
+        public ICollection<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public ICollection<ProductVideoDBModel> ProductVideos { get; set; }
         public ICollection<ReviewDBModel> Reviews { get; set; }
         public ICollection<InstructionDBModel> Instructions { get; set; }

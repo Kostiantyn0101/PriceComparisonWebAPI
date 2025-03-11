@@ -8,6 +8,7 @@ namespace Domain.Models.DBModels
         public int? BaseProductId { get; set; }
         public int? ProductId { get; set; }
         public ProductDBModel Product { get; set; }
+        public BaseProductDBModel BaseProduct { get; set; }
 
         public int CharacteristicId { get; set; }
         public CharacteristicDBModel Characteristic { get; set; }

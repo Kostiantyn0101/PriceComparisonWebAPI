@@ -359,20 +359,32 @@ namespace DLL.Context
             // ProductCharacteristicDBModel
             modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
             {
-                entity.Ignore(p => p.Id);
-
-                entity.HasKey(pc => new { pc.ProductId, pc.CharacteristicId });
-
                 entity.HasOne(pc => pc.Product)
                     .WithMany(p => p.ProductCharacteristics)
-                    .HasForeignKey(pc => pc.ProductId);
+                    .HasForeignKey(pc => pc.ProductId)
+                    .IsRequired(false);
 
                 entity.HasOne(pc => pc.Characteristic)
                     .WithMany(ch => ch.ProductCharacteristics)
                     .HasForeignKey(pc => pc.CharacteristicId);
 
+                entity.HasOne(pc => pc.BaseProduct)
+                    .WithMany(p => p.ProductCharacteristics)
+                    .HasForeignKey(pc => pc.BaseProductId)
+                    .IsRequired(false);
+
                 entity.Property(e => e.ValueNumber)
                     .HasColumnType("decimal(18, 2)");
+
+                // Require only one field to be filled and allow to fill only one field
+                //entity.ToTable(tb => tb.HasCheckConstraint(
+                //    "CK_ProductCharacteristic_ProductOrBaseProduct",
+                //    "(ProductId IS NULL AND BaseProductId IS NOT NULL) OR (ProductId IS NOT NULL AND BaseProductId IS NULL)"));
+
+                // Require at least one field to be filled
+                entity.ToTable(tb => tb.HasCheckConstraint(
+                    "CK_ProductCharacteristic_AtLeastOneProduct",
+                    "(ProductId IS NOT NULL) OR (BaseProductId IS NOT NULL)"));
             });
 
             // ProductImageDBModel

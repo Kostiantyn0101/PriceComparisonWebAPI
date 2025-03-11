@@ -148,6 +148,7 @@ namespace BLL.Services.SellerServices
                         //    Images = new List<Microsoft.AspNetCore.Http.IFormFile> { imageFile }
                         //});
                     }
+                    continue; // ??
                 }
 
                 // Price conversion to UAH
