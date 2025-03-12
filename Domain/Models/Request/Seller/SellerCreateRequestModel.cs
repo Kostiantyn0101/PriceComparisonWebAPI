@@ -10,5 +10,6 @@ namespace Domain.Models.Request.Seller
         public bool IsActive { get; set; }
         public int UserId { get; set; }
         public decimal AccoundBalance { get; set; }
+        public bool PublishPriceList { get; set; }
     }
 }
