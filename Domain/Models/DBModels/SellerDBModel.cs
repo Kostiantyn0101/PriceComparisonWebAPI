@@ -11,6 +11,7 @@ namespace Domain.Models.DBModels
         public string WebsiteUrl { get; set; }
         public bool IsActive { get; set; }
         public decimal AccountBalance { get; set; }
+        public bool PublishPriceList { get; set; }
 
         public int UserId { get; set; }
         public ApplicationUserDBModel User { get; set; }

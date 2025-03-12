@@ -9,6 +9,7 @@
         public string WebsiteUrl { get; set; }
         public bool IsActive { get; set; }
         public decimal AccoundBalance { get; set; }
+        public bool PublishPriceList { get; set; }
         public int UserId { get; set; }
     }
 }
