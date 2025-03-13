@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 using PriceComparisonWebAPI.Infrastructure;
 using PriceComparisonWebAPI.Infrastructure.DependencyInjection;
