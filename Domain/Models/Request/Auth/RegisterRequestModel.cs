@@ -1,4 +1,4 @@
-﻿namespace Domain.Models.Auth
+﻿namespace Domain.Models.Request.Auth
 {
     public class RegisterRequestModel
     {

@@ -3,6 +3,7 @@ using BLL.Services.SellerServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,18 @@ namespace PriceComparisonWebAPI.Controllers.Products
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
+        }
+
+        [HttpGet("statistic")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductSellerReferenceClickResponseModel>))]
+        public async Task<JsonResult> GetReferenceClickStatisticAsync([FromQuery] ProductSellerReferenceClickStaisticRequestModel model)
+        {
+            var result = await _productSellerReferenceClickService.GetReferenceClickStatisticAsync(model);
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
         }
     }
 }
