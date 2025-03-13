@@ -9,6 +9,7 @@ namespace BLL.Services.ProductServices
     public interface IProductReferenceClickService
     {
         Task<OperationResultModel<bool>> ProcessReferenceClick(ProductSellerReferenceClickCreateRequestModel request);
+        Task<List<ProductSellerReferenceClickResponseModel>> GetReferenceClickStatisticAsync(ProductSellerReferenceClickStaisticRequestModel request);
         Task<OperationResultModel<bool>> UpdateAsync(ProductSellerReferenceClickUpdateRequestModel request);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<ProductReferenceClickDBModel> GetQuery();

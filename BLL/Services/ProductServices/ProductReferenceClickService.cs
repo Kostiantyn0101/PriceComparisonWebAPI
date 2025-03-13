@@ -7,6 +7,7 @@ using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.IO.Pipelines;
 using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
@@ -39,9 +40,9 @@ namespace BLL.Services.ProductServices
         {
             var model = _mapper.Map<ProductReferenceClickDBModel>(request);
             model.ClickedAt = DateTime.Now;
-            
+
             var product = await _productRepository.GetQuery()
-                .Include(p=>p.BaseProduct)
+                .Include(p => p.BaseProduct)
                 .Where(p => p.Id == model.ProductId)
                 .FirstOrDefaultAsync();
 
@@ -91,6 +92,31 @@ namespace BLL.Services.ProductServices
                 ? OperationResultModel<bool>.Success(true)
                 : OperationResultModel<bool>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
+
+        public async Task<List<ProductSellerReferenceClickResponseModel>> GetReferenceClickStatisticAsync(ProductSellerReferenceClickStaisticRequestModel request)
+        {
+            var query = _repository.GetQuery()
+                .Where(rc => rc.ClickedAt >= request.StartDate && rc.ClickedAt <= request.EndDate)
+                .Select(rc => new ProductSellerReferenceClickResponseModel()
+                {
+                    ClickedAt = rc.ClickedAt,
+                    ProductId = rc.ProductId,
+                    ProductName = rc.Product.BaseProduct.Title + " " + rc.Product.VariantName,
+                    CategoryName = rc.Product.BaseProduct.Category.Title,
+                    ClickRate = rc.ClickRate,
+                    SellerId = rc.SellerId,
+                    Id = rc.Id,
+                    SellerProductReference = rc.Seller.SellerProductDetails
+                        .Where(pd => pd.ProductId == rc.ProductId && pd.ProductId == rc.ProductId)
+                        .Select(pd => pd.ProductStoreUrl)
+                        .FirstOrDefault() ?? string.Empty
+                });
+
+            var result = await query.ToListAsync();
+
+            return result;
+        }
+
 
         private async Task WriteOffClickFromTheBalanseAsync(ProductReferenceClickDBModel model, decimal clickRate)
         {
@@ -143,6 +169,8 @@ namespace BLL.Services.ProductServices
         {
             return await _repository.ProcessQueryAsync(query);
         }
+
+
     }
 }
 
