@@ -98,17 +98,21 @@ namespace BLL.Services.ProductServices
             return await _repository.ProcessQueryAsync(query);
         }
 
-        public async Task<IEnumerable<ProductCharacteristicResponseModel>> GetWithIncludeFromConditionAsync(Expression<Func<ProductCharacteristicDBModel, bool>> condition)
+        public async Task<IEnumerable<ProductCharacteristicResponseModel>> GetProductCharacteristicsAsync(int productId)
         {
+            var baseProductId = await _productRepository.GetQuery()
+                .Select(p => p.BaseProductId)
+                .FirstOrDefaultAsync();
+
             var query = _repository.GetQuery()
-                                   .Where(condition)
+                                   .Where(pc => pc.ProductId == productId || pc.BaseProductId == baseProductId)
                                    .Include(x => x.Characteristic);
 
             var dbModels = await _repository.ProcessQueryAsync(query);
             return _mapper.Map<IEnumerable<ProductCharacteristicResponseModel>>(dbModels);
         }
 
-        public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetDetailedCharacteristics(int productId)
+        public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetGroupedProductCharacteristicsAsync(int productId)
         {
             var baseProductId = await _productRepository.GetQuery()
                 .Select(p => p.BaseProductId)
@@ -120,7 +124,7 @@ namespace BLL.Services.ProductServices
                 {
                     ProductCharacteristic = pc,
                     pc.Characteristic,
-                    ProductCategoryId = pc.Product != null ? pc.Product.BaseProduct.CategoryId : pc.BaseProduct.CategoryId,
+                    ProductCategoryId = pc.Product != null ? pc.Product.BaseProduct.CategoryId : pc.BaseProduct != null ? pc.BaseProduct.CategoryId : 0,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
@@ -148,7 +152,8 @@ namespace BLL.Services.ProductServices
                    GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
                    ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
                    {
-                       ProductId = x.ProductCharacteristic.ProductId ?? 0, // TO DO - add base product id
+                       ProductId = x.ProductCharacteristic.ProductId,
+                       BaseProductId = x.ProductCharacteristic.BaseProductId,
                        CharacteristicId = x.ProductCharacteristic.CharacteristicId,
                        CharacteristicTitle = x.Characteristic.Title,
                        CharacteristicUnit = x.Characteristic.Unit,
@@ -164,15 +169,19 @@ namespace BLL.Services.ProductServices
             return result;
         }
 
-        public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortCharacteristics(int productId)
+        public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortGroupedProductCharacteristicsAsync(int productId)
         {
+            var baseProductId = await _productRepository.GetQuery()
+                .Select(p => p.BaseProductId)
+                .FirstOrDefaultAsync();
+
             var query = _repository.GetQuery()
-                .Where(pc => pc.ProductId == productId && pc.Characteristic.IncludeInShortDescription)
+                .Where(pc => pc.Characteristic.IncludeInShortDescription && (pc.ProductId == productId || pc.BaseProductId == baseProductId))
                 .Select(pc => new
                 {
                     ProductCharacteristic = pc,
                     pc.Characteristic,
-                    ProductCategoryId = pc.Product.BaseProduct.CategoryId,
+                    ProductCategoryId = pc.Product != null ? pc.Product.BaseProduct.CategoryId : pc.BaseProduct != null ? pc.BaseProduct.CategoryId : 0,
                     Group = pc.Characteristic.CharacteristicGroup
                 })
                 .Select(x => new
@@ -200,7 +209,8 @@ namespace BLL.Services.ProductServices
                    GroupDisplayOrder = g.Key.CategoryGroup?.GroupDisplayOrder ?? 0,
                    ProductCharacteristics = g.Select(x => new ProductCharacteristicResponseModel
                    {
-                       ProductId = x.ProductCharacteristic.ProductId ?? 0, // TO DO - add base product id
+                       ProductId = x.ProductCharacteristic.ProductId ?? 0,
+                       BaseProductId = x.ProductCharacteristic.BaseProductId,
                        CharacteristicId = x.ProductCharacteristic.CharacteristicId,
                        CharacteristicTitle = x.Characteristic.Title,
                        CharacteristicUnit = x.Characteristic.Unit,

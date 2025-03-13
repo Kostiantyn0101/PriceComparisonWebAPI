@@ -34,8 +34,8 @@ namespace BLL.Services.AIServices
         public async Task<AIComparisonProductCharacteristicResponseModel> CompareProductsAsync(int productIdA, int productIdB, AIProvider? provider = null)
         {
             // get character for product
-            var productAData = await _productCharacteristicService.GetDetailedCharacteristics(productIdA);
-            var productBData = await _productCharacteristicService.GetDetailedCharacteristics(productIdB);
+            var productAData = await _productCharacteristicService.GetGroupedProductCharacteristicsAsync(productIdA);
+            var productBData = await _productCharacteristicService.GetGroupedProductCharacteristicsAsync(productIdB);
 
             var productAList = await _productService.GetFromConditionAsync(t => t.Id == productIdA);
             var productBList = await _productService.GetFromConditionAsync(t => t.Id == productIdB);

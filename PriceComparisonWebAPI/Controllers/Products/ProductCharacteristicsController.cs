@@ -26,10 +26,14 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _logger = logger;
         }
 
+
         [HttpGet("{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductCharacteristicsByProductId(int productId)
         {
-            var result = await _productCharacteristicService.GetWithIncludeFromConditionAsync(x => x.ProductId == productId);
+            var result = await _productCharacteristicService.GetProductCharacteristicsAsync(productId);
+
             if (result == null || !result.Any())
             {
                 _logger.LogError(AppErrors.General.NotFound);
@@ -42,29 +46,46 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpGet("grouped/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetGroupedProductCharacteristicsByProductId(int productId)
         {
-            var result = await _productCharacteristicService.GetDetailedCharacteristics(productId);
-            
+            var result = await _productCharacteristicService.GetGroupedProductCharacteristicsAsync(productId);
+
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
             return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
 
         [HttpGet("short-grouped/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetShortGroupedProductCharacteristicsByProductId(int productId)
         {
-            var result = await _productCharacteristicService.GetShortCharacteristics(productId);
+            var result = await _productCharacteristicService.GetShortGroupedProductCharacteristicsAsync(productId);
+
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
 
             return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
 
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
