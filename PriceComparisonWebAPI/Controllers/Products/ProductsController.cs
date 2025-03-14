@@ -50,6 +50,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpGet("empty/{id}")]
         public async Task<JsonResult> GetEmptyProductById(int id)
         {
@@ -69,10 +70,11 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateProduct([FromForm] ProductRequestModel productRequest)
+        public async Task<JsonResult> CreateProduct([FromForm] ProductCreateRequestModel productRequest)
         {
             var result = await _productService.CreateAsync(productRequest);
 
@@ -85,10 +87,11 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateProduct([FromForm] ProductRequestModel productRequest)
+        public async Task<JsonResult> UpdateProduct([FromForm] ProductUpdateRequestModel productRequest)
         {
             var result = await _productService.UpdateAsync(productRequest);
 
@@ -100,6 +103,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
+
 
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]

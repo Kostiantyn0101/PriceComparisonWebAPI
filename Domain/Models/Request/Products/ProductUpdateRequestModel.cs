@@ -1,0 +1,15 @@
+﻿namespace Domain.Models.Request.Products
+{
+    public class ProductUpdateRequestModel
+    {
+        public int Id { get; set; }
+        public string? GTIN { get; set; }
+        public string? UPC { get; set; }
+        public string? ModelNumber { get; set; }
+        public bool IsUnderModeration { get; set; }
+        public int BaseProductId { get; set; }
+        public int? ColorId { get; set; }
+        public bool IsDefault { get; set; }
+        public string? VariantName { get; set; }
+    }
+}
