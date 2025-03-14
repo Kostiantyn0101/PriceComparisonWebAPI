@@ -15,11 +15,13 @@ namespace PriceComparisonWebAPI.Controllers.Products
         private readonly ILogger<ColorController> _logger;
         private readonly IColorService _colorService;
 
+
         public ColorController(ILogger<ColorController> logger, IColorService colorService)
         {
             _logger = logger;
             _colorService = colorService;
         }
+
 
         [HttpGet("{id}")]
         public async Task<JsonResult> GetColorById(int id)
@@ -36,6 +38,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
@@ -50,6 +53,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
@@ -63,6 +67,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             }
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
+
 
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
