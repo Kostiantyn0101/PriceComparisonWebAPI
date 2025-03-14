@@ -53,8 +53,10 @@ namespace PriceComparisonWebAPI.Infrastructure
 
             // PRODUCTS
             CreateMap<ProductDBModel, ProductResponseModel>();
-            CreateMap<ProductRequestModel, ProductDBModel>()
-                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<ProductCreateRequestModel, ProductDBModel>();
+               //.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<ProductUpdateRequestModel, ProductDBModel>();
+               //.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // todo: find desision about nullable type
             CreateMap<ProductImageDBModel, ProductImageResponseModel>()

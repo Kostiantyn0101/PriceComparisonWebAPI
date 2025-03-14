@@ -20,16 +20,17 @@ namespace BLL.Services.ProductServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<ProductDBModel>> CreateAsync(ProductRequestModel model)
+        public async Task<OperationResultModel<ProductDBModel>> CreateAsync(ProductCreateRequestModel model)
         {
             var mapped = _mapper.Map<ProductDBModel>(model);
+            mapped.AddedToDatabase = DateTime.UtcNow;
             var result = await _repository.CreateAsync(mapped);
             return result.IsSuccess
                 ? result
                 : OperationResultModel<ProductDBModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<ProductDBModel>> UpdateAsync(ProductRequestModel model)
+        public async Task<OperationResultModel<ProductDBModel>> UpdateAsync(ProductUpdateRequestModel model)
         {
             var existingRecords = await _repository.GetFromConditionAsync(x => x.Id == model.Id);
             var existing = existingRecords.FirstOrDefault();
