@@ -74,7 +74,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateProduct([FromForm] ProductCreateRequestModel productRequest)
+        public async Task<JsonResult> CreateProduct([FromBody] ProductCreateRequestModel productRequest)
         {
             var result = await _productService.CreateAsync(productRequest);
 
@@ -91,7 +91,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateProduct([FromForm] ProductUpdateRequestModel productRequest)
+        public async Task<JsonResult> UpdateProduct([FromBody] ProductUpdateRequestModel productRequest)
         {
             var result = await _productService.UpdateAsync(productRequest);
 
