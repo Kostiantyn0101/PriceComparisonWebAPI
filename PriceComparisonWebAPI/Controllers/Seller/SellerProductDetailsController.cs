@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using BLL.Services.SellerServices;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
+using Domain.Models.Request.Seller;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +19,13 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         private readonly ISellerProductDetailsService _sellerProductDetailsService;
 
         public SellerProductDetailsController(ILogger<SellerProductDetailsController> logger, ISellerProductDetailsService sellerProductDetailsService)
-        {
+        {   
             _logger = logger;
             _sellerProductDetailsService = sellerProductDetailsService;
         }
 
-        [HttpPost("upload-file")]
+        [HttpPost("upload-xml-file")]
         [Consumes("multipart/form-data")]
-        //[Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UploadXmlFile()
@@ -45,8 +45,32 @@ namespace PriceComparisonWebAPI.Controllers.Seller
                 return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status200OK, result.ErrorMessage);
+            return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
         }
+
+        [HttpPost("upload-file")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UploadFile([FromForm] SellerProductXmlRequestModel request)
+        {
+            var file = request.PriceXML;
+            if (file == null || file.Length == 0)
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, "File not found");
+            }
+
+            using var stream = file.OpenReadStream();
+            var result = await _sellerProductDetailsService.ProcessXmlAsync(stream);
+
+            if (result.IsSuccess)
+            {
+                return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
+            }
+
+            return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+        }
+
 
         [HttpGet("{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
