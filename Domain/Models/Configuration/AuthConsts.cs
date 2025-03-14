@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Models.Auth
+namespace Domain.Models.Configuration
 {
-    public static class Consts
+    public static class AuthConsts
     {
         public const int UsernameMinLength = 5;
 

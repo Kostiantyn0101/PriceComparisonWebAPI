@@ -7,18 +7,20 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Domain.Models.Auth;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Identity;
+using Domain.Models.Request.Auth;
 using Domain.Models.Response;
+using Domain.Models.Response.Auth;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -45,7 +47,6 @@ namespace BLL.Services.Auth
             _userManager = userManager;
             _roleManager = roleManager;
         }
-
 
 
         public async Task<JsonResult> LoginAsync(LoginRequestModel request)
@@ -76,7 +77,7 @@ namespace BLL.Services.Auth
                         StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
-                if (user.Provider != Consts.LoginProviders.Password)
+                if (user.Provider != AuthConsts.LoginProviders.Password)
                 {
                     return new JsonResult(new GeneralApiResponseModel
                     {
@@ -120,23 +121,24 @@ namespace BLL.Services.Auth
             }
         }
 
+
         public async Task<JsonResult> RegisterAsync(RegisterRequestModel request)
         {
             var errors = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(request.Username) || request.Username.Length < Consts.UsernameMinLength)
+            if (string.IsNullOrWhiteSpace(request.Username) || request.Username.Length < AuthConsts.UsernameMinLength)
             {
-                errors.Add(Consts.UsernameLengthValidationError);
+                errors.Add(AuthConsts.UsernameLengthValidationError);
             }
 
-            if (string.IsNullOrWhiteSpace(request.Email) || !Regex.IsMatch(request.Email, Consts.EmailRegex))
+            if (string.IsNullOrWhiteSpace(request.Email) || !Regex.IsMatch(request.Email, AuthConsts.EmailRegex))
             {
-                errors.Add(Consts.EmailValidationError);
+                errors.Add(AuthConsts.EmailValidationError);
             }
 
-            if (string.IsNullOrWhiteSpace(request.Password) || !Regex.IsMatch(request.Password, Consts.PasswordRegex))
+            if (string.IsNullOrWhiteSpace(request.Password) || !Regex.IsMatch(request.Password, AuthConsts.PasswordRegex))
             {
-                errors.Add(Consts.PasswordValidationError);
+                errors.Add(AuthConsts.PasswordValidationError);
             }
 
             if (errors.Any())
@@ -183,7 +185,7 @@ namespace BLL.Services.Auth
                 {
                     Email = request.Email,
                     UserName = request.Username,
-                    Provider = Consts.LoginProviders.Password,
+                    Provider = AuthConsts.LoginProviders.Password,
                 };
 
                 var result = await _userManager.CreateAsync(user, request.Password!);
@@ -258,6 +260,7 @@ namespace BLL.Services.Auth
                 };
             }
         }
+
 
         public async Task<JsonResult> RefreshTokenAsync(RefreshTokenResponseModel request)
         {
@@ -345,6 +348,66 @@ namespace BLL.Services.Auth
         }
 
 
+        public async Task<OperationResultModel<bool>> UpdateUserRolesAsync(UpdateUserRolesRequestModel request)
+        {
+
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+            if (user == null)
+            {
+                return OperationResultModel<bool>.Failure("User not found");
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            foreach (var role in request.Roles)
+            {
+                if (!await _roleManager.RoleExistsAsync(role))
+                {
+
+                    return OperationResultModel<bool>.Failure($"Role '{role}' does not exist");
+                }
+
+                await _userManager.AddToRoleAsync(user, role);
+            }
+
+            return OperationResultModel<bool>.Success();
+        }
+
+        public async Task<OperationResultModel<bool>> CreateRoleAsync(string roleName)
+
+        {
+            if (string.IsNullOrEmpty(roleName))
+            {
+                return OperationResultModel<bool>.Failure("Role name is required");
+            }
+
+            var roleExists = await _roleManager.RoleExistsAsync(roleName);
+            if (roleExists)
+            {
+                return OperationResultModel<bool>.Failure("Role already exists");
+            }
+
+            var result = await _roleManager.CreateAsync(new IdentityRole<int>(roleName));
+            if (!result.Succeeded)
+            {
+                return OperationResultModel<bool>.Failure($"Create error: {result.Errors.FirstOrDefault()?.ToString()}");
+            }
+
+            return OperationResultModel<bool>.Success();
+        }
+
+
+        public async Task<List<string>> GetAllRolesAsync()
+        {
+            var roles = await _roleManager.Roles
+                .Select(r => r.Name)
+                .ToListAsync();
+
+            return roles ?? new List<string>();
+        }
+
         private async Task<JwtSecurityToken> CreateToken(ApplicationUserDBModel user)
         {
             try
@@ -367,6 +430,7 @@ namespace BLL.Services.Auth
             }
         }
 
+
         private string GenerateRefreshToken()
         {
             var randomNumber = new byte[64];
@@ -374,6 +438,7 @@ namespace BLL.Services.Auth
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
+
 
         private async Task<List<Claim>> GetClaims(ApplicationUserDBModel user)
         {
@@ -396,6 +461,7 @@ namespace BLL.Services.Auth
             return authClaims;
         }
 
+
         private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
         {
             var tokenValidationParameters = new TokenValidationParameters
@@ -415,5 +481,6 @@ namespace BLL.Services.Auth
 
             return principal;
         }
+
     }
 }
