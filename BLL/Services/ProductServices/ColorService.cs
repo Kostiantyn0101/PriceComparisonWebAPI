@@ -5,17 +5,20 @@ using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services.ProductServices
 {
     public class ColorService : IColorService
     {
         private readonly IRepository<ColorDBModel, int> _repository;
+        private readonly IRepository<ProductDBModel, int> _productRepository;
         private readonly IMapper _mapper;
 
-        public ColorService(IRepository<ColorDBModel, int> repository, IMapper mapper)
+        public ColorService(IRepository<ColorDBModel, int> repository, IRepository<ProductDBModel, int> productRepository, IMapper mapper)
         {
             _repository = repository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
 
@@ -67,6 +70,21 @@ namespace BLL.Services.ProductServices
         public async Task<IEnumerable<ColorDBModel>> ProcessQueryAsync(IQueryable<ColorDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
+        }
+
+        public async Task<IEnumerable<ProductColorResponseModel>> GetByProductGroupIdAsync(int productGroupId)
+        {
+            var query = _productRepository.GetQuery()
+                .Where(p => p.ProductGroupId == productGroupId && p.ColorId != null)
+                .Select(p => new ProductColorResponseModel()
+                {
+                    ProductId = p.Id,
+                    Name = p.Color!.Name,
+                    HexCode = p.Color!.HexCode,
+                    GradientCode = p.Color!.GradientCode,
+                });
+
+            return await query.ToListAsync();
         }
     }
 }

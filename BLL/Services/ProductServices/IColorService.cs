@@ -13,6 +13,7 @@ namespace BLL.Services.ProductServices
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<ColorDBModel> GetQuery();
         Task<IEnumerable<ColorResponseModel>> GetFromConditionAsync(Expression<Func<ColorDBModel, bool>> condition);
+        Task<IEnumerable<ProductColorResponseModel>> GetByProductGroupIdAsync(int productGroupId);
         Task<IEnumerable<ColorDBModel>> ProcessQueryAsync(IQueryable<ColorDBModel> query);
     }
 }

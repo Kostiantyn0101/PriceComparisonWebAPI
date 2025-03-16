@@ -10,13 +10,13 @@ namespace PriceComparisonWebAPI.Controllers.Products
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ColorController : ControllerBase
+    public class ProductColorController : ControllerBase
     {
-        private readonly ILogger<ColorController> _logger;
+        private readonly ILogger<ProductColorController> _logger;
         private readonly IColorService _colorService;
 
 
-        public ColorController(ILogger<ColorController> logger, IColorService colorService)
+        public ProductColorController(ILogger<ProductColorController> logger, IColorService colorService)
         {
             _logger = logger;
             _colorService = colorService;
@@ -27,6 +27,22 @@ namespace PriceComparisonWebAPI.Controllers.Products
         public async Task<JsonResult> GetColorById(int id)
         {
             var result = await _colorService.GetFromConditionAsync(c => c.Id == id);
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(result.First())
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
+        [HttpGet("by-product-group{productGroupId}")]
+        public async Task<JsonResult> GetColorsByProductGroupId(int productGroupId)
+        {
+            var result = await _colorService.GetByProductGroupIdAsync(productGroupId);
             if (result == null || !result.Any())
             {
                 _logger.LogError(AppErrors.General.NotFound);

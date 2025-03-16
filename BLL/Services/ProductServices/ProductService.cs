@@ -111,8 +111,11 @@ namespace BLL.Services.ProductServices
                     {
                         Id = p.Key,
                         Name = p.First().ProductGroup.Name,
+                        FirstProductId = p.First().Id,
                         DisplayOrder = 1
-                    }),
+                    })
+                    .OrderBy(pg => pg.DisplayOrder)
+                    .ToList()
                 });
 
             var totalItems = await query.CountAsync();
