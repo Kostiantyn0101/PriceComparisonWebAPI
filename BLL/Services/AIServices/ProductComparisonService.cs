@@ -2,6 +2,7 @@
 using BLL.Services.ProductServices;
 using Domain.Models.Response.Gpt;
 using Domain.Models.Response.Gpt.Product;
+using Microsoft.EntityFrameworkCore;
 using OpenAI;
 using OpenAI.Chat;
 using OpenAI.Threads;
@@ -40,8 +41,15 @@ namespace BLL.Services.AIServices
             var productAList = await _productService.GetFromConditionAsync(t => t.Id == productIdA);
             var productBList = await _productService.GetFromConditionAsync(t => t.Id == productIdB);
 
-            var productATitle = productAList.FirstOrDefault()?.Title ?? "Product A";
-            var productBTitle = productBList.FirstOrDefault()?.Title ?? "Product B";
+            var productATitle = (await _productService.GetQuery()
+                .Where(p => p.Id == productIdA)
+                .Select(p => p.BaseProduct.Title)
+                .FirstOrDefaultAsync()) ?? "Product A";
+            
+            var productBTitle = (await _productService.GetQuery()
+                  .Where(p => p.Id == productIdB)
+                  .Select(p => p.BaseProduct.Title)
+                  .FirstOrDefaultAsync()) ?? "Product B";
 
             var simplifiedProductA = _mapper.Map<List<SimplifiedProductCharacteristicGroupResponseModel>>(productAData);
             var simplifiedProductB = _mapper.Map<List<SimplifiedProductCharacteristicGroupResponseModel>>(productBData);

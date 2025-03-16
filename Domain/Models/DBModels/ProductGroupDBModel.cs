@@ -8,5 +8,6 @@ namespace Domain.Models.DBModels
         public string Name { get; set; }
         
         public IEnumerable<ProductDBModel> Products { get; set; }
+
     }
 }

@@ -6,7 +6,7 @@ namespace Domain.Models.DBModels
     {
         public int Id { get; set; }     
         public int BaseProductId { get; set; }
-        public int? ProductGroupId { get; set; }
+        public int ProductGroupId { get; set; }
         public string? ModelNumber { get; set; }                                        
         public string? GTIN { get; set; }                                               
         public string? UPC { get; set; }                                                
