@@ -32,6 +32,7 @@ namespace DLL.Context
         public DbSet<CategoryCharacteristicGroupDBModel> CategoryCharacteristicGroups { get; set; }
         public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
         public DbSet<FilterDBModel> Filters { get; set; }
+        public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
         public DbSet<BaseProductDBModel> BaseProducts { get; set; }
         public DbSet<ColorDBModel> Colors { get; set; }
 
@@ -39,6 +40,13 @@ namespace DLL.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // ProductGroupDBModel
+            modelBuilder.Entity<ProductGroupDBModel>(entity =>
+            {
+                entity.HasIndex(pg => new { pg.Name})
+                  .IsUnique();
+            });
 
             // ColorDBModel
             modelBuilder.Entity<ColorDBModel>(entity =>
@@ -75,6 +83,11 @@ namespace DLL.Context
                     .HasForeignKey(p => p.BaseProductId)
                     .OnDelete(DeleteBehavior.Restrict);
 
+                entity.HasOne(p => p.ProductGroup)
+                    .WithMany(c => c.Products)
+                    .HasForeignKey(p => p.ProductGroupId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 entity.Property(p => p.ModelNumber)
                     .HasMaxLength(255);
 
@@ -91,6 +104,9 @@ namespace DLL.Context
                     .WithMany(c => c.Products)
                     .HasForeignKey(p => p.ColorId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(p => new {p.Id, p.ProductGroupId, p.ColorId })
+                    .IsUnique();
             });
 
             // FilterDBModel

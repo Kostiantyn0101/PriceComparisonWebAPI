@@ -5,8 +5,8 @@ namespace Domain.Models.DBModels
     public class ProductDBModel : IEntity<int>
     {
         public int Id { get; set; }     
-        public int BaseProductId { get; set; }            
-        public string VariantName { get; set; }
+        public int BaseProductId { get; set; }
+        public int? ProductGroupId { get; set; }
         public string? ModelNumber { get; set; }                                        
         public string? GTIN { get; set; }                                               
         public string? UPC { get; set; }                                                
@@ -16,6 +16,7 @@ namespace Domain.Models.DBModels
         public DateTime AddedToDatabase { get; set; }  
 
         public BaseProductDBModel BaseProduct { get; set; }
+        public ProductGroupDBModel ProductGroup { get; set; }
         public ColorDBModel? Color { get; set; }
 
         public ICollection<ProductImageDBModel> ProductImages { get; set; }                               

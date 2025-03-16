@@ -26,9 +26,9 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
                 .GreaterThan(0).WithMessage("Color id must be greater than 0")
                 .When(x => x.ColorId.HasValue);
 
-            RuleFor(x => x.VariantName)
-                .MaximumLength(200).WithMessage("Variant name length must be less than 200 characters")
-                .When(x => !string.IsNullOrEmpty(x.VariantName));
+            RuleFor(x => x.ProductGroupId)
+                .GreaterThan(0).WithMessage("Product group id must be greater than 0")
+                .When(x => x.ProductGroupId.HasValue);
         }
     }
 }

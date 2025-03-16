@@ -120,8 +120,7 @@ namespace PriceComparisonWebAPI.Infrastructure
             CreateMap<ColorUpdateRequestModel, ColorDBModel>();
             CreateMap<ColorDBModel, ColorResponseModel>();
 
-            CreateMap<ProductGroupCreateRequestModel, ProductGroupDBModel>()
-                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.NewProductId));
+            CreateMap<ProductGroupCreateRequestModel, ProductGroupDBModel>();
             CreateMap<ProductGroupUpdateRequestModel, ProductGroupDBModel>();
             CreateMap<ProductGroupDBModel, ProductGroupResponseModel>();
 

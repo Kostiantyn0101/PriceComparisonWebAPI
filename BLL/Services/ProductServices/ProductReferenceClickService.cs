@@ -101,7 +101,7 @@ namespace BLL.Services.ProductServices
                 {
                     ClickedAt = rc.ClickedAt,
                     ProductId = rc.ProductId,
-                    ProductName = rc.Product.BaseProduct.Title + " " + rc.Product.VariantName,
+                    ProductName = rc.Product.BaseProduct.Title + " " + rc.Product.ProductGroup.Name,
                     CategoryName = rc.Product.BaseProduct.Category.Title,
                     ClickRate = rc.ClickRate,
                     SellerId = rc.SellerId,

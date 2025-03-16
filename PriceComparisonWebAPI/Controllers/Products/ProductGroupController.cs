@@ -41,16 +41,16 @@ namespace PriceComparisonWebAPI.Controllers.Products
         [HttpGet("getByProductId/{productId}")]
         public async Task<JsonResult> GetProductGroupByProductId(int productId)
         {
-            var result = await _productGroupService.GetFromConditionAsync(pg => pg.ProductId == productId);
-            if (result == null || !result.Any())
-            {
-                _logger.LogError(AppErrors.General.NotFound);
+            //var result = await _productGroupService.GetFromConditionAsync(pg => pg.ProductId == productId);
+            //if (result == null || !result.Any())
+            //{
+            //    _logger.LogError(AppErrors.General.NotFound);
+            //}
+            //return new JsonResult(result.First())
+            //{
+            //    StatusCode = StatusCodes.Status200OK
+            //};
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
-            }
-            return new JsonResult(result.First())
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
         }
 
         [HttpPost("create")]

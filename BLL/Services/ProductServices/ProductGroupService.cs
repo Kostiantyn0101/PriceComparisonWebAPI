@@ -23,20 +23,6 @@ namespace BLL.Services.ProductServices
         {
             var model = _mapper.Map<ProductGroupDBModel>(request);
 
-            var existingGroup = (await _repository.GetFromConditionAsync(pg => pg.ProductId == request.ExistingProductId)).FirstOrDefault();
-
-            if (existingGroup == null)
-            {
-                existingGroup = new ProductGroupDBModel() { ProductId = request.ExistingProductId, ProductGroupId = Guid.NewGuid().ToString() };
-                var existingProductResult = await _repository.CreateAsync(existingGroup);
-
-                if (!existingProductResult.IsSuccess)
-                {
-                    return existingProductResult;
-                }
-            }
-
-            model.ProductGroupId = existingGroup.ProductGroupId;
             var newProductResult = await _repository.CreateAsync(model);
             return newProductResult;
         }

@@ -9,6 +9,6 @@
         public int BaseProductId { get; set; }
         public int? ColorId { get; set; }
         public bool IsDefault { get; set; }
-        public string? VariantName { get; set; }
+        public int? ProductGroupId { get; set; }
     }
 }
