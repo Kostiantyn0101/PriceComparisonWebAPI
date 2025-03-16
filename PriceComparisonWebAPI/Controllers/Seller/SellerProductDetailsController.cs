@@ -5,6 +5,7 @@ using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Seller;
 using Domain.Models.Response;
+using Domain.Models.Response.Seller;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +20,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         private readonly ISellerProductDetailsService _sellerProductDetailsService;
 
         public SellerProductDetailsController(ILogger<SellerProductDetailsController> logger, ISellerProductDetailsService sellerProductDetailsService)
-        {   
+        {
             _logger = logger;
             _sellerProductDetailsService = sellerProductDetailsService;
         }
@@ -73,7 +74,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
 
 
         [HttpGet("{productId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetSellerProductDetails(int productId)
         {
@@ -91,7 +92,29 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
+
+        [HttpGet("byproductgroup")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetSellerProductDetailsByProductGroup([FromQuery] SellerProductDetailsRequestModel model)
+        {
+            var result = await _sellerProductDetailsService.GetSellerProductDetailsByProductGroupAsync(model);
+
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
         [HttpGet("paginated/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetSellerProductDetailsPaginated(int productId, [FromQuery] int page = 1, [FromQuery] int pageSize = 3)
         {
             Expression<Func<SellerProductDetailsDBModel, bool>> condition = p => p.ProductId == productId;
@@ -108,15 +131,5 @@ namespace PriceComparisonWebAPI.Controllers.Seller
                 StatusCode = StatusCodes.Status200OK
             };
         }
-
-
-        //[HttpPost("upload-xml")]
-        //[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        //public async Task<IActionResult> UploadXml([FromBody] string xmlContent)
-        //{
-        //    //await _sellerProductService.ProcessXmlAsync(xmlContent);
-        //    //return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.GerneralSuccess, StatusCodes.Status200OK);
-        //}
     }
 }

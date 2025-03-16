@@ -3,6 +3,7 @@ using BLL.Services.ProductServices;
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
+using Domain.Models.Request.Seller;
 using Domain.Models.Response;
 using Domain.Models.Response.Seller;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace BLL.Services.SellerServices
         private readonly IRepository<CategoryDBModel, int> _categoryRepository;
         private readonly IRepository<PriceHistoryDBModel, int> _priceHistoryRepository;
         private readonly SellerAccountConfiguration _accountConfiguration;
+        private readonly FileStorageConfiguration _fileStorageConfiguration;
         private readonly IProductImageService _productImageService;
         private readonly IFileService _fileService;
         private readonly ILogger<SellerProductDetailsService> _logger;
@@ -37,6 +39,7 @@ namespace BLL.Services.SellerServices
             IProductImageService productImageService,
             IFileService fileService,
             IOptions<SellerAccountConfiguration> options,
+            IOptions<FileStorageConfiguration> fileOptions,
             ILogger<SellerProductDetailsService> logger)
         {
             _repository = repository;
@@ -48,6 +51,7 @@ namespace BLL.Services.SellerServices
             _productImageService = productImageService;
             _fileService = fileService;
             _logger = logger;
+            _fileStorageConfiguration = fileOptions.Value;
         }
 
         public async Task<OperationResultModel<string>> ProcessXmlAsync(Stream stream)
@@ -211,7 +215,9 @@ namespace BLL.Services.SellerServices
         public async Task<IEnumerable<SellerProductDetailsResponseModel>> GetSellerProductDetailsAsync(int productId)
         {
             var query = BuildSellerProductDetailsQuery(spd => spd.ProductId == productId);
-            return await query.OrderByDescending(x => x.StoreUrlClickRate).ToListAsync();
+            var productDetails = await query.OrderByDescending(x => x.StoreUrlClickRate).ToListAsync();
+            ProcessSellerLogoImageUrl(productDetails);
+            return productDetails;
         }
 
         public async Task<OperationResultModel<PaginatedResponse<SellerProductDetailsResponseModel>>> GetPaginatedSellerProductDetailsAsync(
@@ -227,6 +233,8 @@ namespace BLL.Services.SellerServices
                 .Take(pageSize)
                 .ToListAsync();
 
+            ProcessSellerLogoImageUrl(data);
+
             var response = new PaginatedResponse<SellerProductDetailsResponseModel>
             {
                 Data = data,
@@ -236,6 +244,15 @@ namespace BLL.Services.SellerServices
             };
 
             return OperationResultModel<PaginatedResponse<SellerProductDetailsResponseModel>>.Success(response);
+        }
+
+
+        public async Task<IEnumerable<SellerProductDetailsResponseModel>> GetSellerProductDetailsByProductGroupAsync(SellerProductDetailsRequestModel model)
+        {
+            var query = BuildSellerProductDetailsQuery(spd => spd.Product.BaseProductId == model.BaseProductId && spd.Product.ProductGroupId==model.ProductGroupId);
+            var productDetails = await query.OrderByDescending(x => x.StoreUrlClickRate).ToListAsync();
+            ProcessSellerLogoImageUrl(productDetails);
+            return productDetails;
         }
 
 
@@ -257,5 +274,12 @@ namespace BLL.Services.SellerServices
                 });
         }
 
+        private void ProcessSellerLogoImageUrl(IEnumerable<SellerProductDetailsResponseModel> model)
+        {
+            foreach (var item in model)
+            {
+                item.LogoImageUrl = $"{_fileStorageConfiguration.ServerURL.TrimEnd('/')}/{item.LogoImageUrl.TrimStart('/')}";
+            }
+        }
     }
 }
