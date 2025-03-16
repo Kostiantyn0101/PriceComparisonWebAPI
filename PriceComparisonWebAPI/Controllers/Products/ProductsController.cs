@@ -4,6 +4,7 @@ using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
+using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -42,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             }
 
             var product = products.First()!;
-            _ = _popularProductService.RegisterClickAsync(product.Id);
+            _ = _popularProductService.RegisterClickAsync(product.ProductId);
 
             return new JsonResult(product)
             {
@@ -62,7 +63,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             }
 
             var product = products.First()!;
-            _ = _popularProductService.RegisterClickAsync(product.Id);
+            _ = _popularProductService.RegisterClickAsync(product.ProductId);
 
             return new JsonResult(product)
             {
@@ -134,6 +135,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
         [HttpGet("bycategory/{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginatedResponse<BaseProductResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductsByCategory(int categoryId, [FromQuery] int page = 1)
         {
             const int pageSize = 10;

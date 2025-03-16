@@ -9,10 +9,10 @@
         {
             RuleFor(x => x.Id)
                 .GreaterThan(0).WithMessage("Id must be provided and greater than 0.");
-            RuleFor(x => x.ProductId)
-                .GreaterThan(0).WithMessage("ProductId must be greater than 0.");
-            RuleFor(x => x.ProductGroupId)
-                .NotEmpty().WithMessage("ProductGroupId is required.");
+            
+            RuleFor(x => x.Name)
+             .MaximumLength(255).WithMessage("Product group name length must be less than 255 characters")
+             .When(x => x.Name != null);
         }
     }
 

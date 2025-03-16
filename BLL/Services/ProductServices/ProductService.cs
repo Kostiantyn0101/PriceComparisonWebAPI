@@ -12,11 +12,15 @@ namespace BLL.Services.ProductServices
     public class ProductService : IProductService
     {
         private readonly IRepository<ProductDBModel, int> _repository;
+        private readonly IRepository<BaseProductDBModel, int> _baseProductRepository;
         private readonly IMapper _mapper;
 
-        public ProductService(IRepository<ProductDBModel, int> repository, IMapper mapper)
+        public ProductService(IRepository<ProductDBModel, int> repository,
+            IRepository<BaseProductDBModel, int> baseProductRepository,
+            IMapper mapper)
         {
             _repository = repository;
+            _baseProductRepository = baseProductRepository;
             _mapper = mapper;
         }
 
@@ -78,6 +82,34 @@ namespace BLL.Services.ProductServices
 
             return OperationResultModel<PaginatedResponse<ProductResponseModel>>.Success(response);
         }
+
+        //public async Task<OperationResultModel<PaginatedResponse<BaseProductResponseModel>>> GetPaginatedProductsByCategoryAsync(
+        //      int categoryId, int page, int pageSize)
+        //{
+        //    var query = _baseProductRepository.GetQuery()
+        //        .Where(p => p.CategoryId == categoryId && !p.IsUnderModeration)
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .Select()
+
+        //    var totalItems = await query.CountAsync();
+
+        //    var products = await query.Skip((page - 1) * pageSize)
+        //                              .Take(pageSize)
+        //                              .ToListAsync();
+
+        //    var mappedProducts = _mapper.Map<IEnumerable<ProductResponseModel>>(products);
+
+        //    var response = new PaginatedResponse<ProductResponseModel>
+        //    {
+        //        Data = mappedProducts,
+        //        Page = page,
+        //        PageSize = pageSize,
+        //        TotalItems = totalItems
+        //    };
+
+        //    return OperationResultModel<PaginatedResponse<ProductResponseModel>>.Success(response);
+        //}
 
         public IQueryable<ProductDBModel> GetQuery()
         {

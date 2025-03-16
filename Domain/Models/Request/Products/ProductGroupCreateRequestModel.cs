@@ -2,7 +2,6 @@
 {
     public class ProductGroupCreateRequestModel
     {
-        public int NewProductId { get; set; }
-        public int ExistingProductId { get; set; }
+        public string Name { get; set; }
     }
 }

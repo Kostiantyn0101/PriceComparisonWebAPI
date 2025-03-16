@@ -10,7 +10,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Seller
             RuleFor(x => x.Id)
                 .GreaterThan(0).WithMessage("Seller Id must be greater than 0.");
 
-            RuleFor(x => x.AccoundBalance)
+            RuleFor(x => x.AccountBalance)
                 .GreaterThanOrEqualTo(0).WithMessage("Account balance must be greater or equal to 0");
 
             RuleFor(x => x.ApiKey)
