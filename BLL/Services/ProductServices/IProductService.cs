@@ -13,6 +13,8 @@ namespace BLL.Services.ProductServices
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         Task<OperationResultModel<PaginatedResponse<ProductResponseModel>>> GetPaginatedProductsAsync(
             Expression<Func<ProductDBModel, bool>> condition, int page, int pageSize);
+        Task<OperationResultModel<PaginatedResponse<BaseProductResponseModel>>> GetPaginatedProductsByCategoryAsync(
+              int categoryId, int page, int pageSize);
         IQueryable<ProductDBModel> GetQuery();
         Task<IEnumerable<ProductResponseModel>> GetFromConditionAsync(Expression<Func<ProductDBModel, bool>> condition);
         Task<IEnumerable<ProductDBModel>> ProcessQueryAsync(IQueryable<ProductDBModel> query);

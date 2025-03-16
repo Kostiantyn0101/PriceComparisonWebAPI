@@ -83,33 +83,54 @@ namespace BLL.Services.ProductServices
             return OperationResultModel<PaginatedResponse<ProductResponseModel>>.Success(response);
         }
 
-        //public async Task<OperationResultModel<PaginatedResponse<BaseProductResponseModel>>> GetPaginatedProductsByCategoryAsync(
-        //      int categoryId, int page, int pageSize)
-        //{
-        //    var query = _baseProductRepository.GetQuery()
-        //        .Where(p => p.CategoryId == categoryId && !p.IsUnderModeration)
-        //        .Skip((page - 1) * pageSize)
-        //        .Take(pageSize)
-        //        .Select()
+        public async Task<OperationResultModel<PaginatedResponse<BaseProductResponseModel>>> GetPaginatedProductsByCategoryAsync(
+              int categoryId, int page, int pageSize)
+        {
+            var query = _baseProductRepository.GetQuery()
+                .Where(bp => bp.CategoryId == categoryId && !bp.IsUnderModeration)
+                .Select(bp => new BaseProductResponseModel()
+                {
+                    Title = bp.Title,
+                    Description = bp.Description,
+                    BaseProductId = bp.Id,
+                    CategoryId = categoryId,
+                    Brand = bp.Brand,
+                    //Products = bp.Products
+                    //.Where(p => !p.IsUnderModeration)
+                    //.Select(p => new ProductResponseModel()
+                    //{
+                    //    ProductId = p.Id,
+                    //    ModelNumber = p.ModelNumber,
+                    //    ProductGroupId = p.ProductGroupId,
+                    //})
+                    //.ToList(),
+                    ProductGroups = bp.Products
+                    .Where(p => !p.IsUnderModeration)
+                    .GroupBy(p => p.ProductGroupId)
+                    .Select(p => new ProductGroupResponseModel()
+                    {
+                        Id = p.Key,
+                        Name = p.First().ProductGroup.Name,
+                        DisplayOrder = 1
+                    }),
+                });
 
-        //    var totalItems = await query.CountAsync();
+            var totalItems = await query.CountAsync();
 
-        //    var products = await query.Skip((page - 1) * pageSize)
-        //                              .Take(pageSize)
-        //                              .ToListAsync();
+            var products = await query.Skip((page - 1) * pageSize)
+                                      .Take(pageSize)
+                                      .ToListAsync();
+            
+            var response = new PaginatedResponse<BaseProductResponseModel>
+            {
+                Data = products,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
 
-        //    var mappedProducts = _mapper.Map<IEnumerable<ProductResponseModel>>(products);
-
-        //    var response = new PaginatedResponse<ProductResponseModel>
-        //    {
-        //        Data = mappedProducts,
-        //        Page = page,
-        //        PageSize = pageSize,
-        //        TotalItems = totalItems
-        //    };
-
-        //    return OperationResultModel<PaginatedResponse<ProductResponseModel>>.Success(response);
-        //}
+            return OperationResultModel<PaginatedResponse<BaseProductResponseModel>>.Success(response);
+        }
 
         public IQueryable<ProductDBModel> GetQuery()
         {

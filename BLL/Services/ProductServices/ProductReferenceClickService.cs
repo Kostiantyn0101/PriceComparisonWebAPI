@@ -96,7 +96,7 @@ namespace BLL.Services.ProductServices
         public async Task<List<ProductSellerReferenceClickResponseModel>> GetReferenceClickStatisticAsync(ProductSellerReferenceClickStaisticRequestModel request)
         {
             var query = _repository.GetQuery()
-                .Where(rc => rc.ClickedAt >= request.StartDate && rc.ClickedAt <= request.EndDate)
+                .Where(rc => rc.ClickedAt >= request.StartDate && rc.ClickedAt <= request.EndDate && rc.SellerId == request.SellerId)
                 .Select(rc => new ProductSellerReferenceClickResponseModel()
                 {
                     ClickedAt = rc.ClickedAt,
