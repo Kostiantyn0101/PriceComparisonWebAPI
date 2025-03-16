@@ -52,6 +52,10 @@ namespace PriceComparisonWebAPI.Infrastructure
 
 
             // PRODUCTS
+            CreateMap<BaseProductDBModel, BaseProductResponseModel>();
+            CreateMap<BaseProductCreateRequestModel, BaseProductDBModel>();
+            CreateMap<BaseProductUpdateRequestModel, BaseProductDBModel>();
+            
             CreateMap<ProductDBModel, ProductResponseModel>();
             CreateMap<ProductCreateRequestModel, ProductDBModel>();
                //.ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

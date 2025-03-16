@@ -83,12 +83,12 @@ namespace BLL.Services.ProductServices
             return OperationResultModel<PaginatedResponse<ProductResponseModel>>.Success(response);
         }
 
-        public async Task<OperationResultModel<PaginatedResponse<BaseProductResponseModel>>> GetPaginatedProductsByCategoryAsync(
+        public async Task<OperationResultModel<PaginatedResponse<BaseProductByCategoryResponseModel>>> GetPaginatedProductsByCategoryAsync(
               int categoryId, int page, int pageSize)
         {
             var query = _baseProductRepository.GetQuery()
                 .Where(bp => bp.CategoryId == categoryId && !bp.IsUnderModeration)
-                .Select(bp => new BaseProductResponseModel()
+                .Select(bp => new BaseProductByCategoryResponseModel()
                 {
                     Title = bp.Title,
                     Description = bp.Description,
@@ -111,8 +111,11 @@ namespace BLL.Services.ProductServices
                     {
                         Id = p.Key,
                         Name = p.First().ProductGroup.Name,
+                        FirstProductId = p.First().Id,
                         DisplayOrder = 1
-                    }),
+                    })
+                    .OrderBy(pg => pg.DisplayOrder)
+                    .ToList()
                 });
 
             var totalItems = await query.CountAsync();
@@ -121,7 +124,7 @@ namespace BLL.Services.ProductServices
                                       .Take(pageSize)
                                       .ToListAsync();
             
-            var response = new PaginatedResponse<BaseProductResponseModel>
+            var response = new PaginatedResponse<BaseProductByCategoryResponseModel>
             {
                 Data = products,
                 Page = page,
@@ -129,7 +132,7 @@ namespace BLL.Services.ProductServices
                 TotalItems = totalItems
             };
 
-            return OperationResultModel<PaginatedResponse<BaseProductResponseModel>>.Success(response);
+            return OperationResultModel<PaginatedResponse<BaseProductByCategoryResponseModel>>.Success(response);
         }
 
         public IQueryable<ProductDBModel> GetQuery()
