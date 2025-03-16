@@ -2,6 +2,7 @@
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
     public class ProductColorController : ControllerBase
     {
         private readonly ILogger<ProductColorController> _logger;
@@ -39,16 +41,18 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
-        [HttpGet("by-product-group{productGroupId}")]
-        public async Task<JsonResult> GetColorsByProductGroupId(int productGroupId)
+        [HttpPost("all-baseproduct-colors")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductColorResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetColorsByProductGroupId([FromQuery] ProductColorRequestModel requestModel)
         {
-            var result = await _colorService.GetByProductGroupIdAsync(productGroupId);
+            var result = await _colorService.GetByProductGroupIdAsync(requestModel);
             if (result == null || !result.Any())
             {
                 _logger.LogError(AppErrors.General.NotFound);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
-            return new JsonResult(result.First())
+            return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
             };

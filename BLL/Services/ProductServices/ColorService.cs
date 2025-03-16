@@ -72,10 +72,10 @@ namespace BLL.Services.ProductServices
             return await _repository.ProcessQueryAsync(query);
         }
 
-        public async Task<IEnumerable<ProductColorResponseModel>> GetByProductGroupIdAsync(int productGroupId)
+        public async Task<IEnumerable<ProductColorResponseModel>> GetByProductGroupIdAsync(ProductColorRequestModel request)
         {
             var query = _productRepository.GetQuery()
-                .Where(p => p.ProductGroupId == productGroupId && p.ColorId != null)
+                .Where(p => p.ProductGroupId == request.ProductGroupId && p.BaseProductId == request.BaseProductId && p.ColorId != null)
                 .Select(p => new ProductColorResponseModel()
                 {
                     ProductId = p.Id,
