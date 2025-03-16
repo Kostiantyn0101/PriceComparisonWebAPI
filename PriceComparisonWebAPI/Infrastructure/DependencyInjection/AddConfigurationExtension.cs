@@ -13,6 +13,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             builder.Services.Configure<FileStorageConfiguration>(builder.Configuration.GetSection(FileStorageConfiguration.Position));
             builder.Services.Configure<PopularProductsSettings>(builder.Configuration.GetSection(PopularProductsSettings.Position));
             builder.Services.Configure<SellerAccountConfiguration>(builder.Configuration.GetSection(SellerAccountConfiguration.Position));
+            builder.Services.Configure<MvcAdminConfiguration>(builder.Configuration.GetSection(MvcAdminConfiguration.Position));
         }
     }
 }
