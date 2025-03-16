@@ -19,6 +19,7 @@ namespace PriceComparisonWebAPI.Infrastructure
                 builder.AddAutoMapper();
                 builder.AddOthers();
                 builder.AddAIServices();
+                builder.AddCors();
             }
             catch (Exception ex)
             {

@@ -47,7 +47,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
                 _logger.LogError(AppErrors.General.NotFound);
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
-            return new JsonResult(result.First())
+            return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
             };

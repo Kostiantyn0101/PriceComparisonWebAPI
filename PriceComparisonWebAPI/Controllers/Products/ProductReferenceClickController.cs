@@ -41,9 +41,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-        [HttpGet("statistic")]
+        [HttpPost("statistic")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductSellerReferenceClickResponseModel>))]
-        public async Task<JsonResult> GetReferenceClickStatisticAsync([FromQuery] ProductSellerReferenceClickStaisticRequestModel model)
+        public async Task<JsonResult> GetReferenceClickStatisticAsync([FromBody] ProductSellerReferenceClickStaisticRequestModel model)
         {
             var result = await _productSellerReferenceClickService.GetReferenceClickStatisticAsync(model);
 
