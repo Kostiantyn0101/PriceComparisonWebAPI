@@ -6,13 +6,15 @@ namespace Domain.Models.Response
     {
         public string ReturnCode { get; set; }
         public string Message { get; set; }
+        public object? Data { get; set; }
 
-        public static JsonResult GetJsonResult(string appErrors, int httpStatusCode, string? message = null)
+        public static JsonResult GetJsonResult(string returnCode, int httpStatusCode, string? message = null, object? data = null)
         {
             return new JsonResult(new GeneralApiResponseModel
             {
-                ReturnCode = appErrors,
-                Message = message ?? string.Empty
+                ReturnCode = returnCode,
+                Message = message ?? string.Empty,
+                Data = data
             })
             {
                 StatusCode = httpStatusCode
