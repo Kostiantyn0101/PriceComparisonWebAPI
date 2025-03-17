@@ -33,6 +33,7 @@ namespace DLL.Context
         public DbSet<AuctionClickRateDBModel> AuctionClickRates { get; set; }
         public DbSet<FilterDBModel> Filters { get; set; }
         public DbSet<ProductGroupDBModel> ProductGroups { get; set; }
+        public DbSet<ProductGroupTypeDBModel> ProductGroupTypes { get; set; }
         public DbSet<BaseProductDBModel> BaseProducts { get; set; }
         public DbSet<ColorDBModel> Colors { get; set; }
 
@@ -41,11 +42,23 @@ namespace DLL.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            // ProductGroupTypeDBModel
+            modelBuilder.Entity<ProductGroupTypeDBModel>(entity =>
+            {
+                entity.HasIndex(pg => new { pg.Name })
+                  .IsUnique();
+            });
+
             // ProductGroupDBModel
             modelBuilder.Entity<ProductGroupDBModel>(entity =>
             {
                 entity.HasIndex(pg => new { pg.Name})
                   .IsUnique();
+
+                entity.HasOne(p => p.ProductGroupType)
+                 .WithMany(c => c.ProductGroups)
+                 .HasForeignKey(p => p.ProductGroupTypeId)
+                 .OnDelete(DeleteBehavior.Restrict);
             });
 
             // ColorDBModel
@@ -503,6 +516,5 @@ namespace DLL.Context
                 entity.Property(e => e.ClickedAt);
             });
         }
-
     }
 }
