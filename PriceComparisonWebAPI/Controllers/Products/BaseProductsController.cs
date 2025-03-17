@@ -16,12 +16,14 @@ namespace PriceComparisonWebAPI.Controllers.Products
         private readonly ILogger<BaseProductsController> _logger;
         private readonly IBaseProductService _baseProductService;
 
+
         public BaseProductsController(ILogger<BaseProductsController> logger,
             IBaseProductService baseProductService)
         {
             _logger = logger;
             _baseProductService = baseProductService;
         }
+
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseProductResponseModel))]
@@ -41,6 +43,26 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
+        [HttpGet("bycategory{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseProductResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetBaseProductByCategoryId(int categoryId)
+        {
+            var products = await _baseProductService.GetFromConditionAsync(x => x.CategoryId == categoryId);
+            if (products == null || !products.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(products)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
@@ -58,6 +80,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
@@ -74,6 +97,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
+
 
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
