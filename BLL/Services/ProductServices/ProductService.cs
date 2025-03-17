@@ -107,7 +107,7 @@ namespace BLL.Services.ProductServices
                     ProductGroups = bp.Products
                     .Where(p => !p.IsUnderModeration)
                     .GroupBy(p => p.ProductGroupId)
-                    .Select(p => new ProductGroupResponseModel()
+                    .Select(p => new ProductGroupModifiedResponseModel()
                     {
                         Id = p.Key,
                         Name = p.First().ProductGroup.Name,

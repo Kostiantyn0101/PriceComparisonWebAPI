@@ -35,6 +35,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IProductGroupService, ProductGroupService>();
+            builder.Services.AddScoped<IProductGroupTypeService, ProductGroupTypeService>();
             builder.Services.AddScoped<ISellerProductDetailsService, SellerProductDetailsService>();
             builder.Services.AddScoped<IProductReferenceClickService, ProductReferenceClickService>();
             builder.Services.AddScoped<IAuctionClickRateService, AuctionClickRateService>();

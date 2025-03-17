@@ -2,6 +2,7 @@
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
+using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,34 +24,21 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _productGroupService = productGroupService;
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<JsonResult> GetProductGroupById(int id)
-        //{
-        //    var result = await _productGroupService.GetFromConditionAsync(pg => pg.Id == id);
-        //    if (result == null || !result.Any())
-        //    {
-        //        _logger.LogError(AppErrors.General.NotFound);
-        //        return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
-        //    }
-        //    return new JsonResult(result.First())
-        //    {
-        //        StatusCode = StatusCodes.Status200OK
-        //    };
-        //}
 
-        [HttpGet("getByProductId/{productId}")]
-        public async Task<JsonResult> GetProductGroupByProductId(int productId)
+        [HttpGet("getByProductGroupType/{productGroupTypeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductGroupResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetProductGroupByProductGroupTypeId(int productGroupTypeId)
         {
-            //var result = await _productGroupService.GetFromConditionAsync(pg => pg.ProductId == productId);
-            //if (result == null || !result.Any())
-            //{
-            //    _logger.LogError(AppErrors.General.NotFound);
-            //}
-            //return new JsonResult(result.First())
-            //{
-            //    StatusCode = StatusCodes.Status200OK
-            //};
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            var result = await _productGroupService.GetFromConditionAsync(pg => pg.ProductGroupTypeId == productGroupTypeId);
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+            }
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         [HttpPost("create")]
