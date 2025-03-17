@@ -24,8 +24,28 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _colorService = colorService;
         }
 
+        
+        [HttpGet("getall")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ColorResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetAllColors()
+        {
+            var result = await _colorService.GetFromConditionAsync(c => true);
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ColorResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetColorById(int id)
         {
             var result = await _colorService.GetFromConditionAsync(c => c.Id == id);
