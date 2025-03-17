@@ -33,6 +33,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductById(int id)
         {
             var products = await _productService.GetFromConditionAsync(x => x.Id == id);
@@ -46,6 +48,25 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _ = _popularProductService.RegisterClickAsync(product.Id);
 
             return new JsonResult(product)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
+        [HttpGet("bybaseproduct{baseProductId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetProductsByBaseProductId(int baseProductId)
+        {
+            var products = await _productService.GetFromConditionAsync(x => x.BaseProductId == baseProductId);
+            if (products == null || !products.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(products)
             {
                 StatusCode = StatusCodes.Status200OK
             };
