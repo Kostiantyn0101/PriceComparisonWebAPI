@@ -6,10 +6,10 @@ namespace Domain.Models.DBModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int? ProductGroupTypeId { get; set; } // delete ?
+        public int ProductGroupTypeId { get; set; } 
         public int DisplayOrder { get; set; }
 
-        public ProductGroupTypeDBModel? ProductGroupType { get; set; } // delete ?
+        public ProductGroupTypeDBModel ProductGroupType { get; set; } 
         public IEnumerable<ProductDBModel> Products { get; set; }
     }
 }

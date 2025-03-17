@@ -43,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             }
 
             var product = products.First()!;
-            _ = _popularProductService.RegisterClickAsync(product.ProductId);
+            _ = _popularProductService.RegisterClickAsync(product.Id);
 
             return new JsonResult(product)
             {
@@ -63,7 +63,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             }
 
             var product = products.First()!;
-            _ = _popularProductService.RegisterClickAsync(product.ProductId);
+            _ = _popularProductService.RegisterClickAsync(product.Id);
 
             return new JsonResult(product)
             {
