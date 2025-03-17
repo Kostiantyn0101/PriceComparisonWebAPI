@@ -14,12 +14,14 @@ namespace PriceComparisonWebAPI.Controllers
         private readonly ILogger<FilterEvaluationController> _logger;
         private readonly IProductFilterByCharacteristicService _productFilterByCharacteristicService;
 
+
         public FilterEvaluationController(ILogger<FilterEvaluationController> logger, 
             IProductFilterByCharacteristicService productFilterByCharacteristicService)
         {
             _logger = logger;
             _productFilterByCharacteristicService = productFilterByCharacteristicService;
         }
+
 
         [HttpGet("filtersByProduct/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
@@ -38,6 +40,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
+
         [HttpGet("productsByFilter/{filterId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
@@ -55,6 +58,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
+
         [HttpGet("productsByFilters")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
@@ -71,6 +75,7 @@ namespace PriceComparisonWebAPI.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
 
         [HttpGet("filtersByCategory/{categoryId}")]
         public async Task<JsonResult> GetFiltersByCategory(int categoryId)
