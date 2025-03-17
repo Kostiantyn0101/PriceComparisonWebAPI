@@ -30,7 +30,36 @@ namespace PriceComparisonWebAPI.Controllers.Category
             _mapper = mapper;
         }
 
+
+        [HttpGet("getallparents")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetAllParentCategories()
+        {
+            var categories = await _categoryService.GetFromConditionAsync(x => x.IsParent);
+            return new JsonResult(categories)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
+        [HttpGet("getbyparent/{parentCategoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetCategoryByParent(int parentCategoryId)
+        {
+            var categories = await _categoryService.GetFromConditionAsync(x => x.ParentCategoryId == parentCategoryId);
+            return new JsonResult(categories)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
         [HttpGet("getall")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetAllCategories()
         {
             var categories = await _categoryService.GetFromConditionAsync(x => true);

@@ -23,8 +23,8 @@ namespace Domain.Models.DBModels
         }
         public string NormalizedTitle { get; private set; }
         public string? Description { get; set; }
-        public bool IsUnderModeration { get; set; }    //+
-        public DateTime AddedToDatabase { get; set; }  //+
+        public bool IsUnderModeration { get; set; }    
+        public DateTime AddedToDatabase { get; set; }  
 
         public int CategoryId { get; set; }
         public CategoryDBModel Category { get; set; }

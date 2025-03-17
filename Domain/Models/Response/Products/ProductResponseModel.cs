@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Domain.Models.Response.Products
+﻿namespace Domain.Models.Response.Products
 {
     public class ProductResponseModel
     {

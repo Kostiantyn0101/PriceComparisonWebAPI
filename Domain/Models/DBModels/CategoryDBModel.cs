@@ -11,6 +11,8 @@ namespace Domain.Models.DBModels
         public int? ParentCategoryId { get; set; }
         public CategoryDBModel? ParentCategory { get; set; }
         public int DisplayOrder { get; set; } // less is bigger
+        public bool IsParent { get; set; }
+
 
         public ICollection<CategoryDBModel> Subcategories { get; set; }
         public ICollection<CategoryCharacteristicDBModel> CategoryCharacteristics { get; set; }
