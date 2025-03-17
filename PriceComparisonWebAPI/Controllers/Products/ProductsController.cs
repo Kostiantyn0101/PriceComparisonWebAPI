@@ -155,7 +155,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-        [HttpGet("bycategory/{categoryId}")]
+        [HttpGet("bycategorypaginated/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginatedResponse<BaseProductByCategoryResponseModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductsByCategory(int categoryId, [FromQuery] int page = 1)
