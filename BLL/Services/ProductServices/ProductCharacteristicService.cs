@@ -133,6 +133,7 @@ namespace BLL.Services.ProductServices
         public async Task<IEnumerable<ProductCharacteristicResponseModel>> GetProductCharacteristicsAsync(int productId)
         {
             var baseProductId = await _productRepository.GetQuery()
+                .Where(pc => pc.Id == productId)
                 .Select(p => p.BaseProductId)
                 .FirstOrDefaultAsync();
 
@@ -147,6 +148,7 @@ namespace BLL.Services.ProductServices
         public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetGroupedProductCharacteristicsAsync(int productId)
         {
             var baseProductId = await _productRepository.GetQuery()
+                .Where(pc => pc.Id == productId)
                 .Select(p => p.BaseProductId)
                 .FirstOrDefaultAsync();
 
@@ -204,6 +206,7 @@ namespace BLL.Services.ProductServices
         public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortGroupedProductCharacteristicsAsync(int productId)
         {
             var baseProductId = await _productRepository.GetQuery()
+                .Where(pc => pc.Id == productId)
                 .Select(p => p.BaseProductId)
                 .FirstOrDefaultAsync();
 
