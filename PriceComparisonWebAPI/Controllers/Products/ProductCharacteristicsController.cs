@@ -87,10 +87,10 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
-        [HttpPut("create")]
+        [HttpPut("createlist")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateProductCharacteristics([FromBody] IEnumerable<ProductCharacteristicCreateRequestModel> request)
+        public async Task<JsonResult> CreateProductCharacteristicList([FromBody] IEnumerable<ProductCharacteristicCreateRequestModel> request)
         {
             var result = await _productCharacteristicService.CreateProductCharacteristicsAsync(request);
             if (!result.IsSuccess)
@@ -100,6 +100,54 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
             }
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK,null, result.Data);
+        }
+
+
+        [HttpPut("updatelist")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UpdateProductCharacteristicList([FromBody] IEnumerable<ProductCharacteristicUpdateRequestModel> request)
+        {
+            var result = await _productCharacteristicService.UpdateProductCharacteristicsAsync(request);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+
+            }
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK, null, result.Data);
+        }
+
+
+        [HttpPut("create")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> CreateProductCharacteristic([FromBody] ProductCharacteristicCreateRequestModel request)
+        {
+            var result = await _productCharacteristicService.CreateAsync(request);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.CreateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+
+            }
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
+        }
+
+
+        [HttpPut("update")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UpdateProductCharacteristic([FromBody] ProductCharacteristicUpdateRequestModel request)
+        {
+            var result = await _productCharacteristicService.UpdateAsync(request);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+
+            }
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
 

@@ -9,12 +9,13 @@ namespace BLL.Services.ProductServices
     public interface IProductCharacteristicService
     {
         Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> CreateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicCreateRequestModel> models);
+        Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> UpdateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicUpdateRequestModel> models);
         Task<IEnumerable<ProductCharacteristicResponseModel>> GetProductCharacteristicsAsync(int productId);
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetGroupedProductCharacteristicsAsync(int productId);
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortGroupedProductCharacteristicsAsync(int productId);
 
-        Task<OperationResultModel<ProductCharacteristicDBModel>> CreateAsync(ProductCharacteristicDBModel model);
-        Task<OperationResultModel<ProductCharacteristicDBModel>> UpdateAsync(ProductCharacteristicDBModel entity);
+        Task<OperationResultModel<ProductCharacteristicResponseModel>> CreateAsync(ProductCharacteristicCreateRequestModel model);
+        Task<OperationResultModel<ProductCharacteristicResponseModel>> UpdateAsync(ProductCharacteristicUpdateRequestModel entity);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<ProductCharacteristicDBModel> GetQuery();
         Task<IEnumerable<ProductCharacteristicResponseModel>> GetFromConditionAsync(Expression<Func<ProductCharacteristicDBModel, bool>> condition);

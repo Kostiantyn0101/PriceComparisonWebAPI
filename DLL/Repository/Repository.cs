@@ -35,8 +35,8 @@ namespace DLL.Repository.Abstractions
             try
             {
                 var toDelete = await Entities
-                    .FirstOrDefaultAsync(x => EqualityComparer<TKey>.Default.Equals(x.Id, id));
-
+                    //.FirstOrDefaultAsync(x => EqualityComparer<TKey>.Default.Equals(x.Id, id));
+                    .FirstOrDefaultAsync(x => x.Id!.Equals(id));
 
                 if (toDelete == null)
                 {

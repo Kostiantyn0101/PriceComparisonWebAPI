@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using DLL.Repository;
 using Domain.Models.DBModels;
+using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
@@ -29,108 +31,115 @@ namespace BLL.Services.ProductServices
         public async Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> CreateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicCreateRequestModel> models)
         {
             var dbModels = _mapper.Map<IEnumerable<ProductCharacteristicDBModel>>(models);
+            var responseModels = new List<ProductCharacteristicResponseModel>();
+            var errorMessages = new List<string>();
+            var exceptions = new List<Exception>();
 
+            int index = 1;
             foreach (var model in dbModels)
             {
                 var result = await _repository.CreateAsync(model);
 
-                if (!result.IsSuccess)
+                if (result.IsSuccess)
                 {
-                    return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Failure(result.ErrorMessage!, result.Exception);
+                    responseModels.Add(_mapper.Map<ProductCharacteristicResponseModel>(model));
+                }
+                else
+                {
+                    errorMessages.Add($"Error when creating item  #{index}: {result.ErrorMessage}");
+
+                    if (result.Exception != null)
+                    {
+                        exceptions.Add(result.Exception);
+                    }
+                }
+
+                index++;
+            }
+
+            if (!errorMessages.Any())
+            {
+                return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Success(responseModels);
+            }
+            else
+            {
+                var combinedErrorMessage = string.Join("; ", errorMessages);
+                var aggregateException = exceptions.Any() ? new AggregateException(exceptions) : null;
+                return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Failure(combinedErrorMessage, aggregateException);
+            }
+        }
+
+
+        public async Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> UpdateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicUpdateRequestModel> requests)
+        {
+            var responseModels = new List<ProductCharacteristicResponseModel>();
+            var errorMessages = new List<string>();
+            var exceptions = new List<Exception>();
+
+            foreach (var request in requests)
+            {
+                var existing = (await _repository.GetFromConditionAsync(pc => pc.Id == request.Id)).FirstOrDefault();
+                if (existing == null)
+                {
+                    errorMessages.Add($"Entity with ID {request.Id} not found.");
+                    continue;
+                }
+
+                _mapper.Map(request, existing);
+                var result = await _repository.UpdateAsync(existing);
+
+                if (result.IsSuccess)
+                {
+                    responseModels.Add(_mapper.Map<ProductCharacteristicResponseModel>(existing));
+                }
+                else
+                {
+                    errorMessages.Add(result.ErrorMessage!);
+                    if (result.Exception != null)
+                    {
+                        exceptions.Add(result.Exception);
+                    }
                 }
             }
 
-            var responseModels = _mapper.Map<IEnumerable<ProductCharacteristicResponseModel>>(dbModels);
-            return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Success(responseModels);
+            if (!errorMessages.Any())
+            {
+                return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Success(responseModels);
+            }
+            else
+            {
+                var combinedErrorMessage = string.Join("; ", errorMessages);
+                var aggregateException = exceptions.Any() ? new AggregateException(exceptions) : null;
+                return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Failure(combinedErrorMessage, aggregateException);
+            }
         }
 
 
-        //public async Task<OperationResultModel<ProductCharacteristicUpdateRequestModel>> UpdateProductCharacteristicAsync(IEnumerable<ProductCharacteristicUpdateRequestModel> models)
-        //{
-
-
-
-        //    if (!model.ProductId.HasValue && !model.BaseProductId.HasValue)
-        //    {
-        //        return OperationResultModel<ProductCharacteristicUpdateRequestModel>.Failure("Не вказано жодного ідентифікатора ProductId або BaseProductId.");
-        //    }
-
-        //    var existingRecords = new List<ProductCharacteristicDBModel>();
-        //    if (model.ProductId.HasValue)
-        //    {
-        //        existingRecords = (await _repository.GetFromConditionAsync(
-        //            x => x.ProductId == model.ProductId.Value
-        //        )).ToList();
-        //    }
-        //    else
-        //    {
-        //        existingRecords = (await _repository.GetFromConditionAsync(
-        //            x => x.BaseProductId == model.BaseProductId.Value
-        //        )).ToList();
-        //    }
-
-        //    foreach (var item in model.Characteristics)
-        //    {
-        //        var record = existingRecords
-        //            .FirstOrDefault(r => r.CharacteristicId == item.CharacteristicId);
-
-        //        if (record != null)
-        //        {
-        //            record.ValueText = item.ValueText;
-        //            record.ValueNumber = item.ValueNumber;
-        //            record.ValueBoolean = item.ValueBoolean;
-        //            record.ValueDate = item.ValueDate;
-
-        //            var updateResult = await UpdateAsync(record);
-        //            if (!updateResult.IsSuccess)
-        //            {
-        //                return OperationResultModel<bool>.Failure(
-        //                    updateResult.ErrorMessage!,
-        //                    updateResult.Exception
-        //                );
-        //            }
-        //        }
-        //        else
-        //        {
-        //            var newRecord = _mapper.Map<ProductCharacteristicDBModel>(item);
-
-        //            if (model.ProductId.HasValue)
-        //            {
-        //                newRecord.ProductId = model.ProductId.Value;
-        //            }
-        //            else
-        //            {
-        //                newRecord.BaseProductId = model.BaseProductId.Value;
-        //            }
-
-        //            var createResult = await CreateAsync(newRecord);
-        //            if (!createResult.IsSuccess)
-        //            {
-        //                return OperationResultModel<bool>.Failure(
-        //                    createResult.ErrorMessage!,
-        //                    createResult.Exception
-        //                );
-        //            }
-        //        }
-        //    }
-        //    return OperationResultModel<bool>.Success(true);
-        //}
-
-
-        public async Task<OperationResultModel<ProductCharacteristicDBModel>> CreateAsync(ProductCharacteristicDBModel model)
+        public async Task<OperationResultModel<ProductCharacteristicResponseModel>> CreateAsync(ProductCharacteristicCreateRequestModel request)
         {
-            var result = await _repository.CreateAsync(model);
+            var dbModel = _mapper.Map<ProductCharacteristicDBModel>(request);
+            var result = await _repository.CreateAsync(dbModel);
             return result.IsSuccess
-                ? result
-                : OperationResultModel<ProductCharacteristicDBModel>.Failure(result.ErrorMessage!, result.Exception);
+                ? OperationResultModel<ProductCharacteristicResponseModel>.Success(_mapper.Map<ProductCharacteristicResponseModel>(dbModel))
+                : OperationResultModel<ProductCharacteristicResponseModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
-        public async Task<OperationResultModel<ProductCharacteristicDBModel>> UpdateAsync(ProductCharacteristicDBModel entity)
+
+        public async Task<OperationResultModel<ProductCharacteristicResponseModel>> UpdateAsync(ProductCharacteristicUpdateRequestModel request)
         {
-            var result = await _repository.UpdateAsync(entity);
+            var existing = (await _repository.GetFromConditionAsync(pc => pc.Id == request.Id)).FirstOrDefault();
+
+            if (existing == null)
+            {
+                return OperationResultModel<ProductCharacteristicResponseModel>.Failure(AppErrors.General.NotFound);
+            }
+
+            _mapper.Map(request, existing);
+
+            var result = await _repository.UpdateAsync(existing);
             return result.IsSuccess
-                ? result
-                : OperationResultModel<ProductCharacteristicDBModel>.Failure(result.ErrorMessage!, result.Exception);
+                ? OperationResultModel<ProductCharacteristicResponseModel>.Success(_mapper.Map<ProductCharacteristicResponseModel>(existing))
+                : OperationResultModel<ProductCharacteristicResponseModel>.Failure(result.ErrorMessage!, result.Exception);
         }
 
         public async Task<OperationResultModel<bool>> DeleteAsync(int id)

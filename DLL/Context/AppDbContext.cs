@@ -391,10 +391,15 @@ namespace DLL.Context
                 //    "CK_ProductCharacteristic_ProductOrBaseProduct",
                 //    "(ProductId IS NULL AND BaseProductId IS NOT NULL) OR (ProductId IS NOT NULL AND BaseProductId IS NULL)"));
 
-                // Require at least one field to be filled
+                // Require at least one product field to be filled
                 entity.ToTable(tb => tb.HasCheckConstraint(
                     "CK_ProductCharacteristic_AtLeastOneProduct",
                     "(ProductId IS NOT NULL) OR (BaseProductId IS NOT NULL)"));
+
+                // Require at least one value field to be filled
+                entity.ToTable(tb => tb.HasCheckConstraint(
+                    "CK_ProductCharacteristic_AtLeastOneValue",
+                    "(ValueText IS NOT NULL) OR (ValueNumber IS NOT NULL) OR (ValueBoolean IS NOT NULL) OR (ValueDate IS NOT NULL)"));
             });
 
             // ProductImageDBModel
