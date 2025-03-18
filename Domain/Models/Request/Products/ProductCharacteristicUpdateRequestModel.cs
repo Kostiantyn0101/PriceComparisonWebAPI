@@ -4,6 +4,6 @@
     {
         public int? ProductId { get; set; }
         public int? BaseProductId { get; set; }
-        public List<ProductCharacteristicValueUpdateModel> Characteristics { get; set; }
+        public List<ProductCharacteristicUpdateModel> Characteristics { get; set; }
     }
 }

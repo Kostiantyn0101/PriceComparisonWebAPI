@@ -9,7 +9,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
         {
             RuleFor(x => x.ProductId).GreaterThan(0).WithMessage("ProductId must be greater than 0.");
 
-            RuleForEach(x => x.Characteristics).SetValidator(new ProductCharacteristicValueUpdateModelValidator());
+            RuleForEach(x => x.Characteristics).SetValidator(new ProductCharacteristicUpdateModelValidator());
         }
     }
 }

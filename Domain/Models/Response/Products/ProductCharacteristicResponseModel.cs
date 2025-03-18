@@ -2,6 +2,7 @@
 {
     public class ProductCharacteristicResponseModel
     {
+        public int? Id { get; set; }
         public int? ProductId { get; set; }
         public int? BaseProductId { get; set; }
         public int CharacteristicId { get; set; }

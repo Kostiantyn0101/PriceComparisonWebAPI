@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
 {
-    public class ProductCharacteristicValueUpdateModelValidator : AbstractValidator<ProductCharacteristicValueUpdateModel>
+    public class ProductCharacteristicUpdateModelValidator : AbstractValidator<ProductCharacteristicUpdateModel>
     {
-        public ProductCharacteristicValueUpdateModelValidator()
+        public ProductCharacteristicUpdateModelValidator()
         {
             RuleFor(x => x.CharacteristicId).GreaterThan(0).WithMessage("CharacteristicId must be greater than 0");
 
