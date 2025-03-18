@@ -77,7 +77,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
                     StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
 
@@ -95,7 +95,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
                     StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK ,null, result.Data);
         }
 
 
