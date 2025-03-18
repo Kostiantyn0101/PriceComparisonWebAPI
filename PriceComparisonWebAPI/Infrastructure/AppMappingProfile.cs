@@ -73,7 +73,8 @@ namespace PriceComparisonWebAPI.Infrastructure
                .ForMember(dest => dest.CharacteristicTitle, opt => opt.MapFrom(src => src.Characteristic.Title))
                .ForMember(dest => dest.CharacteristicDataType, opt => opt.MapFrom(src => src.Characteristic.DataType))
                .ForMember(dest => dest.CharacteristicUnit, opt => opt.MapFrom(src => src.Characteristic.Unit));
-            CreateMap<ProductCharacteristicUpdateModel, ProductCharacteristicDBModel>();
+            CreateMap<ProductCharacteristicUpdateRequestModel, ProductCharacteristicDBModel>();
+            CreateMap<ProductCharacteristicCreateRequestModel, ProductCharacteristicDBModel>();
 
             CreateMap<ProductCharacteristicGroupResponseModel, SimplifiedProductCharacteristicGroupResponseModel>()
                 .ForMember(dest => dest.CharacteristicGroupTitle, opt => opt.MapFrom(src => src.CharacteristicGroupTitle))

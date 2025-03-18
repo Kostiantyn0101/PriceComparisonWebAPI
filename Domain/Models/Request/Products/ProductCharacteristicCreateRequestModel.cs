@@ -1,8 +1,7 @@
 ﻿namespace Domain.Models.Request.Products
 {
-    public class ProductCharacteristicUpdateModel
+    public class ProductCharacteristicCreateRequestModel
     {
-        public int Id { get; set; }
         public int? BaseProductId { get; set; }
         public int? ProductId { get; set; }
         public int CharacteristicId { get; set; }

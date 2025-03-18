@@ -5,6 +5,7 @@ using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
@@ -25,142 +26,95 @@ namespace BLL.Services.ProductServices
         }
 
 
-        public async Task<OperationResultModel<bool>> UpdateProductCharacteristicAsync(ProductCharacteristicUpdateRequestModel model)
+        public async Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> CreateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicCreateRequestModel> models)
         {
-            if (!model.ProductId.HasValue && !model.BaseProductId.HasValue)
-            {
-                return OperationResultModel<bool>.Failure("Не вказано жодного ідентифікатора ProductId або BaseProductId.");
-            }
+            var dbModels = _mapper.Map<IEnumerable<ProductCharacteristicDBModel>>(models);
 
-            var existingRecords = new List<ProductCharacteristicDBModel>();
-            if (model.ProductId.HasValue)
+            foreach (var model in dbModels)
             {
-                existingRecords = (await _repository.GetFromConditionAsync(
-                    x => x.ProductId == model.ProductId.Value
-                )).ToList();
-            }
-            else
-            {
-                existingRecords = (await _repository.GetFromConditionAsync(
-                    x => x.BaseProductId == model.BaseProductId.Value
-                )).ToList();
-            }
+                var result = await _repository.CreateAsync(model);
 
-            foreach (var item in model.Characteristics)
-            {
-                var record = existingRecords
-                    .FirstOrDefault(r => r.CharacteristicId == item.CharacteristicId);
-
-                if (record != null)
+                if (!result.IsSuccess)
                 {
-                    record.ValueText = item.ValueText;
-                    record.ValueNumber = item.ValueNumber;
-                    record.ValueBoolean = item.ValueBoolean;
-                    record.ValueDate = item.ValueDate;
-
-                    var updateResult = await UpdateAsync(record);
-                    if (!updateResult.IsSuccess)
-                    {
-                        return OperationResultModel<bool>.Failure(
-                            updateResult.ErrorMessage!,
-                            updateResult.Exception
-                        );
-                    }
-                }
-                else
-                {
-                    var newRecord = _mapper.Map<ProductCharacteristicDBModel>(item);
-
-                    if (model.ProductId.HasValue)
-                    {
-                        newRecord.ProductId = model.ProductId.Value;
-                    }
-                    else
-                    {
-                        newRecord.BaseProductId = model.BaseProductId.Value;
-                    }
-
-                    var createResult = await CreateAsync(newRecord);
-                    if (!createResult.IsSuccess)
-                    {
-                        return OperationResultModel<bool>.Failure(
-                            createResult.ErrorMessage!,
-                            createResult.Exception
-                        );
-                    }
+                    return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Failure(result.ErrorMessage!, result.Exception);
                 }
             }
-            return OperationResultModel<bool>.Success(true);
+
+            var responseModels = _mapper.Map<IEnumerable<ProductCharacteristicResponseModel>>(dbModels);
+            return OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>.Success(responseModels);
         }
 
 
-        public async Task<OperationResultModel<bool>> UpdateProductCharacteristicAsync2(ProductCharacteristicUpdateRequestModel model)
-        {
-            if (!model.ProductId.HasValue && !model.BaseProductId.HasValue)
-            {
-                return OperationResultModel<bool>.Failure("Не вказано жодного ідентифікатора ProductId або BaseProductId.");
-            }
+        //public async Task<OperationResultModel<ProductCharacteristicUpdateRequestModel>> UpdateProductCharacteristicAsync(IEnumerable<ProductCharacteristicUpdateRequestModel> models)
+        //{
 
-            var existingRecords = new List<ProductCharacteristicDBModel>();
-            if (model.ProductId.HasValue)
-            {
-                existingRecords = (await _repository.GetFromConditionAsync(
-                    x => x.ProductId == model.ProductId.Value
-                )).ToList();
-            }
-            else
-            {
-                existingRecords = (await _repository.GetFromConditionAsync(
-                    x => x.BaseProductId == model.BaseProductId.Value
-                )).ToList();
-            }
 
-            foreach (var item in model.Characteristics)
-            {
-                var record = existingRecords
-                    .FirstOrDefault(r => r.CharacteristicId == item.CharacteristicId);
 
-                if (record != null)
-                {
-                    record.ValueText = item.ValueText;
-                    record.ValueNumber = item.ValueNumber;
-                    record.ValueBoolean = item.ValueBoolean;
-                    record.ValueDate = item.ValueDate;
+        //    if (!model.ProductId.HasValue && !model.BaseProductId.HasValue)
+        //    {
+        //        return OperationResultModel<ProductCharacteristicUpdateRequestModel>.Failure("Не вказано жодного ідентифікатора ProductId або BaseProductId.");
+        //    }
 
-                    var updateResult = await UpdateAsync(record);
-                    if (!updateResult.IsSuccess)
-                    {
-                        return OperationResultModel<bool>.Failure(
-                            updateResult.ErrorMessage!,
-                            updateResult.Exception
-                        );
-                    }
-                }
-                else
-                {
-                    var newRecord = _mapper.Map<ProductCharacteristicDBModel>(item);
+        //    var existingRecords = new List<ProductCharacteristicDBModel>();
+        //    if (model.ProductId.HasValue)
+        //    {
+        //        existingRecords = (await _repository.GetFromConditionAsync(
+        //            x => x.ProductId == model.ProductId.Value
+        //        )).ToList();
+        //    }
+        //    else
+        //    {
+        //        existingRecords = (await _repository.GetFromConditionAsync(
+        //            x => x.BaseProductId == model.BaseProductId.Value
+        //        )).ToList();
+        //    }
 
-                    if (model.ProductId.HasValue)
-                    {
-                        newRecord.ProductId = model.ProductId.Value;
-                    }
-                    else
-                    {
-                        newRecord.BaseProductId = model.BaseProductId.Value;
-                    }
+        //    foreach (var item in model.Characteristics)
+        //    {
+        //        var record = existingRecords
+        //            .FirstOrDefault(r => r.CharacteristicId == item.CharacteristicId);
 
-                    var createResult = await CreateAsync(newRecord);
-                    if (!createResult.IsSuccess)
-                    {
-                        return OperationResultModel<bool>.Failure(
-                            createResult.ErrorMessage!,
-                            createResult.Exception
-                        );
-                    }
-                }
-            }
-            return OperationResultModel<bool>.Success(true);
-        }
+        //        if (record != null)
+        //        {
+        //            record.ValueText = item.ValueText;
+        //            record.ValueNumber = item.ValueNumber;
+        //            record.ValueBoolean = item.ValueBoolean;
+        //            record.ValueDate = item.ValueDate;
+
+        //            var updateResult = await UpdateAsync(record);
+        //            if (!updateResult.IsSuccess)
+        //            {
+        //                return OperationResultModel<bool>.Failure(
+        //                    updateResult.ErrorMessage!,
+        //                    updateResult.Exception
+        //                );
+        //            }
+        //        }
+        //        else
+        //        {
+        //            var newRecord = _mapper.Map<ProductCharacteristicDBModel>(item);
+
+        //            if (model.ProductId.HasValue)
+        //            {
+        //                newRecord.ProductId = model.ProductId.Value;
+        //            }
+        //            else
+        //            {
+        //                newRecord.BaseProductId = model.BaseProductId.Value;
+        //            }
+
+        //            var createResult = await CreateAsync(newRecord);
+        //            if (!createResult.IsSuccess)
+        //            {
+        //                return OperationResultModel<bool>.Failure(
+        //                    createResult.ErrorMessage!,
+        //                    createResult.Exception
+        //                );
+        //            }
+        //        }
+        //    }
+        //    return OperationResultModel<bool>.Success(true);
+        //}
 
 
         public async Task<OperationResultModel<ProductCharacteristicDBModel>> CreateAsync(ProductCharacteristicDBModel model)

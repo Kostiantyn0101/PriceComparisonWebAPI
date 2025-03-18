@@ -8,7 +8,7 @@ namespace BLL.Services.ProductServices
 {
     public interface IProductCharacteristicService
     {
-        Task<OperationResultModel<bool>> UpdateProductCharacteristicAsync(ProductCharacteristicUpdateRequestModel model);
+        Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> CreateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicCreateRequestModel> models);
         Task<IEnumerable<ProductCharacteristicResponseModel>> GetProductCharacteristicsAsync(int productId);
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetGroupedProductCharacteristicsAsync(int productId);
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortGroupedProductCharacteristicsAsync(int productId);

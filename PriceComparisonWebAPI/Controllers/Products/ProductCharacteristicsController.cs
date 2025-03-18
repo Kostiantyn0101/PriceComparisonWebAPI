@@ -87,19 +87,19 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
-        [HttpPut("update")]
+        [HttpPut("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateProductCharacteristics([FromBody] ProductCharacteristicUpdateRequestModel request)
+        public async Task<JsonResult> CreateProductCharacteristics([FromBody] IEnumerable<ProductCharacteristicCreateRequestModel> request)
         {
-            var result = await _productCharacteristicService.UpdateProductCharacteristicAsync(request);
+            var result = await _productCharacteristicService.CreateProductCharacteristicsAsync(request);
             if (!result.IsSuccess)
             {
-                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+                _logger.LogError(result.Exception, AppErrors.General.CreateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
 
             }
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK,null, result.Data);
         }
 
 

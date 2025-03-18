@@ -3,14 +3,10 @@ using FluentValidation;
 
 namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
 {
-    public class ProductCharacteristicUpdateRequestModelValidator : AbstractValidator<ProductCharacteristicUpdateRequestModel>
+    public class ProductCharacteristicCreateRequestModelValidator : AbstractValidator<ProductCharacteristicCreateRequestModel>
     {
-        public ProductCharacteristicUpdateRequestModelValidator()
+        public ProductCharacteristicCreateRequestModelValidator()
         {
-            RuleFor(model => model.Id)
-              .GreaterThan(0)
-              .WithMessage("Id must be greater than 0");
-
             // Either BaseProductId or ProductId must be provided
             RuleFor(model => model)
                 .Must(model => model.BaseProductId.HasValue || model.ProductId.HasValue)
@@ -27,7 +23,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
                 .GreaterThan(0)
                 .WithMessage("ProductId must be greater than 0")
                 .When(model => model.ProductId.HasValue);
-
+            
             // CharacteristicId must be greater than 0
             RuleFor(model => model.CharacteristicId)
                 .GreaterThan(0)
