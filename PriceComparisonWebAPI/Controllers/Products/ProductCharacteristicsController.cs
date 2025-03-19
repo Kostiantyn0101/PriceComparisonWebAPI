@@ -87,7 +87,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
-        [HttpPut("createlist")]
+        [HttpPost("createlist")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductCharacteristicList([FromBody] IEnumerable<ProductCharacteristicCreateRequestModel> request)
@@ -119,7 +119,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
-        [HttpPut("create")]
+        [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductCharacteristic([FromBody] ProductCharacteristicCreateRequestModel request)

@@ -54,7 +54,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
-        [HttpGet("bybaseproduct{baseProductId}")]
+        [HttpGet("bybaseproduct/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductsByBaseProductId(int baseProductId)
