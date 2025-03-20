@@ -37,7 +37,7 @@ namespace DLL.Context
         public DbSet<BaseProductDBModel> BaseProducts { get; set; }
         public DbSet<ColorDBModel> Colors { get; set; }
 
-        //BaseProductsTableCreatedAndProductCharacteristicsTableIndexChanged
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -372,24 +372,22 @@ namespace DLL.Context
                 entity.HasOne(pc => pc.Product)
                     .WithMany(p => p.ProductCharacteristics)
                     .HasForeignKey(pc => pc.ProductId)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(pc => pc.Characteristic)
                     .WithMany(ch => ch.ProductCharacteristics)
-                    .HasForeignKey(pc => pc.CharacteristicId);
+                    .HasForeignKey(pc => pc.CharacteristicId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(pc => pc.BaseProduct)
                     .WithMany(p => p.ProductCharacteristics)
                     .HasForeignKey(pc => pc.BaseProductId)
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.Property(e => e.ValueNumber)
                     .HasColumnType("decimal(18, 2)");
-
-                // Require only one field to be filled and allow to fill only one field
-                //entity.ToTable(tb => tb.HasCheckConstraint(
-                //    "CK_ProductCharacteristic_ProductOrBaseProduct",
-                //    "(ProductId IS NULL AND BaseProductId IS NOT NULL) OR (ProductId IS NOT NULL AND BaseProductId IS NULL)"));
 
                 // Require at least one product field to be filled
                 entity.ToTable(tb => tb.HasCheckConstraint(
