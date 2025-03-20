@@ -11,6 +11,7 @@ namespace BLL.Services.ProductServices
         Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> CreateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicCreateRequestModel> models);
         Task<OperationResultModel<IEnumerable<ProductCharacteristicResponseModel>>> UpdateProductCharacteristicsAsync(IEnumerable<ProductCharacteristicUpdateRequestModel> models);
         Task<IEnumerable<ProductCharacteristicResponseModel>> GetProductCharacteristicsAsync(int productId);
+        Task<IEnumerable<ProductCharacteristicResponseModel>> GetBaseProductCharacteristicsAsync(int baseProductId);
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetGroupedProductCharacteristicsAsync(int productId);
         Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetShortGroupedProductCharacteristicsAsync(int productId);
 

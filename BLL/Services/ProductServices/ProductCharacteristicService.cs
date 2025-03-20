@@ -178,6 +178,17 @@ namespace BLL.Services.ProductServices
             return _mapper.Map<IEnumerable<ProductCharacteristicResponseModel>>(dbModels);
         }
 
+
+        public async Task<IEnumerable<ProductCharacteristicResponseModel>> GetBaseProductCharacteristicsAsync(int baseProductId)
+        {
+            var query = _repository.GetQuery()
+                                   .Where(pc => pc.BaseProductId == baseProductId)
+                                   .Include(x => x.Characteristic);
+
+            var dbModels = await _repository.ProcessQueryAsync(query);
+            return _mapper.Map<IEnumerable<ProductCharacteristicResponseModel>>(dbModels);
+        }
+
         public async Task<IEnumerable<ProductCharacteristicGroupResponseModel>> GetGroupedProductCharacteristicsAsync(int productId)
         {
             var baseProductId = await _productRepository.GetQuery()
