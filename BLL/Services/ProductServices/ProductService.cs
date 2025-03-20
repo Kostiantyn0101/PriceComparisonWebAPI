@@ -62,7 +62,9 @@ namespace BLL.Services.ProductServices
         public async Task<OperationResultModel<PaginatedResponse<ProductResponseModel>>> GetPaginatedProductsAsync(
                     Expression<Func<ProductDBModel, bool>> condition, int page, int pageSize)
         {
-            var query = _repository.GetQuery().Where(condition);
+            var query = _repository.GetQuery()
+                .Where(condition)
+                .Include(p=>p.ProductGroup);
 
             var totalItems = await query.CountAsync();
 
@@ -142,7 +144,13 @@ namespace BLL.Services.ProductServices
 
         public async Task<IEnumerable<ProductResponseModel>> GetFromConditionAsync(Expression<Func<ProductDBModel, bool>> condition)
         {
-            var dbModels = await _repository.GetFromConditionAsync(condition);
+            //var dbModels = await _repository.GetFromConditionAsync(condition);
+
+            var dbModels = _repository.GetQuery()
+                 .Where(condition)
+                 .Include(p => p.ProductGroup)
+                 .AsEnumerable();
+
             return _mapper.Map<IEnumerable<ProductResponseModel>>(dbModels);
         }
 
