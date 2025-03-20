@@ -238,7 +238,7 @@ namespace DLL.Context
                 entity.HasOne(c => c.Product)
                     .WithMany(c => c.ProductClicks)
                     .HasForeignKey(c => c.ProductId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             // CategoryDBModel
