@@ -15,5 +15,6 @@ namespace BLL.Services.SellerServices
         Task<OperationResultModel<PaginatedResponse<SellerProductDetailsResponseModel>>> GetPaginatedSellerProductDetailsAsync(
                 Expression<Func<SellerProductDetailsDBModel, bool>> condition, int page, int pageSize);
         Task<IEnumerable<SellerProductDetailsResponseModel>> GetSellerProductDetailsByProductGroupAsync(SellerProductDetailsRequestModel model);
+        Task<OperationResultModel<SellerProductPricesResponseModel>> GetSellerProductPricesAsync(int productId);
     }
 }

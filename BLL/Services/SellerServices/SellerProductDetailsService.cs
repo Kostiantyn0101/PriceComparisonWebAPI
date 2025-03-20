@@ -274,6 +274,27 @@ namespace BLL.Services.SellerServices
                 });
         }
 
+
+        public async Task<OperationResultModel<SellerProductPricesResponseModel>> GetSellerProductPricesAsync(int productId)
+        {
+            var query = _repository.GetQuery()
+                .Where(sd => sd.ProductId == productId)
+                .GroupBy(sd => sd.ProductId)
+                .Select(g => new SellerProductPricesResponseModel
+                {
+                    ProductId = g.Key,
+                    MaxPriceValue = g.Max(sd => sd.PriceValue),
+                    MinPriceValue = g.Min(sd => sd.PriceValue),
+                });
+
+            var result = await query.FirstOrDefaultAsync();
+
+            return result != null
+                ? OperationResultModel<SellerProductPricesResponseModel>.Success(result)
+                : OperationResultModel<SellerProductPricesResponseModel>.Failure("Prices not found error");
+          
+        }
+
         private void ProcessSellerLogoImageUrl(IEnumerable<SellerProductDetailsResponseModel> model)
         {
             foreach (var item in model)

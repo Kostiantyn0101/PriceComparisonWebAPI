@@ -93,6 +93,27 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         }
 
 
+        [HttpGet("minmaxprices/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SellerProductPricesResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetSellerProductPrices(int productId)
+        {
+            var result = await _sellerProductDetailsService.GetSellerProductPricesAsync(productId);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return new JsonResult(result.Data)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
+
         [HttpGet("byproductgroup")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
