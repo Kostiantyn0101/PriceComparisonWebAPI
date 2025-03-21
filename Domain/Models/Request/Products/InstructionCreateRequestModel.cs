@@ -2,7 +2,7 @@
 {
     public class InstructionCreateRequestModel
     {
-        public int ProductId { get; set; }
+        public int BaseProductId { get; set; }
         public string InstructionUrl { get; set; }
     }
 }

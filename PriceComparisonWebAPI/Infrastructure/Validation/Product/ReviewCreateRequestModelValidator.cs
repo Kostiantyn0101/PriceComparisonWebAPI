@@ -7,7 +7,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
     {
         public ReviewCreateRequestModelValidator()
         {
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.BaseProductId)
                 .GreaterThan(0).WithMessage("ProductId must be greater than 0");
             RuleFor(x => x.ReviewUrl)
                 .NotEmpty().WithMessage("ReviewUrl is required")

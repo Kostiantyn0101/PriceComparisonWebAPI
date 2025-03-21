@@ -3,7 +3,7 @@
     public class InstructionUpdateRequestModel
     {
         public int Id { get; set; }
-        public int ProductId { get; set; }
+        public int BaseProductId { get; set; }
         public string InstructionUrl { get; set; }
     }
 }

@@ -9,7 +9,7 @@ namespace PriceComparisonWebAPI.Infrastructure.Validation.Product
         {
             RuleFor(x => x.Id)
                 .GreaterThan(0).WithMessage("Id must be greater than 0.");
-            RuleFor(x => x.ProductId)
+            RuleFor(x => x.BaseProductId)
                 .GreaterThan(0).WithMessage("ProductId must be greater than 0");
             RuleFor(x => x.InstructionUrl)
                 .NotEmpty().WithMessage("InstructionUrl is required.")
