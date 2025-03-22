@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Models.Primitives;
+﻿using Domain.Models.Primitives;
 
 namespace Domain.Models.DBModels
 {
@@ -18,7 +13,7 @@ namespace Domain.Models.DBModels
             set
             {
                 _title = value;
-                NormalizedTitle = value?.Trim().ToUpperInvariant(); ;
+                NormalizedTitle = value.Trim().ToUpperInvariant();
             }
         }
         public string NormalizedTitle { get; private set; }

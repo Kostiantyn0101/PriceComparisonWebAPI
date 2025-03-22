@@ -4,10 +4,21 @@ namespace Domain.Models.DBModels
 {
     public class ProductDBModel : IEntity<int>
     {
+        private string? _modelNumber;
+
         public int Id { get; set; }     
         public int BaseProductId { get; set; }
         public int ProductGroupId { get; set; }
-        public string? ModelNumber { get; set; }                                        
+        public string? ModelNumber
+        {
+            get => _modelNumber;
+            set
+            {
+                _modelNumber = value;
+                NormalizedModelNumber = value?.Trim().ToUpperInvariant();
+            }
+        }
+        public string? NormalizedModelNumber { get; private set; }
         public string? GTIN { get; set; }                                               
         public string? UPC { get; set; }                                                
         public int? ColorId { get; set; }

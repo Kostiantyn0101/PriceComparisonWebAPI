@@ -59,6 +59,15 @@ namespace DLL.Context
                  .WithMany(c => c.ProductGroups)
                  .HasForeignKey(p => p.ProductGroupTypeId)
                  .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(p => p.Name)
+                  .HasMaxLength(255);
+
+                entity.Property(p => p.NormalizedName)
+                  .HasMaxLength(255);
+
+                entity.HasIndex(p => p.NormalizedName)
+                    .HasDatabaseName("IX_ProductGroup_NormalizedName"); // index for search
             });
 
             // ColorDBModel
@@ -75,6 +84,9 @@ namespace DLL.Context
 
                 entity.Property(p => p.NormalizedTitle)
                     .HasMaxLength(255);
+
+                entity.HasIndex(p => p.NormalizedTitle)
+                    .HasDatabaseName("IX_BaseProduct_NormalizedTitle"); // index for search
 
                 entity.Property(p => p.Brand)
                     .HasMaxLength(255);
@@ -104,6 +116,9 @@ namespace DLL.Context
                 entity.Property(p => p.ModelNumber)
                     .HasMaxLength(255);
 
+                entity.Property(p => p.NormalizedModelNumber)
+                    .HasMaxLength(255);
+
                 entity.Property(p => p.GTIN)
                     .HasMaxLength(15);
 
@@ -120,13 +135,15 @@ namespace DLL.Context
 
                 entity.HasIndex(p => new {p.Id, p.ProductGroupId, p.ColorId })
                     .IsUnique();
+
+                entity.HasIndex(p => p.NormalizedModelNumber)
+                    .HasDatabaseName("IX_Product_NormalizedModelNumber"); // index for search
             });
 
             // FilterDBModel
             modelBuilder.Entity<FilterDBModel>(entity =>
             {
                 entity.Property(e => e.Title)
-                    .IsRequired()
                     .HasMaxLength(100);
 
                 entity.Property(e => e.ShortTitle)
