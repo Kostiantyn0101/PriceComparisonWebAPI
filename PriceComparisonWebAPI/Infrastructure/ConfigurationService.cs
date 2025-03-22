@@ -6,25 +6,18 @@ namespace PriceComparisonWebAPI.Infrastructure
     {
         public static void ConfigureServices(WebApplicationBuilder builder)
         {
-            try
-            {
-                builder.AddConfiguration();
-                builder.AddFluentValidation();
-                builder.AddDbContext();
-                builder.AddIdentity();
-                builder.AddRepositories();
-                builder.AddServices();
-                builder.AddAuth();
-                builder.AddSwagger();
-                builder.AddAutoMapper();
-                builder.AddOthers();
-                builder.AddAIServices();
-                builder.AddCors();
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            builder.AddConfiguration();
+            builder.AddFluentValidation();
+            builder.AddDbContext();
+            builder.AddIdentity();
+            builder.AddRepositories();
+            builder.AddServices();
+            builder.AddAuth();
+            builder.AddSwagger();
+            builder.AddAutoMapper();
+            builder.AddOthers();
+            builder.AddAIServices();
+            builder.AddCors();
         }
     }
 }

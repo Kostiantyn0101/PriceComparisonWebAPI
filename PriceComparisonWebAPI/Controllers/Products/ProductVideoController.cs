@@ -4,6 +4,7 @@ using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
 using Domain.Models.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Domain.Models.Response.Products;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
@@ -23,6 +24,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
         [HttpGet("{baseProductId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductVideoResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductVideosByBaseProductId(int baseProductId)
         {
             var result = await _productVideoService.GetFromConditionAsync(x => x.BaseProductId == baseProductId);

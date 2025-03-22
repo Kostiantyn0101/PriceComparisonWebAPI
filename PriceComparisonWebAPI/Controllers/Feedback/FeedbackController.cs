@@ -3,6 +3,7 @@ using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Feedback;
 using Domain.Models.Response;
+using Domain.Models.Response.Feedback;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -25,6 +26,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
         [HttpGet("{baseProductId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetFeedbacksByBaseProductId(int baseProductId)
         {
             var result = await _feedbackService.GetFromConditionAsync(x => x.BaseProductId == baseProductId);
@@ -82,7 +85,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
         [HttpGet("paginated/{baseProductId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackResponseModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetFeedbacksByBaseProductIdPaginated(int baseProductId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
