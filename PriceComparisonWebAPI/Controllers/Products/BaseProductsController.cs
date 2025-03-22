@@ -44,6 +44,25 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
+        [HttpGet("onmoderation")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BaseProductResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetBaseProductsOnModeration()
+        {
+            var products = await _baseProductService.GetFromConditionAsync(x => x.IsUnderModeration);
+            if (products == null || !products.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(products)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
         [HttpGet("bycategory/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseProductResponseModel))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]

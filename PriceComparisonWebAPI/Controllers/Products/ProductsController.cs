@@ -54,6 +54,25 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
+        [HttpGet("onmoderation")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> GetProductsOnModeration()
+        {
+            var products = await _productService.GetFromConditionAsync(x => x.IsUnderModeration);
+            if (products == null || !products.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(products)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
         [HttpGet("bybaseproduct/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
@@ -74,6 +93,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
 
         [HttpGet("empty/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponseModel))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetEmptyProductById(int id)
         {
             var products = await _productService.GetFromConditionAsync(x => x.Id == id);

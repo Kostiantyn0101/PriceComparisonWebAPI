@@ -54,45 +54,87 @@ namespace BLL.Services.SellerServices
             _fileStorageConfiguration = fileOptions.Value;
         }
 
-        public async Task<OperationResultModel<string>> ProcessXmlAsync(Stream stream)
+        public async Task<OperationResultModel<IEnumerable<string>>> ProcessXmlAsync(Stream stream)
         {
-            var xmlDoc = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
-            var priceListDate = DateTime.Parse(xmlDoc.Root.Attribute("date").Value);
-            var apiKey = xmlDoc.Root.Element("api_key").Value;
+            var uploadResults = new List<string>();
 
-            // Seller search
-            var seller = (await _sellerRepository.GetFromConditionAsync(s => s.ApiKey == apiKey))
-                .FirstOrDefault();
+            var xmlDoc = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
+
+            DateTime priceListDate;
+            if (!DateTime.TryParse(xmlDoc?.Root?.Attribute("date")?.Value ?? string.Empty, out priceListDate))
+            {
+                return OperationResultModel<IEnumerable<string>>.Failure($"Upload Error. Price list date is wrong or absent");
+            }
+
+            var apiKey = xmlDoc?.Root?.Element("api_key")?.Value;
+            if (apiKey == null)
+            {
+                return OperationResultModel<IEnumerable<string>>.Failure($"Upload Error. Api key is invalid or absent");
+            }
+
+            var seller = (await _sellerRepository.GetFromConditionAsync(s => s.ApiKey == apiKey)).FirstOrDefault();
 
             if (seller == null)
             {
-                return OperationResultModel<string>.Failure($"Seller with api key {apiKey} not found");
+                return OperationResultModel<IEnumerable<string>>.Failure($"Upload Error. Seller with api key {apiKey} not found");
             }
 
             if (!seller.IsActive || seller.AccountBalance < _accountConfiguration.MinBalanceToProceed)
             {
-                return OperationResultModel<string>.Failure($"Seller with api key {apiKey} is inactive or has no account balance");
+                return OperationResultModel<IEnumerable<string>>.Failure($"Upload Error. Seller with api key {apiKey} is inactive or has no account balance");
             }
 
             // Currency processing
-            Dictionary<string, decimal> currencies = xmlDoc.Root?.Element("currencies") is XElement currenciesElement
-                && currenciesElement.Elements("currency").Any()
-                ? currenciesElement.Elements("currency")
-                    .ToDictionary(
-                        c => c.Attribute("id").Value,
-                        c => decimal.Parse(c.Attribute("rate").Value)
-                    )
-                : new Dictionary<string, decimal>();
+            Dictionary<string, decimal> currencies = new Dictionary<string, decimal>(); 
+            if (xmlDoc?.Root?.Element("currencies") is XElement currenciesXElement && currenciesXElement.Elements("currency").Any())
+            {
+                var currenciyElements = currenciesXElement.Elements("currency").ToList();
+
+                foreach (var currency in currenciyElements)
+                {
+                    var idAttribute = currency.Attribute("id");
+                    if (idAttribute == null || string.IsNullOrWhiteSpace(idAttribute.Value))
+                        return OperationResultModel<IEnumerable<string>>.Failure("Error: A 'currency' element is missing the 'id' attribute or its value is empty.");
+
+                    var currencyId = idAttribute.Value;
+                    if (currencies.ContainsKey(currencyId))
+                        return OperationResultModel<IEnumerable<string>>.Failure($"Error: Duplicate currency id '{currencyId}' found.");
+
+                    var rateAttribute = currency.Attribute("rate");
+                    if (rateAttribute == null)
+                        return OperationResultModel<IEnumerable<string>>.Failure($"Error: Currency with id '{idAttribute.Value}' is missing the 'rate' attribute.");
+
+                    if (!decimal.TryParse(rateAttribute.Value, out decimal rate))
+                        return OperationResultModel<IEnumerable<string>>.Failure($"Error: Invalid 'rate' value for currency with id '{idAttribute.Value}': {rateAttribute.Value}");
+
+                    currencies.Add(idAttribute.Value, rate);
+                }
+            };
+
 
             // Categories processing
-            Dictionary<string, string> categories = xmlDoc.Root?.Element("categories") is XElement categoriesElement
-                && categoriesElement.Elements("category").Any()
-                ? categoriesElement.Elements("category")
-                   .ToDictionary(
-                        c => c.Attribute("id")?.Value.Trim() ?? string.Empty,  // Key: ID
-                        c => c.Value.Trim()  // Value: Category name
-                    )
-                : new Dictionary<string, string>();
+            Dictionary<string, string> categories = new Dictionary<string, string>();
+            if (xmlDoc?.Root?.Element("categories") is XElement categoriesXElement && categoriesXElement.Elements("category").Any())
+            {
+                var categoryElements = categoriesXElement.Elements("category").ToList();
+
+                foreach (var category in categoryElements)
+                {
+                    var idAttribute = category.Attribute("id");
+                    if (idAttribute == null || string.IsNullOrWhiteSpace(idAttribute.Value))
+                        return OperationResultModel<IEnumerable<string>>.Failure("Error: A 'category' element is missing the 'id' attribute or its value is empty.");
+
+                    string categoryId = idAttribute.Value.Trim();
+                    if (categories.ContainsKey(categoryId))
+                        return OperationResultModel<IEnumerable<string>>.Failure($"Error: Duplicate category id '{categoryId}' found.");
+
+                    string categoryName = category.Value.Trim();
+                    if (string.IsNullOrWhiteSpace(categoryName))
+                        return OperationResultModel<IEnumerable<string>>.Failure($"Error: Category with id '{idAttribute.Value}' has an empty name.");
+
+                    categories.Add(idAttribute.Value.Trim(), categoryName);
+                }
+            }
 
             // Product processing
             foreach (var offer in xmlDoc.Root.Element("offers").Elements("offer"))
@@ -105,7 +147,7 @@ namespace BLL.Services.SellerServices
                     .Where(p => (!string.IsNullOrWhiteSpace(gtin) && (p.GTIN == gtin || p.UPC == gtin)) ||
                                 (string.IsNullOrWhiteSpace(gtin) && p.BaseProduct.NormalizedTitle.Equals(normalizedTitle)))
                     .FirstOrDefaultAsync();
-                
+
 
                 // Create new product if not found
                 if (product == null)
@@ -208,7 +250,7 @@ namespace BLL.Services.SellerServices
                 });
             }
 
-            return OperationResultModel<string>.Success();
+            return OperationResultModel<IEnumerable<string>>.Success();
         }
 
 
@@ -249,7 +291,7 @@ namespace BLL.Services.SellerServices
 
         public async Task<IEnumerable<SellerProductDetailsResponseModel>> GetSellerProductDetailsByProductGroupAsync(SellerProductDetailsRequestModel model)
         {
-            var query = BuildSellerProductDetailsQuery(spd => spd.Product.BaseProductId == model.BaseProductId && spd.Product.ProductGroupId==model.ProductGroupId);
+            var query = BuildSellerProductDetailsQuery(spd => spd.Product.BaseProductId == model.BaseProductId && spd.Product.ProductGroupId == model.ProductGroupId);
             var productDetails = await query.OrderByDescending(x => x.StoreUrlClickRate).ToListAsync();
             ProcessSellerLogoImageUrl(productDetails);
             return productDetails;
@@ -292,7 +334,7 @@ namespace BLL.Services.SellerServices
             return result != null
                 ? OperationResultModel<SellerProductPricesResponseModel>.Success(result)
                 : OperationResultModel<SellerProductPricesResponseModel>.Failure("Prices not found error");
-          
+
         }
 
         private void ProcessSellerLogoImageUrl(IEnumerable<SellerProductDetailsResponseModel> model)
