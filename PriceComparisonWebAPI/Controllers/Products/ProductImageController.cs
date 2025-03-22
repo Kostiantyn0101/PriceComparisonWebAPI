@@ -15,10 +15,12 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class ProductImageController : ControllerBase
     {
         private readonly ILogger<ProductImageController> _logger;
         private readonly IProductImageService _productImageService;
+
 
         public ProductImageController(ILogger<ProductImageController> logger,
             IProductImageService productImageService
@@ -30,6 +32,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
 
         [HttpGet("{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductImageResponseModel>))]
         public async Task<JsonResult> GetProductImageById(int productId)
         {
             var result = await _productImageService.GetFromConditionAsync(x => x.ProductId == productId);
@@ -45,9 +48,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddProductImages([FromForm] ProductImageCreateRequestModel model)
         {
             var result = await _productImageService.AddAsync(model);
@@ -59,9 +62,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProductImage([FromBody] ProductImageDeleteRequestModel model)
         {
             var result = await _productImageService.DeleteAsync(model);
@@ -75,9 +78,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("setprimary")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> SetPrimaryImage([FromBody] ProductImageSetPrimaryRequestModel model)
         {
             var result = await _productImageService.SetPrimaryImageAsync(model);

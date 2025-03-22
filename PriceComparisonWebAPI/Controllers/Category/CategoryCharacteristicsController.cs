@@ -15,10 +15,12 @@ namespace PriceComparisonWebAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class CategoryCharacteristicsController : ControllerBase
     {
         private readonly ILogger<CategoryCharacteristicsController> _logger;
         private readonly ICategoryCharacteristicService _categoryCharacteristicService;
+
 
         public CategoryCharacteristicsController(
             ICategoryCharacteristicService categoryCharacteristicService,
@@ -29,7 +31,9 @@ namespace PriceComparisonWebAPI.Controllers
             _logger = logger;
         }
 
+
         [HttpGet("{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryCharacteristicResponseModel>))]
         public async Task<JsonResult> GetCategoryCharacteristics(int categoryId)
         {
             var serviceResult = await _categoryCharacteristicService.GetMappedCharacteristicsAsync(categoryId);
@@ -44,9 +48,9 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
+
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddCategoryCharacteristic([FromBody] CategoryCharacteristicRequestModel request)
         {
             var validationError = ValidateRequest(request, "add");
@@ -61,9 +65,9 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCategoryCharacteristic([FromBody] CategoryCharacteristicUpdateRequestModel request)
         {
             var result = await _categoryCharacteristicService.UpdateAsync(request);
@@ -78,9 +82,9 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCategoryCharacteristics([FromBody] CategoryCharacteristicRequestModel request)
         {
             var validationError = ValidateRequest(request, "delete");
@@ -95,7 +99,6 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
 
-        #region Private Helper Methods
 
         private JsonResult ValidateRequest(CategoryCharacteristicRequestModel request, string operationType)
         {
@@ -109,7 +112,5 @@ namespace PriceComparisonWebAPI.Controllers
             }
             return null;
         }
-
-        #endregion
     }
 }

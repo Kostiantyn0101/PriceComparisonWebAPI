@@ -14,6 +14,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class FeedbackController : ControllerBase
     {
         private readonly IFeedbackService _feedbackService;
@@ -25,9 +26,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _logger = logger;
         }
 
+
         [HttpGet("{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetFeedbacksByBaseProductId(int baseProductId)
         {
             var result = await _feedbackService.GetFromConditionAsync(x => x.BaseProductId == baseProductId);
@@ -42,9 +43,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateFeedback([FromBody] FeedbackCreateRequestModel request)
         {
             var result = await _feedbackService.CreateAsync(request);
@@ -56,9 +57,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateFeedback([FromBody] FeedbackUpdateRequestModel request)
         {
             var result = await _feedbackService.UpdateAsync(request);
@@ -70,9 +71,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteFeedback(int id)
         {
             var result = await _feedbackService.DeleteAsync(id);
@@ -84,9 +85,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpGet("paginated/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetFeedbacksByBaseProductIdPaginated(int baseProductId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             Expression<Func<FeedbackDBModel, bool>> condition = f => f.BaseProductId == baseProductId;

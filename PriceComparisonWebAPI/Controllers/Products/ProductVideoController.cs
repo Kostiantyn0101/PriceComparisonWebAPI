@@ -12,10 +12,12 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class ProductVideoController : ControllerBase
     {
         private readonly IProductVideoService _productVideoService;
         private readonly ILogger<ProductVideoController> _logger;
+
 
         public ProductVideoController(IProductVideoService productVideoService, ILogger<ProductVideoController> logger)
         {
@@ -23,9 +25,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _logger = logger;
         }
 
+
         [HttpGet("{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductVideoResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductVideosByBaseProductId(int baseProductId)
         {
             var result = await _productVideoService.GetFromConditionAsync(x => x.BaseProductId == baseProductId);
@@ -40,9 +42,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductVideo([FromBody] ProductVideoCreateRequestModel request)
         {
             var result = await _productVideoService.CreateAsync(request);
@@ -54,9 +56,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductVideo([FromBody] ProductVideoUpdateRequestModel request)
         {
             var result = await _productVideoService.UpdateAsync(request);
@@ -68,9 +70,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProductVideo(int id)
         {
             var result = await _productVideoService.DeleteAsync(id);

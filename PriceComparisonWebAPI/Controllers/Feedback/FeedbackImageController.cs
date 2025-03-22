@@ -12,6 +12,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class FeedbackImageController : ControllerBase
     {
         private readonly IFeedbackImageService _feedbackImageService;
@@ -23,7 +24,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _logger = logger;
         }
 
+
         [HttpGet("{feedbackId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackImageResponseModel>))]
         public async Task<JsonResult> GetImagesByFeedbackId(int feedbackId)
         {   
             var result = await _feedbackImageService.GetFromConditionAsync(i => i.FeedbackId == feedbackId);
@@ -38,9 +41,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddFeedbackImages([FromForm] FeedbackImageCreateRequestModel request)
         {
             var result = await _feedbackImageService.CreateAsync(request);
@@ -52,9 +55,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteFeedbackImages([FromBody] FeedbackImageDeleteRequestModel request)
         {
             var result = await _feedbackImageService.DeleteAsync(request);

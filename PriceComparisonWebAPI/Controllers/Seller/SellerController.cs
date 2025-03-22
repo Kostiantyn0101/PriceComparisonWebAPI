@@ -4,6 +4,7 @@ using Domain.Models.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using BLL.Services.SellerServices;
 using Domain.Models.Request.Seller;
+using Domain.Models.Response.Seller;
 
 namespace PriceComparisonWebAPI.Controllers.Categories
 {
@@ -11,10 +12,12 @@ namespace PriceComparisonWebAPI.Controllers.Categories
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class SellerController : ControllerBase
     {
         private readonly ILogger<SellerController> _logger;
         private readonly ISellerService _sellerService;
+
 
         public SellerController(ILogger<SellerController> logger, ISellerService sellerService)
         {
@@ -22,7 +25,9 @@ namespace PriceComparisonWebAPI.Controllers.Categories
             _sellerService = sellerService;
         }
 
+
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SellerResponseModel))]
         public async Task<JsonResult> GetSellerById(int id)
         {
             var result = await _sellerService.GetFromConditionAsync(s => s.Id == id);
@@ -37,7 +42,9 @@ namespace PriceComparisonWebAPI.Controllers.Categories
             };
         }
 
+
         [HttpGet("getByUserId/{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SellerResponseModel))]
         public async Task<JsonResult> GetSellerByUserId(int userId)
         {
             var result = await _sellerService.GetFromConditionAsync(s => s.UserId == userId);
@@ -52,9 +59,9 @@ namespace PriceComparisonWebAPI.Controllers.Categories
             };
         }
 
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateSeller([FromForm] SellerCreateRequestModel request)
         {
             var result = await _sellerService.CreateAsync(request);
@@ -66,9 +73,9 @@ namespace PriceComparisonWebAPI.Controllers.Categories
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateSeller([FromForm] SellerUpdateRequestModel request)
         {
             var result = await _sellerService.UpdateAsync(request);
@@ -80,9 +87,9 @@ namespace PriceComparisonWebAPI.Controllers.Categories
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteSeller(int id)
         {
             var result = await _sellerService.DeleteAsync(id);

@@ -14,6 +14,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class CategoriesController : ControllerBase
     {
         private readonly ILogger<CategoriesController> _logger;
@@ -33,7 +34,6 @@ namespace PriceComparisonWebAPI.Controllers.Category
 
         [HttpGet("getallparents")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetAllParentCategories()
         {
             var categories = await _categoryService.GetFromConditionAsync(x => x.IsParent);
@@ -46,7 +46,6 @@ namespace PriceComparisonWebAPI.Controllers.Category
 
         [HttpGet("getbyparent/{parentCategoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetCategoryByParent(int parentCategoryId)
         {
             var categories = await _categoryService.GetFromConditionAsync(x => x.ParentCategoryId == parentCategoryId);
@@ -59,7 +58,6 @@ namespace PriceComparisonWebAPI.Controllers.Category
 
         [HttpGet("getbyproduct/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetCategoryByProduct(int productId)
         {
             var category = await _categoryService.GetQuery()
@@ -80,7 +78,6 @@ namespace PriceComparisonWebAPI.Controllers.Category
 
         [HttpGet("getall")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetAllCategories()
         {
             var categories = await _categoryService.GetFromConditionAsync(x => true);
@@ -90,7 +87,9 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
+
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryResponseModel))]
         public async Task<JsonResult> GetCategoryById(int id)
         {
             var category = await _categoryService.GetFromConditionAsync(x => x.Id == id);
@@ -105,9 +104,9 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateCategory([FromForm] CategoryCreateRequestModel categoryRequest)
         {
             var result = await _categoryService.CreateAsync(categoryRequest);
@@ -121,9 +120,9 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCategory([FromForm] CategoryUpdateRequestModel categoryRequest)
         {
             var result = await _categoryService.UpdateAsync(categoryRequest);
@@ -137,9 +136,9 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteAsync(id);
@@ -153,7 +152,9 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpGet("popular")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CategoryResponseModel>))]
         public async Task<JsonResult> GetPopularCategories()
         {
             var categories = await _categoryService.GetQuery()

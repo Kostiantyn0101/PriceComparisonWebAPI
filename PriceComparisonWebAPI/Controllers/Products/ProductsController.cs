@@ -15,11 +15,13 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class ProductsController : ControllerBase
     {
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductService _productService;
         private readonly IPopularProductService _popularProductService;
+
 
         public ProductsController(ILogger<ProductsController> logger,
             IProductService productService,
@@ -34,7 +36,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductById(int id)
         {
             var products = await _productService.GetFromConditionAsync(x => x.Id == id);
@@ -56,7 +57,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("onmoderation")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductsOnModeration()
         {
             var products = await _productService.GetFromConditionAsync(x => x.IsUnderModeration);
@@ -75,7 +75,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("bybaseproduct/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductsByBaseProductId(int baseProductId)
         {
             var products = await _productService.GetFromConditionAsync(x => x.BaseProductId == baseProductId);
@@ -94,7 +93,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("empty/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetEmptyProductById(int id)
         {
             var products = await _productService.GetFromConditionAsync(x => x.Id == id);
@@ -116,7 +114,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProduct([FromBody] ProductCreateRequestModel productRequest)
         {
             var result = await _productService.CreateAsync(productRequest);
@@ -133,7 +130,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProduct([FromBody] ProductUpdateRequestModel productRequest)
         {
             var result = await _productService.UpdateAsync(productRequest);
@@ -150,7 +146,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProduct(int id)
         {
             var result = await _productService.DeleteAsync(id);
@@ -164,6 +159,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpGet("popular")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PopularCategoryResponseModel>))]
         public async Task<JsonResult> GetPopularProducts()
@@ -176,9 +172,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+
         [HttpGet("bycategorypaginated/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginatedResponse<BaseProductByCategoryResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductsByCategory(int categoryId, [FromQuery] int page = 1)
         {
             const int pageSize = 10;

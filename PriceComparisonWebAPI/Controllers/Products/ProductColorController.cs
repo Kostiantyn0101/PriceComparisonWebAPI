@@ -12,6 +12,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class ProductColorController : ControllerBase
     {
         private readonly ILogger<ProductColorController> _logger;
@@ -27,7 +28,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
         
         [HttpGet("getall")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ColorResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetAllColors()
         {
             var result = await _colorService.GetFromConditionAsync(c => true);
@@ -45,7 +45,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ColorResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetColorById(int id)
         {
             var result = await _colorService.GetFromConditionAsync(c => c.Id == id);
@@ -63,7 +62,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPost("byproductgroup")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductColorResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetColorsByProductGroupId([FromQuery] ProductColorRequestModel requestModel)
         {
             var result = await _colorService.GetByProductGroupIdAsync(requestModel);
@@ -81,7 +79,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateColor([FromBody] ColorCreateRequestModel request)
         {
             var result = await _colorService.CreateAsync(request);
@@ -96,7 +93,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateColor([FromBody] ColorUpdateRequestModel request)
         {
             var result = await _colorService.UpdateAsync(request);
@@ -111,7 +107,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteColor(int id)
         {
             var result = await _colorService.DeleteAsync(id);

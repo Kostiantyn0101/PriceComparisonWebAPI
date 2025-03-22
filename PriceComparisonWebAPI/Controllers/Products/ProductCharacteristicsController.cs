@@ -13,10 +13,12 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class ProductCharacteristicsController : ControllerBase
     {
         private readonly IProductCharacteristicService _productCharacteristicService;
         private readonly ILogger<ProductCharacteristicsController> _logger;
+
 
         public ProductCharacteristicsController(
                 IProductCharacteristicService productCharacteristicService,
@@ -29,7 +31,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductCharacteristicsByProductId(int productId)
         {
             var result = await _productCharacteristicService.GetProductCharacteristicsAsync(productId);
@@ -49,7 +50,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("baseproduct/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductCharacteristicsByBaseProductId(int baseProductId)
         {
             var result = await _productCharacteristicService.GetBaseProductCharacteristicsAsync(baseProductId);
@@ -69,7 +69,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("grouped/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetGroupedProductCharacteristicsByProductId(int productId)
         {
             var result = await _productCharacteristicService.GetGroupedProductCharacteristicsAsync(productId);
@@ -89,7 +88,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("short-grouped/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetShortGroupedProductCharacteristicsByProductId(int productId)
         {
             var result = await _productCharacteristicService.GetShortGroupedProductCharacteristicsAsync(productId);
@@ -109,7 +107,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPost("createlist")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductCharacteristicList([FromBody] IEnumerable<ProductCharacteristicCreateRequestModel> request)
         {
             var result = await _productCharacteristicService.CreateProductCharacteristicsAsync(request);
@@ -125,7 +122,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPut("updatelist")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductCharacteristicList([FromBody] IEnumerable<ProductCharacteristicUpdateRequestModel> request)
         {
             var result = await _productCharacteristicService.UpdateProductCharacteristicsAsync(request);
@@ -141,7 +137,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductCharacteristic([FromBody] ProductCharacteristicCreateRequestModel request)
         {
             var result = await _productCharacteristicService.CreateAsync(request);
@@ -157,7 +152,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductCharacteristic([FromBody] ProductCharacteristicUpdateRequestModel request)
         {
             var result = await _productCharacteristicService.UpdateAsync(request);
@@ -173,7 +167,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProductCharacteristics(int id)
         {
             var result = await _productCharacteristicService.DeleteAsync(id);

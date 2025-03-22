@@ -208,37 +208,6 @@ namespace BLL.Services.Auth
                     };
                 }
 
-                //var userSettings = new UserSettingsDBModel
-                //{
-                //    UserId = user.Id
-                //};
-                //var resultCreating = await _userSettingsService.CreateAsync(userSettings);
-
-                //var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                //var cryptToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-                //string filePath = Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot", "TemplateHtml", "ConfirmEmail.html");
-                //var sendForm = "";
-                //if (System.IO.File.Exists(filePath))
-                //{
-                //    sendForm = System.IO.File.ReadAllText(filePath);
-                //}
-                //else
-                //{
-                //    return new JsonResult(new GeneralApiResponseModel
-                //    {
-                //        ReturnCode = AppErrors.Auth.PathNotFound,
-                //        Message = "Path Not Found"
-                //    })
-                //    {
-                //        StatusCode = StatusCodes.Status400BadRequest
-                //    };
-                //}
-
-                //var confirmationLink = $"{_configuration["SelfServerUrl"]}EmailConfirmation?email={user.Email}&token={cryptToken}";
-                //await _emailService.SendEmailAsync(user.Email, "Confirm your email", sendForm.Replace("Your reference", confirmationLink));
-
-
                 return new JsonResult(new GeneralApiResponseModel
                 {
                     ReturnCode = AppSuccessCodes.CreateSuccess,

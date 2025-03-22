@@ -14,10 +14,12 @@ namespace PriceComparisonWebAPI.Controllers.Seller
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class SellerProductDetailsController : ControllerBase
     {
         private readonly ILogger<SellerProductDetailsController> _logger;
         private readonly ISellerProductDetailsService _sellerProductDetailsService;
+
 
         public SellerProductDetailsController(ILogger<SellerProductDetailsController> logger, ISellerProductDetailsService sellerProductDetailsService)
         {
@@ -25,10 +27,10 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             _sellerProductDetailsService = sellerProductDetailsService;
         }
 
+
         [HttpPost("upload-xml-file")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UploadXmlFile()
         {
             var file = Request.Form.Files[0];
@@ -49,9 +51,9 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
         }
 
+
         [HttpPost("upload-file")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UploadFile([FromForm] SellerProductXmlRequestModel request)
         {
             var file = request.PriceXML;
@@ -75,7 +77,6 @@ namespace PriceComparisonWebAPI.Controllers.Seller
 
         [HttpGet("{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetSellerProductDetails(int productId)
         {
             var result = await _sellerProductDetailsService.GetSellerProductDetailsAsync(productId);
@@ -95,7 +96,6 @@ namespace PriceComparisonWebAPI.Controllers.Seller
 
         [HttpGet("minmaxprices/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SellerProductPricesResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetSellerProductPrices(int productId)
         {
             var result = await _sellerProductDetailsService.GetSellerProductPricesAsync(productId);
@@ -113,10 +113,8 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         }
 
 
-
         [HttpGet("byproductgroup")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetSellerProductDetailsByProductGroup([FromQuery] SellerProductDetailsRequestModel model)
         {
             var result = await _sellerProductDetailsService.GetSellerProductDetailsByProductGroupAsync(model);
@@ -133,9 +131,9 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
+
         [HttpGet("paginated/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetSellerProductDetailsPaginated(int productId, [FromQuery] int page = 1, [FromQuery] int pageSize = 3)
         {
             Expression<Func<SellerProductDetailsDBModel, bool>> condition = p => p.ProductId == productId;

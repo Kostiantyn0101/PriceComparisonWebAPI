@@ -13,10 +13,12 @@ namespace PriceComparisonWebAPI.Controllers.Products
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class ProductGroupController : ControllerBase
     {
         private readonly ILogger<ProductGroupController> _logger;
         private readonly IProductGroupService _productGroupService;
+
 
         public ProductGroupController(ILogger<ProductGroupController> logger, IProductGroupService productGroupService)
         {
@@ -27,7 +29,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("getByProductGroupType/{productGroupTypeId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductGroupResponseModel>))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductGroupByProductGroupTypeId(int productGroupTypeId)
         {
             var result = await _productGroupService.GetFromConditionAsync(pg => pg.ProductGroupTypeId == productGroupTypeId);
@@ -44,7 +45,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpGet("{Id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductGroupResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetProductGroupById(int Id)
         {
             var result = await _productGroupService.GetFromConditionAsync(pg => pg.Id == Id);
@@ -61,7 +61,6 @@ namespace PriceComparisonWebAPI.Controllers.Products
 
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductGroup([FromBody] ProductGroupCreateRequestModel request)
         {
             var result = await _productGroupService.CreateAsync(request);
@@ -73,9 +72,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductGroup([FromBody] ProductGroupUpdateRequestModel request)
         {
             var result = await _productGroupService.UpdateAsync(request);
@@ -87,9 +86,9 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProductGroup(int id)
         {
             var result = await _productGroupService.DeleteAsync(id);

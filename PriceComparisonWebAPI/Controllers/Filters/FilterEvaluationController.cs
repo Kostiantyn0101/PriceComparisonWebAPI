@@ -1,6 +1,8 @@
 ﻿using BLL.Services.FilterServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
+using Domain.Models.Response.Filters;
+using Domain.Models.Response.Products;
 using Microsoft.AspNetCore.Mvc;
 using static NuGet.Packaging.PackagingConstants;
 
@@ -9,6 +11,7 @@ namespace PriceComparisonWebAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
     public class FilterEvaluationController : ControllerBase
     {
         private readonly ILogger<FilterEvaluationController> _logger;
@@ -24,8 +27,7 @@ namespace PriceComparisonWebAPI.Controllers
 
 
         [HttpGet("filtersByProduct/{productId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FilterResponseModel>))]
         public async Task<JsonResult> GetFiltersByProduct(int productId)
         {
             var filters = await _productFilterByCharacteristicService.GetFiltersByProductIdAsync(productId);
@@ -42,8 +44,7 @@ namespace PriceComparisonWebAPI.Controllers
 
 
         [HttpGet("productsByFilter/{filterId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FilterResponseModel>))]
         public async Task<JsonResult> GetProductsByFilter(int filterId)
         {
             var products = await _productFilterByCharacteristicService.GetProductsByFilterIdAsync(filterId);
@@ -60,8 +61,7 @@ namespace PriceComparisonWebAPI.Controllers
 
 
         [HttpGet("productsByFilters")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(GeneralApiResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
         public async Task<JsonResult> GetProductsByFilters([FromQuery] int[] filterIds)
         {
             var products = await _productFilterByCharacteristicService.GetProductsByFilterIdsAsync(filterIds);
@@ -78,6 +78,7 @@ namespace PriceComparisonWebAPI.Controllers
 
 
         [HttpGet("filtersByCategory/{categoryId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FilterResponseModel>))]
         public async Task<JsonResult> GetFiltersByCategory(int categoryId)
         {
             var filters = await _productFilterByCharacteristicService.GetFiltersByCategoryIdAsync(categoryId);
