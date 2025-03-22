@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using DLL.Repository;
+using Domain.Models.Configuration;
 using Domain.Models.DBModels;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 
 namespace BLL.Services.ProductServices
@@ -14,14 +16,17 @@ namespace BLL.Services.ProductServices
         private readonly IRepository<ProductDBModel, int> _repository;
         private readonly IRepository<BaseProductDBModel, int> _baseProductRepository;
         private readonly IMapper _mapper;
+        private readonly FileStorageConfiguration _fileStorageConfiguration;
 
         public ProductService(IRepository<ProductDBModel, int> repository,
             IRepository<BaseProductDBModel, int> baseProductRepository,
+            IOptions<FileStorageConfiguration> fileOptions,
             IMapper mapper)
         {
             _repository = repository;
             _baseProductRepository = baseProductRepository;
             _mapper = mapper;
+            _fileStorageConfiguration = fileOptions.Value;
         }
 
         public async Task<OperationResultModel<ProductDBModel>> CreateAsync(ProductCreateRequestModel model)
@@ -64,7 +69,7 @@ namespace BLL.Services.ProductServices
         {
             var query = _repository.GetQuery()
                 .Where(condition)
-                .Include(p=>p.ProductGroup);
+                .Include(p => p.ProductGroup);
 
             var totalItems = await query.CountAsync();
 
@@ -125,7 +130,7 @@ namespace BLL.Services.ProductServices
             var products = await query.Skip((page - 1) * pageSize)
                                       .Take(pageSize)
                                       .ToListAsync();
-            
+
             var response = new PaginatedResponse<BaseProductByCategoryResponseModel>
             {
                 Data = products,
@@ -157,6 +162,38 @@ namespace BLL.Services.ProductServices
         public async Task<IEnumerable<ProductDBModel>> ProcessQueryAsync(IQueryable<ProductDBModel> query)
         {
             return await _repository.ProcessQueryAsync(query);
+        }
+
+        public async Task<IEnumerable<ProductSearchResponseModel>> SearchByFullNameOrModelAsync(string name)
+        {
+            var normalizedName = name.ToUpperInvariant();
+
+            var query = _repository.GetQuery()
+                .Where(p => p.BaseProduct.NormalizedTitle.Contains(normalizedName)
+                || (p.NormalizedModelNumber != null && p.NormalizedModelNumber.Contains(normalizedName))
+                || p.ProductGroup.NormalizedName.Contains(normalizedName))
+                .Select(p => new ProductSearchResponseModel
+                {
+                    Id = p.Id,
+                    FullName = $"{p.BaseProduct.Title} {p.ProductGroup.Name}",
+                    ImageUrl = p.ProductImages != null && p.ProductImages.Any()
+                        ? p.ProductImages.First().ImageUrl
+                        : null,
+                    MinPrice = p.SellerProductDetails != null && p.SellerProductDetails.Any()
+                    ? p.SellerProductDetails.Min(d => d.PriceValue)
+                    : null
+                });
+
+            var result = await query.ToListAsync();
+
+            foreach (var item in result)
+            {
+                item.ImageUrl = item.ImageUrl != null
+                    ? $"{_fileStorageConfiguration.ServerURL.TrimEnd('/')}/{item.ImageUrl.TrimStart('/')}"
+                    : null;
+            }
+
+            return result;
         }
     }
 }

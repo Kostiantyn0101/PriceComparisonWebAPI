@@ -18,5 +18,6 @@ namespace BLL.Services.ProductServices
         IQueryable<ProductDBModel> GetQuery();
         Task<IEnumerable<ProductResponseModel>> GetFromConditionAsync(Expression<Func<ProductDBModel, bool>> condition);
         Task<IEnumerable<ProductDBModel>> ProcessQueryAsync(IQueryable<ProductDBModel> query);
+        Task<IEnumerable<ProductSearchResponseModel>> SearchByFullNameOrModelAsync(string name);
     }
 }

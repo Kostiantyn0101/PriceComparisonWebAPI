@@ -193,5 +193,18 @@ namespace PriceComparisonWebAPI.Controllers.Products
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
+
+        [HttpGet("search/{name}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductSearchResponseModel>))]
+        public async Task<JsonResult> SearchByFullNameOrModel(string name)
+        {
+            var result = await _productService.SearchByFullNameOrModelAsync(name);
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
     }
 }
