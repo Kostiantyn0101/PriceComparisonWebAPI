@@ -91,6 +91,7 @@ namespace BLL.Services.AIServices
             sb.AppendLine("3. Leave both products' `isHighlighted: false` when characteristics are equal");
             //sb.AppendLine("4. Не пропускай жодних характеристик, вивести потрібно всі для обох товарів.");
             sb.AppendLine("4. Do not skip any characteristics; all of them must be displayed for both products.");
+            sb.AppendLine("5. Explanation should be in ukrainian language.");
             sb.AppendLine();
 
             // Input validation warning
