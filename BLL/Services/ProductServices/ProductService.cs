@@ -169,9 +169,10 @@ namespace BLL.Services.ProductServices
             var normalizedName = name.ToUpperInvariant();
 
             var query = _repository.GetQuery()
-                .Where(p => p.BaseProduct.NormalizedTitle.Contains(normalizedName)
+                .Where(p => !p.IsUnderModeration 
+                && (p.BaseProduct.NormalizedTitle.Contains(normalizedName)
                 || (p.NormalizedModelNumber != null && p.NormalizedModelNumber.Contains(normalizedName))
-                || p.ProductGroup.NormalizedName.Contains(normalizedName))
+                || p.ProductGroup.NormalizedName.Contains(normalizedName)))
                 .Select(p => new ProductSearchResponseModel
                 {
                     Id = p.Id,

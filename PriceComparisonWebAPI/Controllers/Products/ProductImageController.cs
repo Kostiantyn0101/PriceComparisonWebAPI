@@ -49,6 +49,25 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
+
+        [HttpGet("bybaseproduct/{baseProductId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductImageResponseModel>))]
+        public async Task<JsonResult> GetProductImageByBaseProductId(int baseProductId)
+        {
+            var result = await _productImageService.GetFromConditionAsync(x => x.Product.BaseProductId == baseProductId);
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddProductImages([FromForm] ProductImageCreateRequestModel model)
