@@ -3,6 +3,7 @@ using BLL.Services.ProductServices;
 using DLL.Repository;
 using Domain.Models.Configuration;
 using Domain.Models.DBModels;
+using Domain.Models.Request.Products;
 using Domain.Models.Request.Seller;
 using Domain.Models.Response;
 using Domain.Models.Response.Seller;
@@ -30,6 +31,8 @@ namespace BLL.Services.SellerServices
         private readonly ILogger<SellerProductDetailsService> _logger;
 
         private const string defaultCategoryName = "NEW PRODUCT UNKNOWN CATEGORY";
+        private const int defaultCategoryId = 163;  // from the database
+        private const int defaultProductGroupId = 21;  // from the database
 
         public SellerProductDetailsService(ICompositeKeyRepository<SellerProductDetailsDBModel, int, int> repository,
             IRepository<ProductDBModel, int> productRepository,
@@ -85,7 +88,7 @@ namespace BLL.Services.SellerServices
             }
 
             // Currency processing
-            Dictionary<string, decimal> currencies = new Dictionary<string, decimal>(); 
+            Dictionary<string, decimal> currencies = new Dictionary<string, decimal>();
             if (xmlDoc?.Root?.Element("currencies") is XElement currenciesXElement && currenciesXElement.Elements("currency").Any())
             {
                 var currenciyElements = currenciesXElement.Elements("currency").ToList();
@@ -136,37 +139,59 @@ namespace BLL.Services.SellerServices
                 }
             }
 
+            var offers = xmlDoc?.Root?.Element("offers")?.Elements("offer");
+            if (offers.IsNullOrEmpty())
+                return OperationResultModel<IEnumerable<string>>.Failure($"Error: No product offers found.");
+
             // Product processing
-            foreach (var offer in xmlDoc.Root.Element("offers").Elements("offer"))
+            foreach (var offer in offers!)
             {
                 var gtin = offer.Element("gtin")?.Value ?? string.Empty;
+                var modelNumber = offer.Element("model")?.Value ?? string.Empty;
                 var title = offer.Element("name")?.Value ?? string.Empty;
+
+                if (string.IsNullOrEmpty(gtin) && string.IsNullOrEmpty(modelNumber))
+                {
+                    uploadResults.Add($"Error. Product with name {title} has neither GTIN code nor manufacturer model. Price wasn't set");
+                    continue;
+                }
+
                 var normalizedTitle = title.Trim().ToUpperInvariant();
+                var normalizedModelNumber = modelNumber.Trim().ToUpperInvariant();
 
                 var product = await _productRepository.GetQuery()
-                    .Where(p => (!string.IsNullOrWhiteSpace(gtin) && (p.GTIN == gtin || p.UPC == gtin)) ||
-                                (string.IsNullOrWhiteSpace(gtin) && p.BaseProduct.NormalizedTitle.Equals(normalizedTitle)))
+                    .Where(p => (!string.IsNullOrEmpty(gtin) && (p.GTIN == gtin || p.UPC == gtin))
+                    || (!string.IsNullOrEmpty(p.NormalizedModelNumber) && p.NormalizedModelNumber == normalizedModelNumber))
                     .FirstOrDefaultAsync();
-
 
                 // Create new product if not found
                 if (product == null)
                 {
-                    //var categoryNormalizedTitle = offer.Element("category")?.Value.Trim().ToUpperInvariant() ?? string.Empty;
+                    uploadResults.Add($"Error. Product with GTIN code '{gtin}' and model number '{modelNumber}' wasn't found in database. Price wasn't set");
+
                     var categoryFileId = offer.Element("categoryId")?.Value.Trim() ?? string.Empty;
                     var categoryTitle = categories.ContainsKey(categoryFileId) ? categories[categoryFileId] : string.Empty;
                     var category = (await _categoryRepository.GetFromConditionAsync(c => c.Title.Equals(categoryTitle))).FirstOrDefault();
                     if (category == null)
                     {
                         category = (await _categoryRepository.GetFromConditionAsync(c => c.Title.Equals(defaultCategoryName))).FirstOrDefault();
+                        uploadResults.Add($"Category for product with GTIN code '{gtin}' and model number '{modelNumber}' wasn't found in database. New product creation is getting more complex.");
                     }
+
+                    var brand = offer.Element("brand")?.Value ?? string.Empty;
+                    if (brand.IsNullOrEmpty())
+                        uploadResults.Add($"No Brand for product with GTIN code '{gtin}' and model number '{modelNumber}' is provided. New product creation is getting more complex.");
+
+                    var description = offer.Element("description")?.Value;
+                    if (brand.IsNullOrEmpty())
+                        uploadResults.Add($"No Description for product with GTIN code '{gtin}' and model number '{modelNumber}' is provided. New product creation is getting more complex.");
 
                     var newBaseProduct = new BaseProductDBModel
                     {
                         Title = title,
-                        Brand = offer.Element("brand")?.Value ?? string.Empty,
-                        Description = offer.Element("description")?.Value ?? string.Empty,
-                        CategoryId = category?.Id ?? 0,
+                        Brand = brand,
+                        Description = description,
+                        CategoryId = category?.Id ?? defaultCategoryId,
                         IsUnderModeration = true,
                         AddedToDatabase = DateTime.UtcNow,
                     };
@@ -174,14 +199,15 @@ namespace BLL.Services.SellerServices
                     product = new ProductDBModel
                     {
                         GTIN = gtin,
-                        ModelNumber = offer.Element("model")?.Value ?? string.Empty,
+                        ModelNumber = modelNumber,
                         IsUnderModeration = true,
                         AddedToDatabase = DateTime.UtcNow,
                         BaseProduct = newBaseProduct,
+                        ProductGroupId = defaultProductGroupId
                     };
 
                     var createResult = await _productRepository.CreateAsync(product);
-                    if (!createResult.IsSuccess)
+                    if (!createResult.IsSuccess || createResult.Data == null)
                     {
                         _logger.LogError(createResult.Exception, "New product create error");
                         continue;
@@ -192,16 +218,17 @@ namespace BLL.Services.SellerServices
                     var imageUrl = offer.Element("picture")?.Value;
                     if (!string.IsNullOrEmpty(imageUrl))
                     {
-                        // to do: fix file ctreation error
-
-                        //var imageFile = await _fileService.CreateFormFileFromUrlAsync(imageUrl);
-                        //var imageAddResult = await _productImageService.AddAsync(new ProductImageCreateRequestModel()
-                        //{
-                        //    ProductId = createdProduct?.Id ?? 0,
-                        //    Images = new List<Microsoft.AspNetCore.Http.IFormFile> { imageFile }
-                        //});
+                        var imageFile = await _fileService.CreateFormFileFromUrlAsync(imageUrl);
+                        var imageAddResult = await _productImageService.AddAsync(new ProductImageCreateRequestModel()
+                        {
+                            ProductId = createdProduct!.Id,
+                            Images = new List<Microsoft.AspNetCore.Http.IFormFile> { imageFile }
+                        });
                     }
-                    continue; // ??
+                    else
+                    {
+                        uploadResults.Add($"No image for product with GTIN code '{gtin}' and model number '{modelNumber}' is provided. New product creation is getting more complex.");
+                    }
                 }
 
                 // Price conversion to UAH
@@ -219,6 +246,11 @@ namespace BLL.Services.SellerServices
                 var details = (await _repository.GetFromConditionAsync(
                     d => d.ProductId == product.Id && d.SellerId == seller.Id))
                     .FirstOrDefault();
+
+                if (product.IsUnderModeration)
+                {
+                    uploadResults.Add($"Error. Product with GTIN code '{gtin}' and model number '{modelNumber}' is under moderation. Price was set but won't be shown unless moderation is over");
+                }
 
                 if (details == null)
                 {

@@ -83,44 +83,18 @@ namespace BLL.Services.MediaServices
             try
             {
                 using var httpClient = new HttpClient();
-                // Set a timeout for the entire HTTP operation
-                httpClient.Timeout = TimeSpan.FromSeconds(30);
+                var bytes = await httpClient.GetByteArrayAsync(imageUrl);
 
-                // Create a cancellation token for the download
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-
-                // Download the file with the cancellation token
-                using var response = await httpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead, cts.Token);
-                response.EnsureSuccessStatusCode();
-
-                var contentType = response.Content.Headers.ContentType?.ToString() ?? "image/webp";
-                var fileName = GetFileNameFromUrl(imageUrl) ?? "image.webp";
-
-                // Create memory stream (without setting timeouts)
-                var memoryStream = new MemoryStream();
-
-                // Copy with the same cancellation token
-                await response.Content.CopyToAsync(memoryStream, cts.Token);
-
-                if (memoryStream.Length == 0)
-                {
-                    throw new InvalidOperationException("Downloaded stream has zero length");
-                }
-
-                memoryStream.Position = 0;
-
-                // Create the FormFile
-                var formFile = new FormFile(
-                    baseStream: memoryStream,
+                return new FormFile(
+                    baseStream: new MemoryStream(bytes),
                     baseStreamOffset: 0,
-                    length: memoryStream.Length,
+                    length: bytes.Length,
                     name: "file",
-                    fileName: fileName)
+                    fileName: Path.GetFileName(imageUrl) ?? Guid.NewGuid().ToString() + ".jpg")
                 {
-                    ContentType = contentType
+                    Headers = new HeaderDictionary(),
+                    ContentType = GetContentType(imageUrl)
                 };
-
-                return formFile;
             }
             catch (OperationCanceledException)
             {
@@ -132,11 +106,18 @@ namespace BLL.Services.MediaServices
             }
         }
 
-        private string GetFileNameFromUrl(string url)
+
+        private string GetContentType(string fileName)
         {
-            var uri = new Uri(url);
-            var fileName = Path.GetFileName(uri.LocalPath);
-            return !string.IsNullOrEmpty(fileName) ? fileName : "file";
+            string extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
         }
     }
 }
