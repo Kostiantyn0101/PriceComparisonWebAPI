@@ -60,7 +60,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
-        [HttpPost("byproductgroup")]
+        [HttpGet("byproductgroup")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductColorResponseModel>))]
         public async Task<JsonResult> GetColorsByProductGroupId([FromQuery] ProductColorRequestModel requestModel)
         {
