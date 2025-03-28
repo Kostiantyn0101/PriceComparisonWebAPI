@@ -107,7 +107,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
 
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateCategory([FromForm] CategoryCreateRequestModel categoryRequest)
+        public async Task<JsonResult> CreateCategory([FromBody] CategoryCreateRequestModel categoryRequest)
         {
             var result = await _categoryService.CreateAsync(categoryRequest);
 
@@ -117,7 +117,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.Exception?.Message);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
 
@@ -133,7 +133,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage!);
             }
 
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
 
