@@ -60,6 +60,23 @@ namespace PriceComparisonWebAPI.Controllers.Categories
         }
 
 
+        [HttpGet("getall")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerResponseModel>))]
+        public async Task<JsonResult> GetSellers()
+        {
+            var result = await _sellerService.GetFromConditionAsync(s => true);
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateSeller([FromForm] SellerCreateRequestModel request)

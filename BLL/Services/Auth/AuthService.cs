@@ -94,7 +94,7 @@ namespace BLL.Services.Auth
                 var refreshToken = GenerateRefreshToken();
                 user.RefreshToken = refreshToken;
 
-                user.RefreshTokenExpiryTime = request.RememberMe ? DateTimeOffset.Now.AddDays(_jwtConfiguration.RememberMeRefreshTokenLifetimeHours)
+                user.RefreshTokenExpiryTime = request.RememberMe ? DateTimeOffset.Now.AddHours(_jwtConfiguration.RememberMeRefreshTokenLifetimeHours)
                                                                          : DateTimeOffset.Now.AddHours(_jwtConfiguration.DefaultRefreshTokenLifetimeHours);
 
                 await _userManager.UpdateAsync(user);
