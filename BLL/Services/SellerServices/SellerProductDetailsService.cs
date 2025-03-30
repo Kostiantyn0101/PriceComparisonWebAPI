@@ -337,6 +337,7 @@ namespace BLL.Services.SellerServices
                 .Where(spd => spd.Seller.IsActive && spd.Seller.AccountBalance > 0)
                 .Select(spd => new SellerProductDetailsResponseModel
                 {
+                    SellerId = spd.SellerId,
                     StoreName = spd.Seller.StoreName,
                     LogoImageUrl = spd.Seller.LogoImageUrl,
                     PriceValue = spd.PriceValue,
