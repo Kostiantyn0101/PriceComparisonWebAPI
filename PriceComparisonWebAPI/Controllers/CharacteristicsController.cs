@@ -46,6 +46,22 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
 
+        [HttpGet("getall")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CharacteristicResponseModel))]
+        public async Task<JsonResult> GetAllCharacteristics()
+        {
+            var characteristic = await _characteristicService.GetFromConditionAsync(x => true);
+            if (characteristic == null)
+            {
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(characteristic)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateCharacteristic([FromBody] CharacteristicCreateRequestModel model)

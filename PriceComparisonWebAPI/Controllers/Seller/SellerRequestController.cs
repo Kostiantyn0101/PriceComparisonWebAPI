@@ -61,7 +61,8 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerRequestResponseModel>))]
         public async Task<JsonResult> GetAllSellerRequests()
         {
-            var result = await _sellerRequestService.GetFromConditionAsync(s => true);
+            var result = (await _sellerRequestService.GetFromConditionAsync(s => true))
+                .OrderBy(r => r.CreatedAt);
             return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
@@ -72,7 +73,8 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerRequestResponseModel>))]
         public async Task<JsonResult> GetPendingSellerRequests()
         {
-            var result = await _sellerRequestService.GetFromConditionAsync(s => !s.IsProcessed);
+            var result = (await _sellerRequestService.GetFromConditionAsync(s => !s.IsProcessed))
+                .OrderBy(r => r.CreatedAt); 
             return new JsonResult(result)
             {
                 StatusCode = StatusCodes.Status200OK
