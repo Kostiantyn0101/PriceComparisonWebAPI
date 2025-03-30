@@ -25,6 +25,7 @@ namespace DLL.Context
         public DbSet<PriceHistoryDBModel> PricesHistory { get; set; }
         public DbSet<ProductCharacteristicDBModel> ProductCharacteristics { get; set; }
         public DbSet<SellerDBModel> Sellers { get; set; }
+        public DbSet<SellerRequestDBModel> SellerRequests { get; set; }
         public DbSet<ProductReferenceClickDBModel> ProductReferenceClicks { get; set; }
         public DbSet<ApplicationUserDBModel> Users { get; set; }
         public DbSet<ProductClicksDBModel> ProductClicks { get; set; }
@@ -498,6 +499,32 @@ namespace DLL.Context
                 entity.HasMany(s => s.PriceHistories)
                     .WithOne(ph => ph.Seller)
                     .HasForeignKey(ph => ph.SellerId);
+            });
+
+            // SellerRequestDBModel
+            modelBuilder.Entity<SellerRequestDBModel>(entity =>
+            {
+                entity.Property(s => s.StoreName)
+                    .HasMaxLength(255);
+
+                entity.Property(s => s.WebsiteUrl)
+                    .HasMaxLength(2083);
+
+                entity.Property(s => s.ContactPerson)
+                    .HasMaxLength(255);
+                
+                entity.Property(s => s.ContactPhone)
+                    .HasMaxLength(50);
+
+                entity.Property(s => s.CreatedAt)
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.Property(s => s.ProcessedAt)
+                    .HasColumnType("DATETIME2(0)");
+
+                entity.HasOne(s => s.User)
+                    .WithMany(u => u.SellerRequests)
+                    .HasForeignKey(s => s.UserId);
             });
 
             // ApplicationUserDBModel
