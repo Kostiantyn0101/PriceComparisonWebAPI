@@ -382,8 +382,6 @@ namespace DLL.Context
                     .HasForeignKey(pr => pr.SellerId);
             });
 
-
-
             // ProductCharacteristicDBModel
             modelBuilder.Entity<ProductCharacteristicDBModel>(entity =>
             {
@@ -511,10 +509,10 @@ namespace DLL.Context
                     .HasMaxLength(2083);
 
                 entity.Property(s => s.ContactPerson)
-                    .HasMaxLength(255);
+                    .HasMaxLength(100);
                 
                 entity.Property(s => s.ContactPhone)
-                    .HasMaxLength(50);
+                    .HasMaxLength(20);
 
                 entity.Property(s => s.CreatedAt)
                     .HasColumnType("DATETIME2(0)");

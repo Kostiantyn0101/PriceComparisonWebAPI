@@ -1,8 +1,6 @@
-﻿using Domain.Models.Primitives;
-
-namespace Domain.Models.DBModels
+﻿namespace Domain.Models.Response.Seller
 {
-    public class SellerRequestDBModel : IEntity<int>
+    public class SellerRequestResponseModel
     {
         public int Id { get; set; }
         public int UserId { get; set; }
@@ -16,7 +14,5 @@ namespace Domain.Models.DBModels
         public string? RefusalReason { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ProcessedAt { get; set; }
-
-        public ApplicationUserDBModel User { get; set; }
     }
 }
