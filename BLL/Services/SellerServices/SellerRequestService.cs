@@ -5,6 +5,10 @@ using Domain.Models.DBModels;
 using Domain.Models.Request.Seller;
 using Domain.Models.Response.Seller;
 using Domain.Models.Response;
+using BLL.Services.Auth;
+using Domain.Models.Request.Auth;
+using Microsoft.AspNetCore.Identity;
+using Domain.Models.Identity;
 
 namespace BLL.Services.SellerServices
 {
@@ -13,18 +17,19 @@ namespace BLL.Services.SellerServices
         private readonly IRepository<SellerRequestDBModel, int> _repository;
         private readonly IRepository<SellerDBModel, int> _sellerRepository;
         private readonly ISellerService _sellerService;
-
-
+        private readonly IAuthService _authService;
         private readonly IMapper _mapper;
 
         public SellerRequestService(IRepository<SellerRequestDBModel, int> repository, 
             IRepository<SellerDBModel, int> sellerRepository,
             ISellerService sellerService,
+            IAuthService authService,
             IMapper mapper)
         {
             _repository = repository;
             _sellerRepository = sellerRepository;
             _sellerService = sellerService;
+            _authService = authService;
             _mapper = mapper;
         }
 
@@ -99,6 +104,16 @@ namespace BLL.Services.SellerServices
                     if (!sellerCreateResult.IsSuccess)
                     {
                         return OperationResultModel<SellerRequestDBModel>.Failure("Failed to create a new seller");
+                    }
+
+                    var roleChangeResult = await _authService.UpdateUserRolesAsync(new UpdateUserRolesRequestModel
+                    {
+                        UserId = existingRequest.UserId,
+                        Roles = new List<string> { Role.Seller }
+                    });
+                    if (!roleChangeResult.IsSuccess)
+                    {
+                        return OperationResultModel<SellerRequestDBModel>.Failure("New seller created. Failed to change user role");
                     }
                 }
                 else
