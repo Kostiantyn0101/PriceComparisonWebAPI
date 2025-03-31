@@ -14,5 +14,4 @@ namespace Domain.Models.DBModels
         public ICollection<SellerRequestDBModel> SellerRequests { get; set; }
         public ICollection<FeedbackDBModel> Feedbacks { get; set; }
     }
-
 }

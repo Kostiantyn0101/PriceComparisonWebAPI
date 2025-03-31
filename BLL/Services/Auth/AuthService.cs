@@ -35,12 +35,7 @@ namespace BLL.Services.Auth
         private readonly UserManager<ApplicationUserDBModel> _userManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        //private readonly IEmailSender _emailService;
-        //private readonly IHostEnvironment _hostEnvironment;
-        //private readonly IHttpContextAccessor _httpContextAccessor;
-        //private readonly IConfiguration _configuration;
-        //private readonly IUserSettingsService _userSettingsService;
-
+        
         public AuthService(IOptions<JwtConfiguration> jwtConfiguration, UserManager<ApplicationUserDBModel> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             _jwtConfiguration = jwtConfiguration.Value;
@@ -183,6 +178,7 @@ namespace BLL.Services.Auth
 
                 var user = new ApplicationUserDBModel
                 {
+                    DateCreated = DateTime.UtcNow,
                     Email = request.Email,
                     UserName = request.Username,
                     Provider = AuthConsts.LoginProviders.Password,
@@ -344,6 +340,7 @@ namespace BLL.Services.Auth
             return OperationResultModel<bool>.Success();
         }
 
+
         public async Task<OperationResultModel<bool>> CreateRoleAsync(string roleName)
 
         {
@@ -377,10 +374,9 @@ namespace BLL.Services.Auth
             return roles ?? new List<string>();
         }
 
+
         private async Task<JwtSecurityToken> CreateToken(ApplicationUserDBModel user)
         {
-            try
-            {
                 var authClaims = await GetClaims(user);
                 var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfiguration.Key!));
 
@@ -392,11 +388,6 @@ namespace BLL.Services.Auth
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 
                 return token;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception();
-            }
         }
 
 
@@ -413,8 +404,9 @@ namespace BLL.Services.Auth
         {
             var authClaims = new List<Claim>
         {
-            new(ClaimTypes.Sid, Guid.NewGuid().ToString()),
+            //new(ClaimTypes.Sid, Guid.NewGuid().ToString()),
             new(ClaimTypes.Name, user.UserName!),
+            new("registration_date", user.DateCreated.ToString("O")),
             new(ClaimTypes.Email, user.Email!),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
