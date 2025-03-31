@@ -176,6 +176,7 @@ namespace BLL.Services.ProductServices
                 .Select(p => new ProductSearchResponseModel
                 {
                     Id = p.Id,
+                    CategoryId = p.BaseProduct.CategoryId,
                     FullName = $"{p.BaseProduct.Title} {p.ProductGroup.Name}",
                     ImageUrl = p.ProductImages != null && p.ProductImages.Any()
                         ? p.ProductImages.First().ImageUrl
