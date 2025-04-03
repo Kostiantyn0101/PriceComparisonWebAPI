@@ -20,12 +20,14 @@ namespace PriceComparisonWebAPI.Infrastructure
         public AppMappingProfile()
         {
             // CHARACTERISTICS
-            CreateMap<CharacteristicDBModel, CharacteristicResponseModel>();
+            CreateMap<CharacteristicDBModel, CharacteristicResponseModel>()
+                .PreserveReferences();
             CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
             CreateMap<CharacteristicRequestModel, CharacteristicDBModel>()
                     .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<CharacteristicGroupDBModel, CharacteristicGroupResponseModel>();
+            CreateMap<CharacteristicGroupDBModel, CharacteristicGroupResponseModel>()
+                .PreserveReferences();
             CreateMap<CharacteristicGroupRequestModel, CharacteristicGroupDBModel>();
             CreateMap<CharacteristicGroupCreateRequestModel, CharacteristicGroupDBModel>();
 

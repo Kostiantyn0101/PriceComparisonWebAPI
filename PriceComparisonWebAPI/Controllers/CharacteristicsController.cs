@@ -1,10 +1,13 @@
-﻿using BLL.Services.ProductServices;
+﻿using System.Reflection.PortableExecutable;
+using AutoMapper;
+using BLL.Services.ProductServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Controllers
 {
@@ -17,14 +20,17 @@ namespace PriceComparisonWebAPI.Controllers
     {
         private readonly ILogger<CharacteristicsController> _logger;
         private readonly ICharacteristicService _characteristicService;
+        private readonly IMapper _mapper;
 
 
         public CharacteristicsController(ICharacteristicService characteristicService,
-            ILogger<CharacteristicsController> logger
+            ILogger<CharacteristicsController> logger,
+            IMapper mapper
             )
         {
             _characteristicService = characteristicService;
             _logger = logger;
+            _mapper = mapper;
         }
 
 
@@ -32,14 +38,17 @@ namespace PriceComparisonWebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CharacteristicResponseModel))]
         public async Task<JsonResult> GetCharacteristicById(int id)
         {
-            var characteristic = (await _characteristicService.GetFromConditionAsync(x => x.Id == id)).FirstOrDefault();
+            var characteristic = await _characteristicService.GetQuery()
+                .Where(x => x.Id == id)
+                .Include(c => c.CharacteristicGroup)
+                .FirstOrDefaultAsync();
+
             if (characteristic == null)
             {
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.NotFound,
-                    StatusCodes.Status400BadRequest);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
-            return new JsonResult(characteristic)
+
+            return new JsonResult(_mapper.Map<CharacteristicResponseModel>(characteristic))
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -47,15 +56,27 @@ namespace PriceComparisonWebAPI.Controllers
 
 
         [HttpGet("getall")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CharacteristicResponseModel))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CharacteristicResponseModel>))]
         public async Task<JsonResult> GetAllCharacteristics()
         {
-            var characteristic = await _characteristicService.GetFromConditionAsync(x => true);
-            if (characteristic == null)
+            var characteristics = await _characteristicService.GetQuery()
+                .Include(c => c.CharacteristicGroup)
+                .ToListAsync();
+            if (characteristics == null)
             {
                 return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
-            return new JsonResult(characteristic)
+            return new JsonResult(_mapper.Map<IEnumerable<CharacteristicResponseModel>>(characteristics))
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [HttpGet("datatypes")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<string>))]
+        public async Task<JsonResult> GetAllAllowedCharacteristicDataTypes()
+        {
+            return new JsonResult(new List<string> { "DateTime", "string", "decimal", "bool" })
             {
                 StatusCode = StatusCodes.Status200OK
             };
