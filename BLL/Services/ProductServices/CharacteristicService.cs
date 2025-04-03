@@ -19,13 +19,13 @@ namespace BLL.Services.ProductServices
             _mapper = mapper;
         }
 
-        public async Task<OperationResultModel<CharacteristicDBModel>> CreateAsync(CharacteristicCreateRequestModel request)
+        public async Task<OperationResultModel<CharacteristicResponseModel>> CreateAsync(CharacteristicCreateRequestModel request)
         {
             var model = _mapper.Map<CharacteristicDBModel>(request);
             var repoResult = await _repository.CreateAsync(model);
             return repoResult.IsSuccess
-                ? repoResult
-                : OperationResultModel<CharacteristicDBModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
+                ? OperationResultModel<CharacteristicResponseModel>.Success(_mapper.Map<CharacteristicResponseModel>(repoResult.Data))
+                : OperationResultModel<CharacteristicResponseModel>.Failure(repoResult.ErrorMessage!, repoResult.Exception);
         }
 
         public async Task<OperationResultModel<CharacteristicDBModel>> UpdateAsync(CharacteristicRequestModel request)

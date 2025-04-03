@@ -8,7 +8,7 @@ namespace BLL.Services.ProductServices
 {
     public interface ICharacteristicService
     {
-        Task<OperationResultModel<CharacteristicDBModel>> CreateAsync(CharacteristicCreateRequestModel request);
+        Task<OperationResultModel<CharacteristicResponseModel>> CreateAsync(CharacteristicCreateRequestModel request);
         Task<OperationResultModel<CharacteristicDBModel>> UpdateAsync(CharacteristicRequestModel request);
         Task<OperationResultModel<bool>> DeleteAsync(int id);
         IQueryable<CharacteristicDBModel> GetQuery();
