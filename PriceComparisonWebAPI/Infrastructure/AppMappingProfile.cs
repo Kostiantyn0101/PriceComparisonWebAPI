@@ -24,7 +24,7 @@ namespace PriceComparisonWebAPI.Infrastructure
                 .PreserveReferences();
             CreateMap<CharacteristicCreateRequestModel, CharacteristicDBModel>();
             CreateMap<CharacteristicRequestModel, CharacteristicDBModel>()
-                    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<CharacteristicGroupDBModel, CharacteristicGroupResponseModel>()
                 .PreserveReferences();

@@ -36,11 +36,25 @@ namespace PriceComparisonWebAPI.Controllers
             var characteristicGroup = (await _characteristicGroupService.GetFromConditionAsync(x => x.Id == id)).FirstOrDefault();
             if (characteristicGroup == null)
             {
-                return GeneralApiResponseModel.GetJsonResult(
-                    AppErrors.General.NotFound,
-                    StatusCodes.Status400BadRequest);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
             }
             return new JsonResult(characteristicGroup)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+
+        [HttpGet("getall")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CharacteristicGroupResponseModel>))]
+        public async Task<JsonResult> GetAllCharacteristicGroups()
+        {
+            var characteristicGroups = await _characteristicGroupService.GetFromConditionAsync(x => true);
+            if (characteristicGroups == null)
+            {
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+            return new JsonResult(characteristicGroups)
             {
                 StatusCode = StatusCodes.Status200OK
             };
@@ -55,12 +69,10 @@ namespace PriceComparisonWebAPI.Controllers
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.CreateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError,
-                    StatusCodes.Status400BadRequest, result.ErrorMessage);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
-            return GeneralApiResponseModel.GetJsonResult(
-                AppSuccessCodes.CreateSuccess,
-                StatusCodes.Status200OK);
+
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
 
@@ -72,9 +84,9 @@ namespace PriceComparisonWebAPI.Controllers
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.UpdateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError,
-                    StatusCodes.Status400BadRequest, result.ErrorMessage);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
+
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
@@ -87,8 +99,7 @@ namespace PriceComparisonWebAPI.Controllers
             if (!result.IsSuccess)
             {
                 _logger.LogError(result.Exception, AppErrors.General.DeleteError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError,
-                    StatusCodes.Status400BadRequest, result.ErrorMessage);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage);
             }
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
