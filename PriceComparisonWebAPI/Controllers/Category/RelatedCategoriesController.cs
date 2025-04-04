@@ -1,7 +1,4 @@
-﻿using AutoMapper;
-using Azure.Core;
-using BLL.Services.CategoryService;
-using Domain.Models.DBModels;
+﻿using BLL.Services.CategoryService;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
@@ -12,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -21,6 +18,7 @@ namespace PriceComparisonWebAPI.Controllers
     {
         private readonly ILogger<RelatedCategoriesController> _logger;
         private readonly IRelatedCategoryService _relatedCategoryService;
+
 
         public RelatedCategoriesController(
             IRelatedCategoryService relatedCategoryService,
@@ -32,6 +30,7 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
 
+        [AllowAnonymous]
         [HttpGet("{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<RelatedCategoryResponseModel>))]
         public async Task<JsonResult> GetRelatedCategories(int categoryId)
@@ -47,7 +46,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateRelatedCategory([FromBody] RelatedCategoryRequestModel relatedCategory)
@@ -63,7 +62,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateRelatedCategory([FromBody] RelatedCategoryUpdateRequestModel relatedCategory)
@@ -83,7 +82,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess,StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteRelatedCategory([FromBody] RelatedCategoryRequestModel relatedCategory)

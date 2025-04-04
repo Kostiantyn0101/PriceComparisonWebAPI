@@ -5,9 +5,11 @@ using Domain.Models.Response.Seller;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PriceComparisonWebAPI.Controllers.Seller
 {
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -25,6 +27,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         }
 
 
+        [Authorize(Policy = "AdminRights")]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SellerRequestResponseModel))]
         public async Task<JsonResult> GetSellerRequestById(int id)
@@ -41,6 +44,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpGet("getByUserId/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerRequestResponseModel>))]
         public async Task<JsonResult> GetSellerRequestByUserId(int userId)
@@ -57,6 +61,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpGet("getAll")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerRequestResponseModel>))]
         public async Task<JsonResult> GetAllSellerRequests()
@@ -69,6 +74,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpGet("getPending")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerRequestResponseModel>))]
         public async Task<JsonResult> GetPendingSellerRequests()
@@ -81,6 +87,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
+        [Authorize]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateSellerRequest([FromBody] SellerRequestCreateRequestModel request)
@@ -94,6 +101,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateSellerRequest([FromBody] SellerRequestUpdateRequestModel request)
@@ -107,6 +115,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("process")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> ProcessSellerRequest([FromBody] SellerRequestProcessRequestModel request)
@@ -120,6 +129,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteSellerRequest(int id)

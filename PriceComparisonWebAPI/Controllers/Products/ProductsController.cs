@@ -6,12 +6,13 @@ using Domain.Models.Response;
 using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -34,6 +35,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponseModel))]
         public async Task<JsonResult> GetProductById(int id)
@@ -54,25 +56,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
-        [HttpGet("onmoderation")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
-        public async Task<JsonResult> GetProductsOnModeration()
-        {
-            var products = await _productService.GetFromConditionAsync(x => x.IsUnderModeration);
-            if (products == null || !products.Any())
-            {
-                _logger.LogError(AppErrors.General.NotFound);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
-            }
-
-            return new JsonResult(products)
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
-        }
-
-
+        [AllowAnonymous]
         [HttpGet("bybaseproduct/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
         public async Task<JsonResult> GetProductsByBaseProductId(int baseProductId)
@@ -90,7 +74,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("empty/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductResponseModel))]
         public async Task<JsonResult> GetEmptyProductById(int id)
@@ -111,55 +95,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
-        [HttpPost("create")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateProduct([FromBody] ProductCreateRequestModel productRequest)
-        {
-            var result = await _productService.CreateAsync(productRequest);
-
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(result.Exception, AppErrors.General.CreateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
-        }
-
-
-        [HttpPut("update")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateProduct([FromBody] ProductUpdateRequestModel productRequest)
-        {
-            var result = await _productService.UpdateAsync(productRequest);
-
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
-        }
-
-
-        [HttpDelete("delete/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> DeleteProduct(int id)
-        {
-            var result = await _productService.DeleteAsync(id);
-
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(result.Exception, AppErrors.General.DeleteError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
-        }
-
-
+        [AllowAnonymous]
         [HttpGet("popular")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PopularCategoryResponseModel>))]
         public async Task<JsonResult> GetPopularProducts()
@@ -172,7 +108,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("bycategorypaginated/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginatedResponse<BaseProductByCategoryResponseModel>))]
         public async Task<JsonResult> GetProductsByCategory(int categoryId, [FromQuery] int page = 1)
@@ -194,7 +130,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("search/{name}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductSearchResponseModel>))]
         public async Task<JsonResult> SearchByFullNameOrModel(string name)
@@ -205,6 +141,72 @@ namespace PriceComparisonWebAPI.Controllers.Products
             {
                 StatusCode = StatusCodes.Status200OK
             };
+        }
+        
+        [Authorize(Policy = "AdminRights")]
+        [HttpGet("onmoderation")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
+        public async Task<JsonResult> GetProductsOnModeration()
+        {
+            var products = await _productService.GetFromConditionAsync(x => x.IsUnderModeration);
+            if (products == null || !products.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(products)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [Authorize(Policy = "AdminRights")]
+        [HttpPost("create")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> CreateProduct([FromBody] ProductCreateRequestModel productRequest)
+        {
+            var result = await _productService.CreateAsync(productRequest);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.CreateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
+        }
+
+        [Authorize(Policy = "AdminRights")]
+        [HttpPut("update")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UpdateProduct([FromBody] ProductUpdateRequestModel productRequest)
+        {
+            var result = await _productService.UpdateAsync(productRequest);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
+        }
+
+        [Authorize(Policy = "AdminRights")]
+        [HttpDelete("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> DeleteProduct(int id)
+        {
+            var result = await _productService.DeleteAsync(id);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.DeleteError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
     }
 }

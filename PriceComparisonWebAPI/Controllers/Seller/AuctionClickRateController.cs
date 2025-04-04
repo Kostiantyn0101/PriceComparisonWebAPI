@@ -4,12 +4,12 @@ using Domain.Models.Request.Seller;
 using Domain.Models.Response;
 using Domain.Models.Response.Seller;
 using Domain.Models.SuccessCodes;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.Seller
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -26,7 +26,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             _auctionClickRateService = auctionClickRateService;
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuctionClickRateResponseModel))]
         public async Task<JsonResult> GetAuctionClickRateById(int id)
@@ -43,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("getBySellerId/{sellerId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AuctionClickRateResponseModel>))]
         public async Task<JsonResult> GetAuctionClickRateBySellerId(int sellerId)
@@ -60,7 +60,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateAuctionClickRate([FromBody] AuctionClickRateCreateRequestModel request)
@@ -74,7 +74,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateAuctionClickRate([FromBody] AuctionClickRateUpdateRequestModel request)
@@ -88,7 +88,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteAuctionClickRate(int id)
@@ -102,5 +102,4 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
         }
     }
-
 }

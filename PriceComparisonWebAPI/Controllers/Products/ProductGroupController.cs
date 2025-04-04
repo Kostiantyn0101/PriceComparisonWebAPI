@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -26,7 +26,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _productGroupService = productGroupService;
         }
 
-
+        
+        [AllowAnonymous]
         [HttpGet("getByProductGroupType/{productGroupTypeId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductGroupResponseModel>))]
         public async Task<JsonResult> GetProductGroupByProductGroupTypeId(int productGroupTypeId)
@@ -42,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{Id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductGroupResponseModel))]
         public async Task<JsonResult> GetProductGroupById(int Id)
@@ -58,7 +59,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductGroup([FromBody] ProductGroupCreateRequestModel request)
@@ -72,7 +73,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductGroup([FromBody] ProductGroupUpdateRequestModel request)
@@ -86,7 +87,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProductGroup(int id)

@@ -5,10 +5,11 @@ using Domain.Models.Response.Feedback;
 using Domain.Models.SuccessCodes;
 using Domain.Models.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -18,6 +19,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         private readonly IFeedbackImageService _feedbackImageService;
         private readonly ILogger<FeedbackImageController> _logger;
 
+
         public FeedbackImageController(IFeedbackImageService feedbackImageService, ILogger<FeedbackImageController> logger)
         {
             _feedbackImageService = feedbackImageService;
@@ -25,6 +27,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
+        [AllowAnonymous]
         [HttpGet("{feedbackId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackImageResponseModel>))]
         public async Task<JsonResult> GetImagesByFeedbackId(int feedbackId)
@@ -41,7 +44,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [Authorize]
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddFeedbackImages([FromForm] FeedbackImageCreateRequestModel request)
@@ -55,7 +58,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteFeedbackImages([FromBody] FeedbackImageDeleteRequestModel request)

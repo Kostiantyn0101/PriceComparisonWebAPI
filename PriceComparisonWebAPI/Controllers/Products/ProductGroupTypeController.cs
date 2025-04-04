@@ -4,10 +4,11 @@ using Domain.Models.Response.Products;
 using Domain.Models.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -24,7 +25,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _productGroupTypeService = productGroupTypeService;
         }
 
-        
+
+        [AllowAnonymous]
         [HttpGet("getall")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductGroupTypeResponseModel>))]
         public async Task<JsonResult> GetAllProductGroupTypes()
@@ -41,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductGroupTypeResponseModel))]
         public async Task<JsonResult> GetProductGroupTypeById(int id)
@@ -59,7 +61,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductGroupType([FromBody] ProductGroupTypeCreateRequestModel request)
@@ -74,7 +76,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult("ProductGroupType created successfully.", StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductGroupType([FromBody] ProductGroupTypeUpdateRequestModel request)
@@ -89,7 +91,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult("ProductGroupType updated successfully.", StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProductGroupType(int id)

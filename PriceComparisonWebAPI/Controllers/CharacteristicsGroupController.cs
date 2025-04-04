@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -29,6 +29,7 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CharacteristicGroupResponseModel))]
         public async Task<JsonResult> GetCharacteristicGroupById(int id)
@@ -44,7 +45,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("getall")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CharacteristicGroupResponseModel>))]
         public async Task<JsonResult> GetAllCharacteristicGroups()
@@ -60,7 +61,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateCharacteristicGroup([FromBody] CharacteristicGroupCreateRequestModel model)
@@ -75,7 +76,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCharacteristicGroup([FromBody] CharacteristicGroupRequestModel model)
@@ -90,7 +91,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCharacteristicGroup(int id)

@@ -1,17 +1,17 @@
-﻿using System.Reflection.PortableExecutable;
-using AutoMapper;
+﻿using AutoMapper;
 using BLL.Services.ProductServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    //[Authorize]
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -33,7 +33,7 @@ namespace PriceComparisonWebAPI.Controllers
             _mapper = mapper;
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CharacteristicResponseModel))]
         public async Task<JsonResult> GetCharacteristicById(int id)
@@ -54,7 +54,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("getall")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CharacteristicResponseModel>))]
         public async Task<JsonResult> GetAllCharacteristics()
@@ -72,6 +72,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpGet("datatypes")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<string>))]
         public async Task<JsonResult> GetAllAllowedCharacteristicDataTypes()
@@ -82,7 +83,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateCharacteristic([FromBody] CharacteristicCreateRequestModel model)
@@ -96,7 +97,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCharacteristic([FromBody] CharacteristicRequestModel model)
@@ -111,7 +112,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCharacteristic(int id)

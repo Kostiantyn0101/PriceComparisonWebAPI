@@ -2,10 +2,12 @@
 using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Domain.Models.Response.Gpt;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.OpenAI
 {
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -24,6 +26,7 @@ namespace PriceComparisonWebAPI.Controllers.OpenAI
         }
 
 
+        [AllowAnonymous]
         [HttpGet("comparegpt")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AIComparisonProductCharacteristicResponseModel))]
         public async Task<JsonResult> CompareOpenAIProducts([FromQuery] int productIdA, [FromQuery] int productIdB)
@@ -45,7 +48,7 @@ namespace PriceComparisonWebAPI.Controllers.OpenAI
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("compareclaude")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AIComparisonProductCharacteristicResponseModel))]
         public async Task<JsonResult> CompareClaudeProducts([FromQuery] int productIdA, [FromQuery] int productIdB)

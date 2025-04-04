@@ -1,14 +1,15 @@
 ﻿using BLL.Services.ProductServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
-using Domain.Models.Response.Categories;
 using Domain.Models.Response.Products;
 using Domain.Models.Response;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -26,7 +27,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _baseProductService = baseProductService;
         }
 
-
+        
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseProductResponseModel))]
         public async Task<JsonResult> GetBaseProductById(int id)
@@ -44,7 +46,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("onmoderation")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BaseProductResponseModel>))]
         public async Task<JsonResult> GetBaseProductsOnModeration()
@@ -62,7 +64,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("bycategory/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BaseProductResponseModel))]
         public async Task<JsonResult> GetBaseProductByCategoryId(int categoryId)
@@ -80,7 +82,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProduct([FromBody] BaseProductCreateRequestModel productRequest)
@@ -97,7 +99,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProduct([FromBody] BaseProductUpdateRequestModel productRequest)
@@ -114,7 +116,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK ,null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProduct(int id)

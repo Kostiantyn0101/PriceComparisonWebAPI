@@ -1,16 +1,17 @@
 ﻿using BLL.Services.ProductServices;
-using BLL.Services.SellerServices;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PriceComparisonWebAPI.Controllers.Seller;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
+
+    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -29,6 +30,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
+        [AllowAnonymous]
         [HttpPost()]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> ProcessClickAsync([FromBody] ProductSellerReferenceClickCreateRequestModel model)
@@ -43,7 +45,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "SellerAndAdminRights")]
         [HttpPost("statistic")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductSellerReferenceClickResponseModel>))]
         public async Task<JsonResult> GetReferenceClickStatisticAsync([FromBody] ProductSellerReferenceClickStaisticRequestModel model)
