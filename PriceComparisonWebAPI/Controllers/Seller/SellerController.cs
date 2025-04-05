@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace PriceComparisonWebAPI.Controllers.Categories
 {
-    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -92,7 +91,7 @@ namespace PriceComparisonWebAPI.Controllers.Categories
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-        [Authorize(Policy = "AdminRights")]
+        [Authorize(Policy = "SellerAndAdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateSeller([FromForm] SellerUpdateRequestModel request)

@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.Seller
 {
-    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -130,7 +129,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
         }
 
-        [Authorize(Policy = "AdminRights")]
+        [Authorize(Policy = "SellerAndAdminRights")]
         [HttpPost("upload-file")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UploadFile([FromForm] SellerProductXmlRequestModel request)

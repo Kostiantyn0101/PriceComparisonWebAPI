@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]

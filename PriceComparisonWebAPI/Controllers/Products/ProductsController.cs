@@ -12,7 +12,6 @@ using System.Linq.Expressions;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]

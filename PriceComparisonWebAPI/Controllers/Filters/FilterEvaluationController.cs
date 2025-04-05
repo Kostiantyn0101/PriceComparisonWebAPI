@@ -5,11 +5,9 @@ using Domain.Models.Response.Filters;
 using Domain.Models.Response.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    [Authorize(Policy = "AdminRights")]
     [ApiController]
     [Route("api/[controller]")]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]

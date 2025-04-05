@@ -1,5 +1,7 @@
 ﻿using Domain.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -44,6 +46,15 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
                     policy.RequireRole(Role.Seller, Role.Admin));
                 options.AddPolicy("StandardRights", policy =>
                     policy.RequireRole(Role.Admin, Role.User, Role.Seller));
+            });
+
+            builder.Services.AddControllers(options =>
+            {
+                var defaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                options.Filters.Add(new AuthorizeFilter(defaultPolicy)); // Global authorization filter
             });
         }
     }

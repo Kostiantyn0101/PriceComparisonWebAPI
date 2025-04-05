@@ -9,7 +9,6 @@ using Domain.Models.Response.Products;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    [Authorize(Policy = "AdminRights")]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
