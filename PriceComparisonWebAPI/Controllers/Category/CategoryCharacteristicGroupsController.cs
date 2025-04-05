@@ -4,11 +4,11 @@ using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
 using Domain.Models.SuccessCodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.Category
 {
-    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -26,7 +26,8 @@ namespace PriceComparisonWebAPI.Controllers.Category
             _logger = logger;
         }
 
-
+        
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryCharacteristicGroupResponseModel))]
         public async Task<JsonResult> GetCategoryCharacteristicGroupById(int id)
@@ -46,7 +47,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateCategoryCharacteristicGroup([FromBody] CategoryCharacteristicGroupCreateRequestModel model)
@@ -60,7 +61,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCategoryCharacteristicGroup([FromBody] CategoryCharacteristicGroupRequestModel model)
@@ -75,7 +76,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCategoryCharacteristicGroup(int id)

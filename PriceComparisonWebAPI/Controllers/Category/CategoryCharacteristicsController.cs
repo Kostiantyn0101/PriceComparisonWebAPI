@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BLL.Services.CategoryCharacteristicService;
+﻿using BLL.Services.CategoryCharacteristicService;
 using Domain.Models.Exceptions;
 using Domain.Models.Request.Categories;
 using Domain.Models.Response;
@@ -7,11 +6,9 @@ using Domain.Models.Response.Categories;
 using Domain.Models.SuccessCodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Controllers
 {
-    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -32,6 +29,7 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
 
+        [AllowAnonymous]
         [HttpGet("{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryCharacteristicResponseModel>))]
         public async Task<JsonResult> GetCategoryCharacteristics(int categoryId)
@@ -48,7 +46,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("add")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> AddCategoryCharacteristic([FromBody] CategoryCharacteristicRequestModel request)
@@ -65,7 +63,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCategoryCharacteristic([FromBody] CategoryCharacteristicUpdateRequestModel request)
@@ -82,7 +80,7 @@ namespace PriceComparisonWebAPI.Controllers
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCategoryCharacteristics([FromBody] CategoryCharacteristicRequestModel request)

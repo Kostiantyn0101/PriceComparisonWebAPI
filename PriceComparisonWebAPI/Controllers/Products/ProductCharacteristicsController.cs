@@ -9,7 +9,6 @@ using Domain.Models.Response.Products;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -29,6 +28,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
         }
 
 
+        [AllowAnonymous]
         [HttpGet("{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicResponseModel>))]
         public async Task<JsonResult> GetProductCharacteristicsByProductId(int productId)
@@ -47,7 +47,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("baseproduct/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicResponseModel>))]
         public async Task<JsonResult> GetProductCharacteristicsByBaseProductId(int baseProductId)
@@ -66,7 +66,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("grouped/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
         public async Task<JsonResult> GetGroupedProductCharacteristicsByProductId(int productId)
@@ -85,7 +85,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("short-grouped/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductCharacteristicGroupResponseModel>))]
         public async Task<JsonResult> GetShortGroupedProductCharacteristicsByProductId(int productId)
@@ -104,7 +104,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("createlist")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductCharacteristicList([FromBody] IEnumerable<ProductCharacteristicCreateRequestModel> request)
@@ -119,7 +119,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK,null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("updatelist")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductCharacteristicList([FromBody] IEnumerable<ProductCharacteristicUpdateRequestModel> request)
@@ -134,7 +134,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateProductCharacteristic([FromBody] ProductCharacteristicCreateRequestModel request)
@@ -149,7 +149,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateProductCharacteristic([FromBody] ProductCharacteristicUpdateRequestModel request)
@@ -164,7 +164,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteProductCharacteristics(int id)

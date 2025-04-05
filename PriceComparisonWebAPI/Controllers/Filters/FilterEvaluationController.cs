@@ -3,8 +3,8 @@ using Domain.Models.Exceptions;
 using Domain.Models.Response;
 using Domain.Models.Response.Filters;
 using Domain.Models.Response.Products;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static NuGet.Packaging.PackagingConstants;
 
 namespace PriceComparisonWebAPI.Controllers
 {
@@ -26,6 +26,7 @@ namespace PriceComparisonWebAPI.Controllers
         }
 
 
+        [AllowAnonymous]
         [HttpGet("filtersByProduct/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FilterResponseModel>))]
         public async Task<JsonResult> GetFiltersByProduct(int productId)
@@ -42,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("productsByFilter/{filterId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FilterResponseModel>))]
         public async Task<JsonResult> GetProductsByFilter(int filterId)
@@ -59,7 +60,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("productsByFilters")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductResponseModel>))]
         public async Task<JsonResult> GetProductsByFilters([FromQuery] int[] filterIds)
@@ -76,7 +77,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("filtersByCategory/{categoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FilterResponseModel>))]
         public async Task<JsonResult> GetFiltersByCategory(int categoryId)

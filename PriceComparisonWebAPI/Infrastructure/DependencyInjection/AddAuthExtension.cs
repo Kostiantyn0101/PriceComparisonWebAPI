@@ -1,7 +1,8 @@
 ﻿using Domain.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using System.Text;
 
 namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
@@ -31,7 +32,7 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
                     ValidAudience = builder.Configuration["JWT:Audience"],
                     ValidIssuer = builder.Configuration["JWT:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
-                    
+
                     ClockSkew = TimeSpan.Zero
                 };
 
@@ -41,10 +42,19 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
             {
                 options.AddPolicy("AdminRights", policy =>
                     policy.RequireRole(Role.Admin));
+                options.AddPolicy("SellerAndAdminRights", policy =>
+                    policy.RequireRole(Role.Seller, Role.Admin));
                 options.AddPolicy("StandardRights", policy =>
                     policy.RequireRole(Role.Admin, Role.User, Role.Seller));
-                options.AddPolicy("SellerRights", policy =>
-                    policy.RequireRole(Role.Seller));
+            });
+
+            builder.Services.AddControllers(options =>
+            {
+                var defaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                options.Filters.Add(new AuthorizeFilter(defaultPolicy)); // Global authorization filter
             });
         }
     }

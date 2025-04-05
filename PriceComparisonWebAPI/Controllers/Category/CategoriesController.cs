@@ -5,12 +5,12 @@ using Domain.Models.Request.Categories;
 using Domain.Models.Response;
 using Domain.Models.Response.Categories;
 using Domain.Models.SuccessCodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace PriceComparisonWebAPI.Controllers.Category
 {
-    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -20,6 +20,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
         private readonly ILogger<CategoriesController> _logger;
         private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
+
 
         public CategoriesController(ILogger<CategoriesController> logger,
             ICategoryService categoryService,
@@ -32,6 +33,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
         }
 
 
+        [AllowAnonymous]
         [HttpGet("getallparents")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
         public async Task<JsonResult> GetAllParentCategories()
@@ -43,7 +45,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("getbyparent/{parentCategoryId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
         public async Task<JsonResult> GetCategoryByParent(int parentCategoryId)
@@ -55,7 +57,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("getbyproduct/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryResponseModel))]
         public async Task<JsonResult> GetCategoryByProduct(int productId)
@@ -75,7 +77,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("getall")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryResponseModel>))]
         public async Task<JsonResult> GetAllCategories()
@@ -87,7 +89,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryResponseModel))]
         public async Task<JsonResult> GetCategoryById(int id)
@@ -104,7 +106,21 @@ namespace PriceComparisonWebAPI.Controllers.Category
             };
         }
 
+        [AllowAnonymous]
+        [HttpGet("popular")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CategoryResponseModel>))]
+        public async Task<JsonResult> GetPopularCategories()
+        {
+            var categories = await _categoryService.GetQuery()
+                .Take(5)
+                .ToListAsync();
+            return new JsonResult(_mapper.Map<List<CategoryResponseModel>>(categories))
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
 
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateCategory([FromBody] CategoryCreateRequestModel categoryRequest)
@@ -120,7 +136,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateCategory([FromForm] CategoryUpdateRequestModel categoryRequest)
@@ -136,7 +152,7 @@ namespace PriceComparisonWebAPI.Controllers.Category
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK, null, result.Data);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteCategory(int id)
@@ -150,20 +166,6 @@ namespace PriceComparisonWebAPI.Controllers.Category
             }
 
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
-        }
-
-
-        [HttpGet("popular")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CategoryResponseModel>))]
-        public async Task<JsonResult> GetPopularCategories()
-        {
-            var categories = await _categoryService.GetQuery()
-                .Take(5)
-                .ToListAsync();
-            return new JsonResult(_mapper.Map<List<CategoryResponseModel>>(categories))
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
         }
     }
 }

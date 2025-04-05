@@ -4,7 +4,7 @@ using Domain.Models.Request.Products;
 using Domain.Models.Response;
 using Domain.Models.Response.Products;
 using Domain.Models.SuccessCodes;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.Products
@@ -25,7 +25,8 @@ namespace PriceComparisonWebAPI.Controllers.Products
             _colorService = colorService;
         }
 
-        
+
+        [AllowAnonymous]
         [HttpGet("getall")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ColorResponseModel>))]
         public async Task<JsonResult> GetAllColors()
@@ -42,7 +43,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ColorResponseModel))]
         public async Task<JsonResult> GetColorById(int id)
@@ -59,7 +60,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [AllowAnonymous]
         [HttpGet("byproductgroup")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductColorResponseModel>))]
         public async Task<JsonResult> GetColorsByProductGroupId([FromQuery] ProductColorRequestModel requestModel)
@@ -76,7 +77,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> CreateColor([FromBody] ColorCreateRequestModel request)
@@ -90,7 +91,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpPut("update")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateColor([FromBody] ColorUpdateRequestModel request)
@@ -104,7 +105,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
         }
 
-
+        [Authorize(Policy = "AdminRights")]
         [HttpDelete("delete/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> DeleteColor(int id)

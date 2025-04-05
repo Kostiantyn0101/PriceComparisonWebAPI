@@ -34,7 +34,6 @@ namespace PriceComparisonWebAPI.Controllers
             return await _authService.LoginAsync(request);
         }
 
-
         [AllowAnonymous]
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
@@ -42,7 +41,6 @@ namespace PriceComparisonWebAPI.Controllers
         {
             return await _authService.RegisterAsync(request);
         }
-
 
         [AllowAnonymous]
         [HttpPost("refresh-token")]
@@ -52,8 +50,7 @@ namespace PriceComparisonWebAPI.Controllers
             return await _authService.RefreshTokenAsync(request);
         }
 
-
-        [AllowAnonymous]
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("update-roles")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UpdateUserRoles([FromBody] UpdateUserRolesRequestModel request)
@@ -64,8 +61,7 @@ namespace PriceComparisonWebAPI.Controllers
                 GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
         }
 
-
-        [AllowAnonymous]
+        [Authorize(Policy = "AdminRights")]
         [HttpGet("get-all-roles")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<string>))]
         public async Task<JsonResult> GetAllRoles()
@@ -77,8 +73,7 @@ namespace PriceComparisonWebAPI.Controllers
             };
         }
 
-
-        [AllowAnonymous]
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("crate-role")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> GetAllRoles(string roleName)

@@ -5,12 +5,12 @@ using Domain.Models.Request.Feedback;
 using Domain.Models.Response;
 using Domain.Models.Response.Feedback;
 using Domain.Models.SuccessCodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 
 namespace PriceComparisonWebAPI.Controllers.Products
 {
-    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(GeneralApiResponseModel))]
@@ -20,13 +20,15 @@ namespace PriceComparisonWebAPI.Controllers.Products
         private readonly IFeedbackService _feedbackService;
         private readonly ILogger<FeedbackController> _logger;
 
+
         public FeedbackController(IFeedbackService feedbackService, ILogger<FeedbackController> logger)
         {
             _feedbackService = feedbackService;
             _logger = logger;
         }
 
-
+        
+        [AllowAnonymous]
         [HttpGet("{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackResponseModel>))]
         public async Task<JsonResult> GetFeedbacksByBaseProductId(int baseProductId)
@@ -43,49 +45,7 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
-
-        [HttpPost("create")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> CreateFeedback([FromBody] FeedbackCreateRequestModel request)
-        {
-            var result = await _feedbackService.CreateAsync(request);
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(result.Exception, AppErrors.General.CreateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
-        }
-
-
-        [HttpPut("update")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> UpdateFeedback([FromBody] FeedbackUpdateRequestModel request)
-        {
-            var result = await _feedbackService.UpdateAsync(request);
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
-        }
-
-
-        [HttpDelete("delete/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
-        public async Task<JsonResult> DeleteFeedback(int id)
-        {
-            var result = await _feedbackService.DeleteAsync(id);
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(result.Exception, AppErrors.General.DeleteError);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
-        }
-
-
+        [AllowAnonymous]
         [HttpGet("paginated/{baseProductId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<FeedbackResponseModel>))]
         public async Task<JsonResult> GetFeedbacksByBaseProductIdPaginated(int baseProductId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
@@ -105,5 +65,46 @@ namespace PriceComparisonWebAPI.Controllers.Products
             };
         }
 
+        [Authorize]
+        [HttpPost("create")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> CreateFeedback([FromBody] FeedbackCreateRequestModel request)
+        {
+            var result = await _feedbackService.CreateAsync(request);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.CreateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.CreateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.CreateSuccess, StatusCodes.Status200OK);
+        }
+
+        [Authorize(Policy = "AdminRights")]
+        [HttpPut("update")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> UpdateFeedback([FromBody] FeedbackUpdateRequestModel request)
+        {
+            var result = await _feedbackService.UpdateAsync(request);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.UpdateError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.UpdateSuccess, StatusCodes.Status200OK);
+        }
+
+        [Authorize(Policy = "AdminRights")]
+        [HttpDelete("delete/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
+        public async Task<JsonResult> DeleteFeedback(int id)
+        {
+            var result = await _feedbackService.DeleteAsync(id);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.DeleteError);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.DeleteError, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+            return GeneralApiResponseModel.GetJsonResult(AppSuccessCodes.DeleteSuccess, StatusCodes.Status200OK);
+        }
     }
 }

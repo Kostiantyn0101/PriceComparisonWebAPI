@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Xml.Linq;
 using BLL.Services.SellerServices;
 using Domain.Models.DBModels;
 using Domain.Models.Exceptions;
@@ -7,6 +6,7 @@ using Domain.Models.Request.Seller;
 using Domain.Models.Response;
 using Domain.Models.Response.Seller;
 using Domain.Models.SuccessCodes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PriceComparisonWebAPI.Controllers.Seller
@@ -28,6 +28,84 @@ namespace PriceComparisonWebAPI.Controllers.Seller
         }
 
 
+        [AllowAnonymous]
+        [HttpGet("{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
+        public async Task<JsonResult> GetSellerProductDetails(int productId)
+        {
+            var result = await _sellerProductDetailsService.GetSellerProductDetailsAsync(productId);
+
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [AllowAnonymous]
+        [HttpGet("minmaxprices/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SellerProductPricesResponseModel))]
+        public async Task<JsonResult> GetSellerProductPrices(int productId)
+        {
+            var result = await _sellerProductDetailsService.GetSellerProductPricesAsync(productId);
+
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return new JsonResult(result.Data)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [AllowAnonymous]
+        [HttpGet("byproductgroup")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
+        public async Task<JsonResult> GetSellerProductDetailsByProductGroup([FromQuery] SellerProductDetailsRequestModel model)
+        {
+            var result = await _sellerProductDetailsService.GetSellerProductDetailsByProductGroupAsync(model);
+
+            if (result == null || !result.Any())
+            {
+                _logger.LogError(AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
+            }
+
+            return new JsonResult(result)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [AllowAnonymous]
+        [HttpGet("paginated/{productId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
+        public async Task<JsonResult> GetSellerProductDetailsPaginated(int productId, [FromQuery] int page = 1, [FromQuery] int pageSize = 3)
+        {
+            Expression<Func<SellerProductDetailsDBModel, bool>> condition = p => p.ProductId == productId;
+
+            var result = await _sellerProductDetailsService.GetPaginatedSellerProductDetailsAsync(condition, page, pageSize);
+            if (!result.IsSuccess)
+            {
+                _logger.LogError(result.Exception, AppErrors.General.NotFound);
+                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
+            }
+
+            return new JsonResult(result.Data)
+            {
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        [Authorize(Policy = "AdminRights")]
         [HttpPost("upload-xml-file")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
@@ -51,7 +129,7 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
         }
 
-
+        [Authorize(Policy = "SellerAndAdminRights")]
         [HttpPost("upload-file")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GeneralApiResponseModel))]
         public async Task<JsonResult> UploadFile([FromForm] SellerProductXmlRequestModel request)
@@ -72,83 +150,6 @@ namespace PriceComparisonWebAPI.Controllers.Seller
             }
 
             return GeneralApiResponseModel.GetJsonResult(AppErrors.General.UpdateError, StatusCodes.Status400BadRequest, result.ErrorMessage);
-        }
-
-
-        [HttpGet("{productId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
-        public async Task<JsonResult> GetSellerProductDetails(int productId)
-        {
-            var result = await _sellerProductDetailsService.GetSellerProductDetailsAsync(productId);
-
-            if (result == null || !result.Any())
-            {
-                _logger.LogError(AppErrors.General.NotFound);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
-            }
-
-            return new JsonResult(result)
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
-        }
-
-
-        [HttpGet("minmaxprices/{productId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SellerProductPricesResponseModel))]
-        public async Task<JsonResult> GetSellerProductPrices(int productId)
-        {
-            var result = await _sellerProductDetailsService.GetSellerProductPricesAsync(productId);
-
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(AppErrors.General.NotFound);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-
-            return new JsonResult(result.Data)
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
-        }
-
-
-        [HttpGet("byproductgroup")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
-        public async Task<JsonResult> GetSellerProductDetailsByProductGroup([FromQuery] SellerProductDetailsRequestModel model)
-        {
-            var result = await _sellerProductDetailsService.GetSellerProductDetailsByProductGroupAsync(model);
-
-            if (result == null || !result.Any())
-            {
-                _logger.LogError(AppErrors.General.NotFound);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest);
-            }
-
-            return new JsonResult(result)
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
-        }
-
-
-        [HttpGet("paginated/{productId}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SellerProductDetailsResponseModel>))]
-        public async Task<JsonResult> GetSellerProductDetailsPaginated(int productId, [FromQuery] int page = 1, [FromQuery] int pageSize = 3)
-        {
-            Expression<Func<SellerProductDetailsDBModel, bool>> condition = p => p.ProductId == productId;
-
-            var result = await _sellerProductDetailsService.GetPaginatedSellerProductDetailsAsync(condition, page, pageSize);
-            if (!result.IsSuccess)
-            {
-                _logger.LogError(result.Exception, AppErrors.General.NotFound);
-                return GeneralApiResponseModel.GetJsonResult(AppErrors.General.NotFound, StatusCodes.Status400BadRequest, result.ErrorMessage);
-            }
-
-            return new JsonResult(result.Data)
-            {
-                StatusCode = StatusCodes.Status200OK
-            };
         }
     }
 }
