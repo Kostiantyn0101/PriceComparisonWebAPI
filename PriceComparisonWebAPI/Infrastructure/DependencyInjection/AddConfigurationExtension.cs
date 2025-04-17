@@ -7,7 +7,8 @@ namespace PriceComparisonWebAPI.Infrastructure.DependencyInjection
         public static void AddConfiguration(this WebApplicationBuilder builder)
         {
             builder.Configuration.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: true);
 
             builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection(JwtConfiguration.Position));
             builder.Services.Configure<FileStorageConfiguration>(builder.Configuration.GetSection(FileStorageConfiguration.Position));
