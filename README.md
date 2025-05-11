@@ -70,7 +70,7 @@ dotnet restore
 
 ### 2. Configure secrets
 
-Create **PriceComparisonWebAPI/appsettings.Development.json** (this file is excluded via *.gitignore*).
+Create **PriceComparisonWebAPI/appsettings.Secrets.json** (this file is excluded via *.gitignore*).
 
 > 🔐 **Mandatory:** the API will not start without all three of these secrets:
 >
