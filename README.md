@@ -163,9 +163,9 @@ A quick‑start SQL script with schema **and sample data** is available in datab
 
 ## 🔗 Related repositories
 
-PriceComparison MVC Front‑end – ASP.NET MVC storefront: Kostiantyn0101/PriceComparison-UI-MVC
-
-PriceComparison Admin Panel – ASP.NET MVC admin dashboard: Kostiantyn0101/PriceComparison-UI-MVC-admin
+* **Backend API** – [Kostiantyn0101/PriceComparisonWebAPI](https://github.com/Kostiantyn0101/PriceComparisonWebAPI)
+* **Admin Panel** – [Kostiantyn0101/PriceComparison-UI-MVC-admin](https://github.com/Kostiantyn0101/PriceComparison-UI-MVC-admin)
+* **PriceComparison MVC Front‑end** – [Kostiantyn0101/PriceComparison-UI-MVC](https://github.com/Kostiantyn0101/PriceComparison-UI-MVC)
 
 ---
 
